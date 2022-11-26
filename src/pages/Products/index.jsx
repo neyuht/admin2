@@ -3,7 +3,8 @@ import DashboardHeader from "../../components/DashboardHeader";
 
 import ModalProduct from "../../components/ModalPro/ModalProduct";
 
-import all_products from "../../constants/products";
+// import all_products from "../../constants/products";
+import {getAllProduct} from "../../service/productService"
 import { calculateRange, sliceData } from "../../utils/table-pagination";
 import { Table } from "react-bootstrap";
 import "../styles.css";
@@ -13,13 +14,16 @@ import RefundedIcon from "../../assets/icons/refunded.svg";
 
 function Products() {
   const [search, setSearch] = useState("");
-  const [products, setProducts] = useState(all_products);
+  const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState([]);
 
   useEffect(() => {
-    setPagination(calculateRange(all_products, 7));
-    setProducts(sliceData(all_products, page, 7));
+    getAllProduct("").then(res=>{
+      setProducts(res.data.data.content)
+      console.log(res.data.data.content)
+
+    })
   }, []);
 
   // Search
@@ -41,7 +45,7 @@ function Products() {
   // Change Page
   const __handleChangePage = (new_page) => {
     setPage(new_page);
-    setProducts(sliceData(all_products, new_page, 7));
+    setProducts(sliceData(products, new_page, 7));
   };
 
   return (
@@ -68,14 +72,18 @@ function Products() {
                       <span>{order.name}</span>
                     </td>
                     <td>
-                      <span>{order.create}</span>
+                      <span>{new Date(order.createdAt).toLocaleDateString("vi-VN")}</span>
                     </td>
 
                     <td>
-                      <span>{order.status}</span>
+                      <span>{order.status == 1 ? "Pending" : "Done"}</span>
                     </td>
                     <td>
+<<<<<<< HEAD
                       <ModalProduct />
+=======
+                      <ModalView data={order.productVariants}/>
+>>>>>>> ee57d3825c06967f486698dcf3e2c2e80dacd0a8
                     </td>
                   </tr>
                 ))}
