@@ -4,7 +4,7 @@ import DashboardHeader from "../../components/DashboardHeader";
 import ModalProduct from "../../components/ModalPro/ModalProduct";
 
 // import all_products from "../../constants/products";
-import {getAllProduct} from "../../service/productService"
+import { getAllProduct } from "../../service/productService";
 import { calculateRange, sliceData } from "../../utils/table-pagination";
 import { Table } from "react-bootstrap";
 import "../styles.css";
@@ -19,11 +19,10 @@ function Products() {
   const [pagination, setPagination] = useState([]);
 
   useEffect(() => {
-    getAllProduct("").then(res=>{
-      setProducts(res.data.data.content)
-      console.log(res.data.data.content)
-
-    })
+    getAllProduct("").then((res) => {
+      setProducts(res.data.data.content);
+      console.log(res.data.data.content);
+    });
   }, []);
 
   // Search
@@ -72,14 +71,16 @@ function Products() {
                       <span>{order.name}</span>
                     </td>
                     <td>
-                      <span>{new Date(order.createdAt).toLocaleDateString("vi-VN")}</span>
+                      <span>
+                        {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+                      </span>
                     </td>
 
                     <td>
                       <span>{order.status == 1 ? "Pending" : "Done"}</span>
                     </td>
                     <td>
-                      <ModalView data={order.productVariants}/>
+                      <ModalView data={order.productVariants} />
                     </td>
                   </tr>
                 ))}
