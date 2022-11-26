@@ -9,6 +9,8 @@ import Orders from "./pages/Orders";
 import Products from "./pages/Products";
 import Categories from "./pages/Categories";
 import Login from "./pages/Login";
+import Pesudo from "./pages/Promotion/promotion";
+import Promo from "./components/Promo";
 
 function App() {
   return (
@@ -22,6 +24,7 @@ function App() {
             <Route exact path="/admin/orders" element={<Orders />} />
             <Route exact path="/admin/products" element={<Products />} />
             <Route exact path="/admin/categories" element={<Categories />} />
+            <Route exact path="/admin/promo" element={<Pesudo> <Promo/> </Pesudo>} />
             <Route exact path="/admin/login" element={<Login />} />
           </Routes>
         </div>

@@ -29,7 +29,7 @@ function Categories() {
             <h2>Orders List</h2>
           </div>
           <CategoryMd />
-          <table>
+          <table className="list-promotion">
             <thead>
               <tr>
                 <th>STT</th>

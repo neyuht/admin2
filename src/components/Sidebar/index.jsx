@@ -21,6 +21,7 @@ function SideBar({ menu }) {
   }, [location.pathname]);
 
   const __navigate = (id) => {
+    console.log(id);
     setActive(id);
   };
 
