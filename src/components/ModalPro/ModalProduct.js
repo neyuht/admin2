@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-function ModalViews() {
+function ModalProduct() {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -10,7 +10,7 @@ function ModalViews() {
   return (
     <>
       <Button variant="primary" onClick={handleShow}>
-        View
+        Viewaa
       </Button>
 
       <Modal show={show} onHide={handleClose} animation={false}>
@@ -31,4 +31,4 @@ function ModalViews() {
   );
 }
 
-export default ModalViews;
+export default ModalProduct;

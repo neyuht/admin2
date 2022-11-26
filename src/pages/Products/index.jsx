@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DashboardHeader from "../../components/DashboardHeader";
 
-import ModalView from "../../components/ModalPro/ModalView";
+import ModalProduct from "../../components/ModalPro/ModalProduct";
 
 import all_products from "../../constants/products";
 import { calculateRange, sliceData } from "../../utils/table-pagination";
@@ -75,7 +75,7 @@ function Products() {
                       <span>{order.status}</span>
                     </td>
                     <td>
-                      <ModalView />
+                      <ModalProduct />
                     </td>
                   </tr>
                 ))}
