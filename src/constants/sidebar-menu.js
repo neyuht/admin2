@@ -7,26 +7,32 @@ const sidebar_menu = [
   {
     id: 1,
     icon: DashboardIcon,
-    path: "/categorys",
+    path: "/admin/categories",
     title: "Category",
   },
   {
     id: 2,
     icon: ProductIcon,
-    path: "/products",
+    path: "/admin/products",
     title: "Products",
   },
   {
     id: 3,
     icon: ShippingIcon,
-    path: "/orders",
+    path: "/admin/orders",
     title: "List Oder",
   },
   {
     id: 4,
     icon: UserIcon,
-    path: "/promo",
+    path: "/admin/promo",
     title: "Promo",
+  },
+  {
+    id: 5,
+    icon: ProductIcon,
+    path: "/admin/login",
+    title: "Login",
   },
 ];
 
