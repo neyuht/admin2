@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DashboardHeader from "../../components/DashboardHeader";
 
-import ModalProduct from "../../components/ModalPro/ModalProduct";
+import ModalView from "../../components/ModalPro/ModalProduct";
 
 // import all_products from "../../constants/products";
 import { getAllProduct } from "../../service/productService";

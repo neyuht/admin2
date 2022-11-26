@@ -18,12 +18,11 @@ function App() {
 
         <div className="dashboard-body">
           <Routes>
-
-            <Route exact path="" element={<Categories />} />
+            <Route exact path="/" element={<Categories />} />
             <Route exact path="/admin/orders" element={<Orders />} />
             <Route exact path="/admin/products" element={<Products />} />
             <Route exact path="/admin/categories" element={<Categories />} />
-            <Route path = "/admin/login" element={<Login />}></Route>
+            <Route exact path="/admin/login" element={<Login />} />
           </Routes>
         </div>
       </div>
