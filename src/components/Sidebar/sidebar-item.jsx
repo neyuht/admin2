@@ -6,10 +6,10 @@ import './styles.css';
 const SideBarItem = ({ item, active }) => {
     const [hover, setHover] = useState(false);
     return (
-        <Link 
-            to={item.path} 
+        <Link
+            to={item.path}
             className={active ? 'sidebar-item-active' : 'sidebar-item'} >
-                <img 
+                <img
                     src={item.icon}
                     alt={`icon-${item.icon}`}
                     className='sidebar-item-icon' />
