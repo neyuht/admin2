@@ -13,10 +13,13 @@ import DashboardHeader from "../../components/DashboardHeader";
 function Categories() {
   const [data, setData] = useState([]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(async () => {
+  const callAPI = async (callback) => {
     const res = await getAllCategory();
-    setData(res.data.data);
+    callback(res.data.data);
+  }
+
+  useEffect(() => {
+    callAPI(setData);
   }, []);
 
   return (
