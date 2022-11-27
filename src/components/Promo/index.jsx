@@ -2,14 +2,18 @@ import FormDataItem from "../../scripts/components/form-data-item";
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import Select from "../../scripts/components/select";
+import Overlay from "../Overlay/overlay";
 import PromoItem from "../../scripts/components/l-promo-item";
 import PopUpPromo from "./promo-overlay";
 import { useEffect, useState } from "react";
-import {validateDataForm } from "../../scripts/helpers/validation";
-import axiosClient from '../../scripts/helpers/config'
-import React from 'react';
-
-import './style.css';
+import { validateDataForm } from "../../scripts/helpers/validation";
+import axiosClient from "../../scripts/helpers/config";
+import React from "react";
+import Buttons from "react-bootstrap/Button";
+import "./style.css";
+import { useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+import { adminLogin } from "../../service/authService";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -32,13 +36,16 @@ function Promo() {
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState(true);
   const [filter, setFilter] = useState("");
+  const [search, setSearch] = useSearchParams({});
   const [indexPagin, setIndexPagin] = useState(1);
   const [promotions, setPromotions] = useState([]);
   const [pagins, setPagins] = useState([1]);
   const [timer, setTimer] = useState("");
   const [overlay, setOverlay] = useState();
+  const [popup, setPopup] = useState(false);
 
   const onSubmit = (event) => {
+    console.log(adminLogin);
     event.preventDefault();
     const obj = {
       code,
@@ -46,172 +53,238 @@ function Promo() {
       amount,
       maxAmount,
       startDate: (() => {
-        const date = new Date(startDate)
-        return `${date.getDate() >= 10? date.getDate() : `0${date.getDate()}` }-${date.getMonth()+1 >= 10 ? date.getMonth()+1 : `0${date.getMonth()}`}-${date.getFullYear()}`
+        const date = new Date(startDate);
+        return `${
+          date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
+        }-${
+          date.getMonth() + 1 >= 10
+            ? date.getMonth() + 1
+            : `0${date.getMonth()}`
+        }-${date.getFullYear()}`;
       })(),
       endDate: (() => {
-        const date = new Date(endDate)
-        return `${date.getDate() >= 10? date.getDate() : `0${date.getDate()}` }-${date.getMonth()+1 >= 10 ? date.getMonth()+1 : `0${date.getMonth()}`}-${date.getFullYear()}`
+        const date = new Date(endDate);
+        return `${
+          date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
+        }-${
+          date.getMonth() + 1 >= 10
+            ? date.getMonth() + 1
+            : `0${date.getMonth()}`
+        }-${date.getFullYear()}`;
       })(),
       status,
     };
 
     const valid = validateDataForm(obj);
     if (valid) {
-      axiosClient.post(`${process.env.REACT_APP_URL}/promotion`, {
-        id: 0,
-        type: 0,
-        ...obj,
+      axiosClient
+        .post(`${process.env.REACT_APP_URL}/promotion`, {
+          id: 0,
+          type: 0,
+          ...obj,
+        })
+        .then((res) => {
+          const _temps = [
+            ...promotions,
+            {
+              ...res.data,
+              startDate: (() => {
+                const date = new Date(startDate);
+                return `${
+                  date.getMonth() + 1 >= 10
+                    ? date.getMonth() + 1
+                    : `0${date.getMonth()}`
+                }-${
+                  date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
+                }-${date.getFullYear()}`;
+              })(),
+              endDate: (() => {
+                const date = new Date(endDate);
+                return `${
+                  date.getMonth() + 1 >= 10
+                    ? date.getMonth() + 1
+                    : `0${date.getMonth()}`
+                }-${
+                  date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
+                }-${date.getFullYear()}`;
+              })(),
+            },
+          ];
 
-      }).then(res => {
-        console.log("Success");
-      })
-      .catch(err => {
-        console.log(err);
-      })
-
-      const _temps = [...promotions, {
-        ...obj,
-        startDate: (() => {
-          const date = new Date(startDate)
-          return `${date.getMonth()+1 >= 10? date.getMonth()+1 : `0${date.getMonth()}` }-${date.getDate()>= 10 ? date.getDate(): `0${date.getDate()}`}-${date.getFullYear()}`
-        })(),
-        endDate: (() => {
-          const date = new Date(endDate)
-          return `${date.getMonth()+1 >= 10? date.getMonth()+1 : `0${date.getMonth()}` }-${date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`}-${date.getFullYear()}`
-        })(),
-      }];
-
-      const sizePagin =
-        _temps.length % size === 0 ? _temps.length / size : parseInt(_temps.length / size) + 1;
-      const _tempsPagin = new Array(sizePagin).fill(1);
-      setPagins(_tempsPagin);
-      setPromotions(_temps);
-      setCode("");
-      setPercent(0);
-      setAmount("");
-      setMaxAmount("");
-      setEndDate("");
-      setStartDate("");
-      setStatus(true);
+          const sizePagin =
+            _temps.length % size === 0
+              ? _temps.length / size
+              : parseInt(_temps.length / size) + 1;
+          const _tempsPagin = new Array(sizePagin).fill(1);
+          setPagins(_tempsPagin);
+          setPromotions(_temps);
+          setCode("");
+          setPercent(0);
+          setAmount("");
+          setMaxAmount("");
+          setEndDate("");
+          setStartDate("");
+          setStatus(true);
+          setPopup(false);
+          console.log("Success");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
 
   const onSearch = async (e) => {
+    const text = e.target.value;
     if (timer) clearTimeout(timer);
     const _timer = setTimeout(() => {
-      console.log(e.target.value);
+      const url = `${process.env.REACT_APP_URL}/promotion${
+        text ? "?code=" + text : ""
+      }`;
+      console.log("URL", url);
+      axiosClient
+        .get(url)
+        .then((response) => {
+          const datas = response.data.content;
+          setPromotions(datas);
+          console.log(response);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }, 600);
     setTimer(_timer);
-    setFilter(e.target.value);
+    setFilter(text);
+    setSearch({
+      code: text,
+    });
   };
 
-  const openSetting = async(e, id) => {
+  const openSetting = async (e, id) => {
     const promo = promotions.find((promo) => promo.id === id);
     setOverlay(promo);
   };
 
-useEffect(() => {
-  axiosClient.get(`${process.env.REACT_APP_URL}/promotion`)
-          .then(response => {
-            setPromotions(response.data.content)
-          }).catch(err => {
-            console.log(err);
-          })
-},[])
+  const popupAddPromo = useCallback(() => {
+    setPopup((prev) => !prev);
+  }, []);
 
-return (
+  useEffect(() => {
+    axiosClient
+      .get(`${process.env.REACT_APP_URL}/promotion`)
+      .then((response) => {
+        setPromotions(response.data.content);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  return (
     <section className={"promo-wrapper"}>
       <section className={"container-main"}>
-        <section className={"section-form"}>
-          <form action="#" className={"form-wrapper"} onSubmit={onSubmit}>
-            <h2 className={"heading"}>add promotion</h2>
-            <section className={"form-data"}>
-              <FormDataItem label="code" id="code">
-                <Input
-                  type="text"
-                  name="code"
-                  value={code}
-                  placeholder="Enter code.."
-                  onChange={(event) => {
-                    setCode(event.target.value);
-                  }}
-                />
-              </FormDataItem>
-              <div className={"form-group"}>
-                <FormDataItem label="percent" id="percent">
-                  <Select
-                    datas={percents}
-                    name="percent"
-                    value={percent}
-                    onChange={(event) => {
-                      setPercent(event.target.value);
-                    }}
-                  />
-                </FormDataItem>
-                <FormDataItem label="status" id="status">
-                  <Select
-                    datas={statuss}
-                    name="status"
-                    value={status}
-                    onChange={(event) => {
-                      setStatus(event.target.value);
-                    }}
-                  />
-                </FormDataItem>
-              </div>
-              <div className={"form-group"}>
-                <FormDataItem label="amount" id="amount">
-                  <Input
-                    type="text"
-                    name="amount"
-                    value={amount}
-                    placeholder="Enter amount.."
-                    onChange={(event) => {
-                      setAmount(event.target.value);
-                    }}
-                  />
-                </FormDataItem>
-                <FormDataItem label="max amount" id="maxAmount">
-                  <Input
-                    type="text"
-                    name="maxAmount"
-                    value={maxAmount}
-                    placeholder="Enter max amount.."
-                    onChange={(event) => {
-                      setMaxAmount(event.target.value);
-                    }}
-                  />
-                </FormDataItem>
-              </div>
-              <div className={"form-group"}>
-                <FormDataItem label="startDate" id="startDate">
-                  <Input
-                    type="date"
-                    name="startDate"
-                    value={startDate}
-                    onChange={(event) => {
-                      setStartDate(event.target.value);
-                    }}
-                  />
-                </FormDataItem>
-                <FormDataItem label="endDate" id="endDate">
-                  <Input
-                    type="date"
-                    name="endDate"
-                    value={endDate}
-                    onChange={(event) => {
-                      setEndDate(event.target.value);
-                    }}
-                  />
-                </FormDataItem>
-              </div>
+        {popup && (
+          <Overlay onClick={popupAddPromo}>
+            <section
+              className={"section-form"}
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <form action="#" className={"form-wrapper"} onSubmit={onSubmit}>
+                <h2 className={"heading"}>add promotion</h2>
+                <section className={"form-data"}>
+                  <FormDataItem label="code" id="code">
+                    <Input
+                      type="text"
+                      name="code"
+                      value={code}
+                      placeholder="Enter code.."
+                      onChange={(event) => {
+                        setCode(event.target.value);
+                      }}
+                    />
+                  </FormDataItem>
+                  <div className={"form-group"}>
+                    <FormDataItem label="percent" id="percent">
+                      <Select
+                        datas={percents}
+                        name="percent"
+                        value={percent}
+                        onChange={(event) => {
+                          setPercent(event.target.value);
+                        }}
+                      />
+                    </FormDataItem>
+                    <FormDataItem label="status" id="status">
+                      <Select
+                        datas={statuss}
+                        name="status"
+                        value={status}
+                        onChange={(event) => {
+                          setStatus(event.target.value);
+                        }}
+                      />
+                    </FormDataItem>
+                  </div>
+                  <div className={"form-group"}>
+                    <FormDataItem label="amount" id="amount">
+                      <Input
+                        type="text"
+                        name="amount"
+                        value={amount}
+                        placeholder="Enter amount.."
+                        onChange={(event) => {
+                          setAmount(event.target.value);
+                        }}
+                      />
+                    </FormDataItem>
+                    <FormDataItem label="max amount" id="maxAmount">
+                      <Input
+                        type="text"
+                        name="maxAmount"
+                        value={maxAmount}
+                        placeholder="Enter max amount.."
+                        onChange={(event) => {
+                          setMaxAmount(event.target.value);
+                        }}
+                      />
+                    </FormDataItem>
+                  </div>
+                  <div className={"form-group"}>
+                    <FormDataItem label="startDate" id="startDate">
+                      <Input
+                        type="date"
+                        name="startDate"
+                        value={startDate}
+                        onChange={(event) => {
+                          setStartDate(event.target.value);
+                        }}
+                      />
+                    </FormDataItem>
+                    <FormDataItem label="endDate" id="endDate">
+                      <Input
+                        type="date"
+                        name="endDate"
+                        value={endDate}
+                        onChange={(event) => {
+                          setEndDate(event.target.value);
+                        }}
+                      />
+                    </FormDataItem>
+                  </div>
+                </section>
+                <Button type="submit" title="submit" onClick={onSubmit} />
+              </form>
             </section>
-            <Button type="submit" title="submit" onClick={onSubmit} />
-          </form>
-        </section>
+          </Overlay>
+        )}
         <section className={"section-list"}>
           <section className={"list-promo"}>
+            <Buttons variant="primary" onClick={popupAddPromo}>
+              Add New Product
+            </Buttons>
+
             <section className={"filter-promo"}>
               <h2 className="heading">list promotion</h2>
               <Input
@@ -237,10 +310,19 @@ return (
                 </thead>
                 <tbody>
                   {promotions.map((promotion, index) => {
-                    if (indexPagin * size - size <= index && index < size * indexPagin) {
+                    if (
+                      indexPagin * size - size <= index &&
+                      index < size * indexPagin
+                    ) {
                       console.log(promotion.endDate);
-                      console.log((new Date(promotion.endDate)).toLocaleString('en-GB').split(',')[0]);
-                      console.log(new Date().toLocaleString('en-GB').split(',')[0]);
+                      console.log(
+                        new Date(promotion.endDate)
+                          .toLocaleString("en-GB")
+                          .split(",")[0]
+                      );
+                      console.log(
+                        new Date().toLocaleString("en-GB").split(",")[0]
+                      );
                       return (
                         <PromoItem
                           id={promotion.id}
@@ -248,9 +330,20 @@ return (
                           percent={promotion.percent}
                           amount={promotion.amount}
                           maxAmount={promotion.maxAmount}
-                          startDate={(new Date(promotion.startDate)).toLocaleDateString('en-GB')}
-                          expire={(new Date(promotion.endDate)).toLocaleDateString('en-GB')}
-                          status={(new Date(promotion.endDate)).toLocaleString('en-GB').split(',')[0] === new Date().toLocaleString('en-GB').split(',')[0] ? 'Expired' : 'Available'}
+                          startDate={new Date(
+                            promotion.startDate
+                          ).toLocaleDateString("en-GB")}
+                          expire={new Date(
+                            promotion.endDate
+                          ).toLocaleDateString("en-GB")}
+                          status={
+                            new Date(promotion.endDate)
+                              .toLocaleString("en-GB")
+                              .split(",")[0] ===
+                            new Date().toLocaleString("en-GB").split(",")[0]
+                              ? "Expired"
+                              : "Available"
+                          }
                           onClick={openSetting}
                         />
                       );
@@ -263,9 +356,9 @@ return (
             <ul className={"paginations"}>
               {pagins.map((item, index) => (
                 <li
-                  className={`${"pagin-item"} ${
-                    `${indexPagin === index + 1 ? "active" : ""}`
-                  }`}
+                  className={`${"pagin-item"} ${`${
+                    indexPagin === index + 1 ? "active" : ""
+                  }`}`}
                 >
                   <Button
                     type={"text"}
@@ -280,7 +373,11 @@ return (
           </section>
         </section>
       </section>
-      {overlay && <PopUpPromo {...overlay} onClick={setOverlay} />}
+      {overlay && (
+        <Overlay onClick={setOverlay}>
+          <PopUpPromo {...overlay} />
+        </Overlay>
+      )}
     </section>
   );
 }

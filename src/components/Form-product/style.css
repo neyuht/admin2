@@ -1,0 +1,156 @@
+.main-wrapper {
+  padding: 50px 20px;
+}
+
+.form-products {
+  margin: auto;
+  width: fit-content;
+  padding: 35px 40px;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  background-color: #fff;
+}
+
+.form-information {
+  display: flex;
+  gap: 40px;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-content .form-group {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: sans-serif;
+  font-size: 16px;
+}
+
+.form-content .form-group::placeholder {
+  font-family: sans-serif;
+}
+
+.form-content .form-group .products-input {
+  font-family: sans-serif;
+  padding: 0 20px;
+  border-radius: 8px;
+  background-color: #eee;
+}
+
+.form-content .form-group select {
+  font-family: sans-serif;
+  height: 50px;
+  border-radius: 8px;
+  padding: 0 20px;
+  border: none;
+  background-color: #eee;
+  font-size: 16px;
+  outline: none;
+  color: #757575;
+}
+
+.form-content .form-group textarea {
+  font-family: sans-serif;
+  height: 100px;
+  border-radius: 8px;
+  padding: 10px 20px;
+  border: none;
+  background-color: #eee;
+  font-size: 16px;
+  outline: none;
+  color: #757575;
+  resize: none;
+}
+
+.checkbox-related .products-related {
+  width: 20px;
+}
+
+.group-details .list-details {
+  margin-bottom: 10px;
+}
+
+.list-details-cover {
+  display: flex;
+  flex-direction: row;
+  box-shadow: rgb(0 0 0 / 5%) 0px 6px 24px 0px, rgb(0 0 0 / 8%) 0px 0px 0px 1px;
+  margin-bottom: 2px;
+}
+
+.list-details-cover .details-key {
+  background-color: #eee;
+}
+
+.list-details-cover .details-key,
+.list-details-cover .details-description {
+  padding: 5px;
+  width: 225px;
+  width: 50%;
+  border-radius: 0;
+}
+
+.products-details {
+  display: flex;
+  flex-direction: row;
+  box-shadow: rgb(0 0 0 / 5%) 0px 6px 24px 0px, rgb(0 0 0 / 8%) 0px 0px 0px 1px;
+}
+
+.products-details .details-key {
+  width: 50%;
+  background-color: #eee;
+  border-radius: 0;
+}
+
+.products-details .details-value {
+  width: 50%;
+  border-radius: 0;
+  background-color: #fff;
+}
+
+.form-img .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-img .form-group .images {
+  width: 250px;
+  height: 250px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+}
+
+.form-cta {
+  display: flex;
+  gap: 15px;
+}
+
+.form-cta .btn {
+  font-weight: bold;
+  padding: 12px 30px;
+  cursor: pointer;
+  outline: none;
+  border-radius: 5px;
+  background-color: #fff;
+  border: 1px solid #28a745;
+}
+
+.form-cta .btn-create {
+  background-color: #46d267;
+  border-color: #46d267;
+  color: white;
+  width: 60%;
+}
+
+.form-cta .btn-create:hover {
+  background-color: #76d88d;
+}

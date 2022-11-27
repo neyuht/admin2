@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 
-
 import all_products from "../../constants/products";
 import { calculateRange, sliceData } from "../../utils/table-pagination";
 import "../styles.css";
-import {adminLogin} from "../../service/authService"
+import { adminLogin } from "../../service/authService";
 
 function Login() {
   const [search, setSearch] = useState("");
@@ -13,13 +12,13 @@ function Login() {
 
   useEffect(() => {
     const data = {
-        email: "admin",
-        password: "123456"
-    }
-    adminLogin(data).then(res=>{
-        localStorage.setItem("token", "Bearer " + res.data.data)
-        console.log(localStorage.getItem("token"))
-    })
+      email: "admin",
+      password: "123456",
+    };
+    adminLogin(data).then((res) => {
+      localStorage.setItem("token", "Bearer " + res.data.data);
+      console.log(localStorage.getItem("token"));
+    });
   }, []);
 
   // Search
@@ -46,7 +45,7 @@ function Login() {
 
   return (
     <>
-        <h1>Logged in</h1>
+      <h1>Logged in</h1>
     </>
   );
 }

@@ -8,6 +8,7 @@ import "../styles.css";
 import DoneIcon from "../../assets/icons/done.svg";
 import CancelIcon from "../../assets/icons/cancel.svg";
 import RefundedIcon from "../../assets/icons/refunded.svg";
+import DoughnutChart from "./abc";
 
 function Orders() {
   const [search, setSearch] = useState("");
@@ -48,6 +49,7 @@ function Orders() {
       <DashboardHeader btnText="New Order" />
 
       <div className="dashboard-content-container">
+        <DoughnutChart></DoughnutChart>
         <div className="dashboard-content-header">
           <h2>Orders List</h2>
           <div className="dashboard-content-search">

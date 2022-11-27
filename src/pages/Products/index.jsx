@@ -11,6 +11,7 @@ import "../styles.css";
 import DoneIcon from "../../assets/icons/done.svg";
 import CancelIcon from "../../assets/icons/cancel.svg";
 import RefundedIcon from "../../assets/icons/refunded.svg";
+import FormProducts from '../../components/Form-product/index';
 
 function Products() {
   const [search, setSearch] = useState("");
@@ -52,60 +53,12 @@ function Products() {
       <div className="dashboard-content">
         <DashboardHeader btnText="." />
         <div className="dashboard-content-container">
-          <div className="dashboard-content-header">
-            <h2>Products List</h2>
-          </div>
-          <table>
-            <thead>
-              <th>Name</th>
-              <th>Create</th>
-              <th>STATUS</th>
-              <th>Action</th>
-            </thead>
-
-            {products.length !== 0 ? (
-              <tbody>
-                {products.map((order, index) => (
-                  <tr key={index}>
-                    <td>
-                      <span>{order.name}</span>
-                    </td>
-                    <td>
-                      <span>
-                        {new Date(order.createdAt).toLocaleDateString("vi-VN")}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span>{order.status == 1 ? "Pending" : "Done"}</span>
-                    </td>
-                    <td>
-                      <ModalView data={order.productVariants} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            ) : null}
-          </table>
-          {products.length !== 0 ? (
-            <div className="dashboard-content-footer">
-              {pagination.map((item, index) => (
-                <span
-                  key={index}
-                  className={item === page ? "active-pagination" : "pagination"}
-                  onClick={() => __handleChangePage(item)}
-                >
-                  {item}
-                </span>
-              ))}
+            <div className="dashboard-content-header">
+                <h2>Promotion List</h2>
             </div>
-          ) : (
-            <div className="dashboard-content-footer">
-              <span className="empty-table">No data</span>
-            </div>
-          )}
+            <FormProducts></FormProducts>
         </div>
-      </div>
+    </div>
     </>
   );
 }
