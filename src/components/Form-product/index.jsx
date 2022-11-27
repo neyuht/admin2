@@ -141,7 +141,7 @@ function FormProducts({ fields }) {
               <div className={"form-img"}>
                 <div className={"form-group"}>
                   <div className={"images"}></div>
-                  <input name="image" type="file" className={"products-name"} />
+                  <input name="image" type="file" className={"products-name"} accept="image/png, image/jpeg" multiple/>
                 </div>
               </div>
             </div>
