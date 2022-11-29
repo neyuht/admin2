@@ -1,5 +1,5 @@
 import 'chart.js/auto';
-import { Chart } from 'react-chartjs-2';
+import { Chart, Line } from 'react-chartjs-2';
 import React from "react";
 import './style.css';
 
@@ -53,23 +53,46 @@ const dataBottom = {
     ]
 }
 
-function DoughnutChart() {
+const dataLine = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    datasets: [
+        {
+            label: 'Products',
+            data: [12, 19, 3, 5, 2, 3, 123, 200, 129, 500, 200, 100],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+            ],
+            borderWidth: 1,
+        }
+    ]
+};
+
+function ChartBar() {
     return (
-        <div className='chartBoard'>
+        <div className='chart-board'>
+            <div className='chart-earning-wrapper'>
+                <h2 className='chart-top-title'>Total Revenue</h2>
+                <Line width={"0%"} className='chart-earning' data={dataLine}/>
+            </div>
+           <div className='chart-products'>
             <div className='chart-top-seller'>
-                <h2 className='chart-top-title'>Best Selling6</h2>
-                <div className='chart-board'>
-                    <Chart className='chart-board-bottom' type='bar' data={dataTop} />
+                    <h2 className='chart-top-title'>Best Selling6</h2>
+                    <div className='chart-board'>
+                        <Chart className='chart-board-bottom' type='bar' data={dataTop} />
+                    </div>
                 </div>
-            </div>
-            <div className='chart-bottom-seller'>
-                <h2 className='chart-top-title'>Sản Phẩm Có số lượt mua thấp </h2>
-                <div className='chart-board'>
-                    <Chart  className='chart-board-bottom' type='bar' data={dataBottom}/>
+                <div className='chart-bottom-seller'>
+                    <h2 className='chart-top-title'>Sản Phẩm Có số lượt mua thấp </h2>
+                    <div className='chart-board'>
+                        <Chart  className='chart-board-bottom' type='bar' data={dataBottom}/>
+                    </div>
                 </div>
-            </div>
+           </div>
         </div>
     );
 }
 
-export default DoughnutChart;
+export default ChartBar;
