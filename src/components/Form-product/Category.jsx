@@ -15,7 +15,7 @@ function Category() {
   }, []);
 
   return (
-    <select name="selectCategory" id="" className={"products-category"}>
+    <select name="category" id="" className={"products-category"}>
       {categories.map((category) => (
         <option key={category.id} value={category.id}>
           {category.name}

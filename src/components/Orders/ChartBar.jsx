@@ -57,7 +57,7 @@ const dataLine = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     datasets: [
         {
-            label: 'Products',
+            label: 'Money earning a year',
             data: [12, 19, 3, 5, 2, 3, 123, 200, 129, 500, 200, 100],
             backgroundColor: [
                 'rgba(255, 99, 132, 0.5)',

@@ -6,59 +6,97 @@ import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import { validate } from "../../scripts/helpers/validation";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
-import './style.css';
+import Buttons from "react-bootstrap/Button";
+import ProductItem from "../../scripts/components/l-product-item";
+import "./style.css";
+import { useMemo } from "react";
+import Overlay from "../Overlay/overlay";
+import axiosClient from "../../scripts/helpers/config";
 
-const size = 10;
+const size = 5;
 
 function FormProducts({ fields }) {
   const [filter, setFilter] = useState("");
   const [indexPagin, setIndexPagin] = useState(1);
   const [isCheck, setIsChecked] = useState(false);
-  const ref = useRef("");
-  const [products, setProducts] = useState(new Array(20).fill(1));
-  const [pagins, setPagins] = useState([1]);
-  const [name, setName] = useState("");
-  const [status, setStatus] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
+  const [products, setProducts] = useState([]);
+  const name = useRef("");
+  const status = useRef("");
+  const category = useRef("");
+  const quantity = useRef("");
+  const description = useRef("");
+  const image = useRef("");
+  const unitPrice = useRef("");
+  const [detailsInfo, setDetailsInfo] = useState([]);
+  const [popup, setPopup] = useState(false);
 
-  const computePagins = useCallback((array) => {
+  const computePagins = useMemo(() => {
     const sizePagin =
-      array.length % size === 0 ? array.length / size : parseInt(array.length / size) + 1;
-    const _tempsPagin = new Array(sizePagin).fill(1);
-    setPagins(_tempsPagin);
-  }, []);
+      products.length % size === 0
+        ? products.length / size
+        : parseInt(products.length / size) + 1;
+    const _tempsPagin = new Array(sizePagin === 0 ? 1 : sizePagin).fill(1);
+    return _tempsPagin;
+  }, [products]);
 
   const onChange = () => {
     setIsChecked(!isCheck);
   };
 
-  const createNewProduct = (e) => {
+  const createNewProduct = async (e) => {
     e.preventDefault();
-    const form = document.forms[0];
-    const productName = form[0].value;
-    const selectStatus = form[1].value;
-    const selectCategory = form[2].value;
-    const description = form[3].value;
-    const imageTemp = form[5].files[0];
-    const image = imageTemp && imageTemp;
-    const obj = {
-      productName,
-      selectStatus,
-      selectCategory,
+    e.stopPropagation();
+    const myForm = document.forms["formAddProduct"];
+    const name = myForm["name"].value.trim();
+    const status = myForm["status"].value.trim();
+    const categoryId = myForm["category"].value;
+    const description = myForm["description"].value.trim();
+    const image = myForm["image"].files[0];
+    // selectCategory,
+    let obj = {
+      name,
+      status,
       description,
-      image,
+      categoryId,
     };
     const empty = validate(obj);
     const emptyLength = Object.keys(empty).length;
-    console.log(emptyLength);
-    if (!emptyLength) {
-      console.log("Don't send");
+    if (emptyLength) {
+      changeStyleElementByObject(empty, "boxShadow", "0 0 0.5mm red");
+      console.log(empty);
       return;
     }
-    console.log("Send");
-    const id = 1
+    const respone = await axiosClient.post(
+      `http://localhost:8080/api/v1/admin/products`,
+      {
+        ...obj,
+        productVariantList: [
+          {
+            quantity: 0,
+            unitPrice: 0,
+            description: "string",
+            productId: 0,
+            imageId: 0,
+          },
+        ],
+      }
+    );
+    const { id } = respone.data;
+    const formData = new FormData();
+    formData.append("image", image);
+    formData.append("destination", "images");
+    formData.append("create_thumbnail", true);
+    const response2 = await axiosClient.post(
+      `${process.env.REACT_APP_URL}/images?id=${id}&type=2`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    setProducts([...products, { ...obj, id }]);
+    // const id = 1;
     // send request image id = 1, type = 2, image = list anh
   };
 
@@ -66,96 +104,154 @@ function FormProducts({ fields }) {
     document.forms[1].reset();
   };
 
-  const handleDelete = (id) => {};
+  const handleDelete = useCallback((id) => {}, []);
 
-  const handleUpdate = (id) => {};
+  const handleUpdate = useCallback((id) => {}, []);
+  const handleSearch = useCallback((event) => {}, []);
 
-  useEffect(() => {
-    const _temps = [...products];
-    computePagins(_temps);
+  const openSetting = useCallback((e, id) => {
+    console.log(id);
   }, []);
+
+  // call api
+  useEffect(() => {}, []);
 
   return (
     <main className={"main-wrapper"}>
       <section className={"container-main"}>
-        <section className={"section-form"}>
-          <form
-            action=""
-            className={"form-products"}
-            onSubmit={createNewProduct}
-            enctype="multipart/form-data"
+        {popup && (
+          <Overlay
+            onClick={() => {
+              setPopup(false);
+            }}
           >
-            <div className={"form-information"}>
-              <div className={"form-content"}>
-                <div className={"form-group"}>
-                  <input
-                    ref={ref}
-                    type="text"
-                    className={"products-input products-name"}
-                    name="productName"
-                    placeholder="Product's Name"
-                  />
-                </div>
+            <section className={"section-form"}>
+              <form
+                name="formAddProduct"
+                action=""
+                className={"form-products"}
+                onSubmit={createNewProduct}
+                enctype="multipart/form-data"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <div className={"form-information"}>
+                  <div className={"form-content"}>
+                    <div className={"form-group"}>
+                      <label htmlFor="">Name</label>
+                      <input
+                        ref={name}
+                        type="text"
+                        className={"products-input products-input products-name"}
+                        name="name"
+                        placeholder="Name"
+                      />
+                    </div>
 
-                <div className={"form-group"} id="productStatus">
-                  <select name="selectStatus" id="" className={"products-status"}>
-                    <option value="0" ref={ref}>
-                      Available
-                    </option>
-                    <option value="1" ref={ref}>
-                      Sold Out
-                    </option>
-                  </select>
-                </div>
+                    <div className={"form-group-two"}>
+                      <div>
+                        <label htmlFor="">Quantity</label>
+                        <input
+                          ref={quantity}
+                          type="text"
+                          className={"products-input products-input products-quantity"}
+                          name="name"
+                          placeholder="Quantity"
+                        />
+                      </div>
 
-                <div className={"form-group"} id="productCategory">
-                  {<Category />}
-                </div>
+                      <div>
+                        <label htmlFor="">Price</label>
+                        <input
+                          ref={unitPrice}
+                          type="text"
+                          className={"products-input products-input products-price"}
+                          name="name"
+                          placeholder="Price"
+                        />
+                      </div>
+                    </div>
 
-                <div className={"form-group"}>
-                  <textarea
-                    name="description"
-                    ref={ref}
-                    type="text"
-                    className={"products-description"}
-                    placeholder="Product's Description"
-                  />
-                </div>
+                    <div className={"form-group-two"}>
+                      <div className={"form-status"} id="productStatus">
+                        <label htmlFor="">Status</label>
+                        <select
+                          ref={status}
+                          name="status"
+                          id=""
+                          className={"products-status"}
+                        >
+                          <option value="0">Available</option>
+                          <option value="1">Sold Out</option>
+                        </select>
+                      </div>
 
-                <div className={"form-group"}>
-                  <div className={"checkbox-related"}>
-                    <input
-                      type="checkbox"
-                      className={"products-input products-related"}
-                      placeholder="Product's Description"
-                      onChange={onChange}
-                      checked={isCheck}
-                    />
-                    <span> No related products</span>
+                      <div className={"form-category"} id="productCategory">
+                        <label htmlFor="">Category</label>
+                        {<Category />}
+                      </div>
+                    </div>
+
+                    <div className={"form-group"}>
+                      <label htmlFor="">Description</label>
+                      <textarea
+                        name="description"
+                        ref={description}
+                        type="text"
+                        className={"products-description"}
+                        placeholder="Product's Description"
+                      />
+                    </div>
+
+                      <label htmlFor="">Details</label>
+                      <DetailsTable
+                        detailsInfo={detailsInfo}
+                        setDetailsInfo={setDetailsInfo}
+                      />
+                  </div>
+
+                  <div className={"form-img"}>
+                    <div className={"form-group"}>
+                      <div className={"images"}></div>
+                      <input
+                        ref={image}
+                        name="image"
+                        type="file"
+                        className={"products-name"}
+                        accept="image/png, image/jpeg"
+                        multiple
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {isCheck && <DetailsTable />}
-              </div>
-
-              <div className={"form-img"}>
-                <div className={"form-group"}>
-                  <div className={"images"}></div>
-                  <input name="image" type="file" className={"products-name"} accept="image/png, image/jpeg" multiple/>
+                <div className={"form-cta"}>
+                  <button
+                    type="button"
+                    className={"btn btn-create"}
+                    onClick={createNewProduct}
+                  >
+                    Create
+                  </button>
                 </div>
-              </div>
-            </div>
-
-            <div className={"form-cta"}>
-              <button type="button" className={"btn btn-create"} onClick={createNewProduct}>
-                Create
-              </button>
-            </div>
-          </form>
-        </section>
-
+              </form>
+            </section>
+          </Overlay>
+        )}
         <section className={"section-list"}>
           <section className={"list-promo"}>
+            <Buttons
+              type="button"
+              title="submit"
+              variant="primary"
+              onClick={() => {
+                setPopup(true);
+              }}
+            >
+              Add New Product
+            </Buttons>
+
             <section className={"filter-promo"}>
               <h2 className="heading">list promotion</h2>
               <Input
@@ -176,12 +272,28 @@ function FormProducts({ fields }) {
                     <th>Category</th>
                   </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                  {products.map((product, index) => {
+                    if (
+                      index >= indexPagin * size - size &&
+                      index < indexPagin * size
+                    ) {
+                      return (
+                        <ProductItem id={product.id} onClick={openSetting} />
+                      );
+                    }
+                    return <></>;
+                  })}
+                </tbody>
               </table>
             </section>
             <ul className={"paginations"}>
-              {pagins.map((item, index) => (
-                <li className={`${"pagin-item"} ${`${indexPagin === index + 1 ? "active" : ""}`}`}>
+              {computePagins.map((item, index) => (
+                <li
+                  className={`${"pagin-item"} ${`${
+                    indexPagin === index + 1 ? "active" : ""
+                  }`}`}
+                >
                   <Button
                     type={"text"}
                     title={index + 1}
