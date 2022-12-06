@@ -2,10 +2,17 @@ import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
 import { useCallback, useState } from "react";
-import { validateDataForm } from "../../scripts/helpers/validation";
+import {
+  validate,
+  validateCode,
+  validateDataForm,
+  validateNumber,
+  validateOperator,
+} from "../../scripts/helpers/validation";
 import Select from "../../scripts/components/select";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
+import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -65,20 +72,44 @@ function PopUpPromo({
       startDate: startDateUpdate,
       endDate: expireUpdate,
     };
-    const valid = validateDataForm(obj);
 
-    if (valid) {
-      axiosClient
-        .put(`${process.env.REACT_APP_URL}/promotion/${id}`, obj)
-        .then((res) => {
-          console.log("success", res);
-
-          window.location.reload();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    changeStyleElementByObject(obj, "boxShadow", "0 0 0 0.3mm");
+    let result = validate(obj);
+    if (result.error) {
+      return;
     }
+
+    result = validateCode(codeUpdate);
+    console.log(result);
+    if (result.error) {
+      return;
+    }
+
+    result = validateNumber({
+      amount,
+      maxAmount,
+    });
+    if (result.error) {
+      return;
+    }
+    result = validateOperator({
+      amount,
+      maxAmount,
+    });
+    if (result.error) {
+      return;
+    }
+
+    axiosClient
+      .put(`${process.env.REACT_APP_URL}/promotion/${id}`, obj)
+      .then((res) => {
+        console.log("success", res);
+
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const onDelete = useCallback((id) => {
@@ -103,7 +134,7 @@ function PopUpPromo({
         <FormDataItem label="code" id="code">
           <Input
             type="text"
-            name="codeUpdate"
+            name="code"
             value={codeUpdate}
             placeholder="Enter code.."
             onChange={(event) => {
@@ -115,7 +146,7 @@ function PopUpPromo({
           <FormDataItem label="percent" id="percent">
             <Select
               datas={percents}
-              name="percentUpdate"
+              name="percent"
               value={percentUpdate}
               onChange={(event) => {
                 setPercent(event.target.value);
@@ -125,7 +156,7 @@ function PopUpPromo({
           <FormDataItem label="status" id="status">
             <Select
               datas={statuss}
-              name="statusUpdate"
+              name="status"
               value={statusUpdate}
               onChange={(event) => {
                 console.log(event.target.value);
@@ -138,7 +169,7 @@ function PopUpPromo({
           <FormDataItem label="amount" id="amount">
             <Input
               type="text"
-              name="amountUpdate"
+              name="amount"
               value={amountUpdate}
               placeholder="Enter amount.."
               onChange={(event) => {
@@ -149,7 +180,7 @@ function PopUpPromo({
           <FormDataItem label="max amount" id="maxAmount">
             <Input
               type="text"
-              name="maxAmountUpdate"
+              name="maxAmount"
               value={maxAmountUpdate}
               placeholder="Enter max amount.."
               onChange={(event) => {
@@ -162,17 +193,17 @@ function PopUpPromo({
           <FormDataItem label="startDate" id="startDate">
             <input
               type="date"
-              name="startDateUpdate"
+              name="startDate"
               value={startDateUpdate}
               onChange={(event) => {
                 setStartDate(event.target.value);
               }}
             />
           </FormDataItem>
-          <FormDataItem label="expire" id="expire">
+          <FormDataItem label="endDate" id="endDate">
             <input
               type="date"
-              name="expireUpdate"
+              name="endDate"
               value={expireUpdate}
               onChange={(event) => {
                 setExpires(event.target.value);

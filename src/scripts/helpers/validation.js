@@ -12,7 +12,11 @@ const validate = (obj) => {
       empty[key] = "Can't be left blank";
     }
   }
-  return empty;
+      changeStyleElementByObject(empty, "boxShadow", "0 0 0 0.3mm red");
+      return {
+        field:empty,
+        error:Boolean(Object.keys(empty).length)
+      }
 };
 
 /**
@@ -28,8 +32,43 @@ const validateNumber = (obj) => {
       notANumber[key] = "Not a number";
     }
   }
-  return notANumber;
+  changeStyleElementByObject(notANumber, "boxShadow", "0 0 0 0.3mm red");
+  return {
+    field:notANumber,
+    error:Boolean(Object.keys(notANumber).length)
+  }
 };
+
+/**
+ * Kiểm tra xem số đó có > 0
+ * @param {*} obj 
+ * @param {*} a 
+ */
+const validateOperator = (obj, a) => {
+  const notANumber = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (+value <= a) {
+      notANumber[key] = "Not less than 0";
+    }
+  } 
+  changeStyleElementByObject(notANumber, "boxShadow", "0 0 0 0.3mm red");
+  return {
+    field:notANumber,
+    error:Boolean(Object.keys(notANumber).length)
+  }
+}
+
+const validateCode = (code) => {
+    const error = isNaN(code[0]) && (code[0].toUpperCase() === code[0])
+    const obj = error ? {} :{
+      code :"Must start with a letter and must be capitalized"
+    }
+    changeStyleElementByObject(obj, "boxShadow", "0 0 0 0.3mm red");
+    return {
+      field :obj,
+      error : !error
+    }
+}
 
 /**
  * Kiểm tra form add và update promotion
@@ -56,4 +95,4 @@ const validateDataForm = (obj) => {
   return true;
 };
 
-export { validate, validateNumber, validateDataForm };
+export { validate, validateNumber, validateDataForm,validateOperator,validateCode };

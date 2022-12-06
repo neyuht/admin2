@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Category from "./Category";
 import DetailsTable from "./Details/details";
-import * as request from "../../utils/http";
+import http, * as request from "../../utils/http";
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import { validate } from "../../scripts/helpers/validation";
@@ -12,13 +12,14 @@ import "./style.css";
 import { useMemo } from "react";
 import Overlay from "../Overlay/overlay";
 import axiosClient from "../../scripts/helpers/config";
+import convertArrayToString from "../../scripts/helpers/convert";
 
 const size = 5;
 
 function FormProducts({ fields }) {
   const [filter, setFilter] = useState("");
   const [indexPagin, setIndexPagin] = useState(1);
-  const [isCheck, setIsChecked] = useState(false);
+  const [sizePagin, setSizePagin] = useState(1);
   const [products, setProducts] = useState([]);
   const name = useRef("");
   const status = useRef("");
@@ -31,77 +32,63 @@ function FormProducts({ fields }) {
   const [popup, setPopup] = useState(false);
 
   const computePagins = useMemo(() => {
-    const sizePagin =
-      products.length % size === 0
-        ? products.length / size
-        : parseInt(products.length / size) + 1;
-    const _tempsPagin = new Array(sizePagin === 0 ? 1 : sizePagin).fill(1);
+    const _tempsPagin = new Array(sizePagin).fill(1);
     return _tempsPagin;
-  }, [products]);
-
-  const onChange = () => {
-    setIsChecked(!isCheck);
-  };
+  }, [sizePagin]);
 
   const createNewProduct = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const myForm = document.forms["formAddProduct"];
-    const name = myForm["name"].value.trim();
-    const status = myForm["status"].value.trim();
-    const categoryId = myForm["category"].value;
-    const description = myForm["description"].value.trim();
-    const image = myForm["image"].files[0];
-    // selectCategory,
-    let obj = {
+    const form = document.forms["formAddProduct"];
+    const name = form["name"].value;
+    const quantity = form["quantity"].value;
+    const price = form["price"].value;
+    const category = form["category"].value;
+    const status = form["status"].value;
+    const images = form["image"].files;
+    const description = form["description"].value;
+    const description2 = JSON.stringify(convertArrayToString(detailsInfo));
+    const data = {
       name,
       status,
-      description,
-      categoryId,
-    };
-    const empty = validate(obj);
-    const emptyLength = Object.keys(empty).length;
-    if (emptyLength) {
-      changeStyleElementByObject(empty, "boxShadow", "0 0 0.5mm red");
-      console.log(empty);
-      return;
-    }
-    const respone = await axiosClient.post(
-      `http://localhost:8080/api/v1/admin/products`,
-      {
-        ...obj,
-        productVariantList: [
-          {
-            quantity: 0,
-            unitPrice: 0,
-            description: "string",
-            productId: 0,
-            imageId: 0,
-          },
-        ],
-      }
-    );
-    const { id } = respone.data;
-    const formData = new FormData();
-    formData.append("image", image);
-    formData.append("destination", "images");
-    formData.append("create_thumbnail", true);
-    const response2 = await axiosClient.post(
-      `${process.env.REACT_APP_URL}/images?id=${id}&type=2`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      // description,
+      categoryId: category,
+      productVariantList: [
+        {
+          quantity,
+          unitPrice: price,
+          description: description2,
         },
-      }
+      ],
+    };
+    const response = await http.post(
+      `${process.env.REACT_APP_URL}/products`,
+      data
     );
-    setProducts([...products, { ...obj, id }]);
+    if (response.status === 200) {
+      console.log("Success");
+      const { id } = response.data.data;
+      const formData = new FormData();
+      const newImages = [];
+      Object.entries(images).forEach(([key, value]) => {
+        newImages.push(value);
+      });
+      formData.append("images", newImages);
+      console.log(formData.values);
+      const response2 = await axiosClient.post(
+        `${process.env.REACT_APP_URL}/images/upload-multiple/?id=${id}&type=2`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response2);
+    }
+
     // const id = 1;
     // send request image id = 1, type = 2, image = list anh
-  };
-
-  const resetProduct = (e) => {
-    document.forms[1].reset();
   };
 
   const handleDelete = useCallback((id) => {}, []);
@@ -114,7 +101,17 @@ function FormProducts({ fields }) {
   }, []);
 
   // call api
-  useEffect(() => {}, []);
+  useEffect(() => {
+    axiosClient
+      .get(`${process.env.REACT_APP_URL}/products?page=${indexPagin}`)
+      .then((response) => {
+        const data = response.data.content;
+        const _sizePagin = response.data.totalPage;
+        console.log(response);
+        setProducts(data);
+        setSizePagin(_sizePagin);
+      });
+  }, [indexPagin]);
 
   return (
     <main className={"main-wrapper"}>
@@ -143,7 +140,9 @@ function FormProducts({ fields }) {
                       <input
                         ref={name}
                         type="text"
-                        className={"products-input products-input products-name"}
+                        className={
+                          "products-input products-input products-name"
+                        }
                         name="name"
                         placeholder="Name"
                       />
@@ -155,8 +154,10 @@ function FormProducts({ fields }) {
                         <input
                           ref={quantity}
                           type="text"
-                          className={"products-input products-input products-quantity"}
-                          name="name"
+                          className={
+                            "products-input products-input products-quantity"
+                          }
+                          name="quantity"
                           placeholder="Quantity"
                         />
                       </div>
@@ -166,8 +167,10 @@ function FormProducts({ fields }) {
                         <input
                           ref={unitPrice}
                           type="text"
-                          className={"products-input products-input products-price"}
-                          name="name"
+                          className={
+                            "products-input products-input products-price"
+                          }
+                          name="price"
                           placeholder="Price"
                         />
                       </div>
@@ -204,11 +207,11 @@ function FormProducts({ fields }) {
                       />
                     </div>
 
-                      <label htmlFor="">Details</label>
-                      <DetailsTable
-                        detailsInfo={detailsInfo}
-                        setDetailsInfo={setDetailsInfo}
-                      />
+                    <label htmlFor="">Details</label>
+                    <DetailsTable
+                      detailsInfo={detailsInfo}
+                      setDetailsInfo={setDetailsInfo}
+                    />
                   </div>
 
                   <div className={"form-img"}>
@@ -274,15 +277,16 @@ function FormProducts({ fields }) {
                 </thead>
                 <tbody>
                   {products.map((product, index) => {
-                    if (
-                      index >= indexPagin * size - size &&
-                      index < indexPagin * size
-                    ) {
-                      return (
-                        <ProductItem id={product.id} onClick={openSetting} />
-                      );
-                    }
-                    return <></>;
+                    return (
+                      <ProductItem
+                        id={product.id}
+                        productName={product.name}
+                        amount={0}
+                        category={product.category.name}
+                        status={product.status}
+                        onClick={openSetting}
+                      />
+                    );
                   })}
                 </tbody>
               </table>

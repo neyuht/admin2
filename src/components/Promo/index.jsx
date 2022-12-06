@@ -5,8 +5,14 @@ import Select from "../../scripts/components/select";
 import Overlay from "../Overlay/overlay";
 import PromoItem from "../../scripts/components/l-promo-item";
 import PopUpPromo from "./promo-overlay";
-import { useEffect, useState } from "react";
-import { validateDataForm } from "../../scripts/helpers/validation";
+import { useEffect, useMemo, useState } from "react";
+import {
+  validateDataForm,
+  validate,
+  validateNumber,
+  validateOperator,
+  validateCode,
+} from "../../scripts/helpers/validation";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Buttons from "react-bootstrap/Button";
@@ -14,6 +20,7 @@ import "./style.css";
 import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { adminLogin } from "../../service/authService";
+import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -53,85 +60,116 @@ function Promo() {
       amount,
       maxAmount,
       startDate: (() => {
-        const date = new Date(startDate);
-        return `${
-          date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-        }-${
-          date.getMonth() + 1 >= 10
-            ? date.getMonth() + 1
-            : `0${date.getMonth()}`
-        }-${date.getFullYear()}`;
+        if (startDate) {
+          const date = new Date(startDate);
+
+          return `${
+            date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
+          }-${
+            date.getMonth() + 1 >= 10
+              ? date.getMonth() + 1
+              : `0${date.getMonth()}`
+          }-${date.getFullYear()}`;
+        }
+        return "";
       })(),
       endDate: (() => {
-        const date = new Date(endDate);
-        return `${
-          date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-        }-${
-          date.getMonth() + 1 >= 10
-            ? date.getMonth() + 1
-            : `0${date.getMonth()}`
-        }-${date.getFullYear()}`;
+        if (endDate) {
+          const date = new Date(startDate);
+
+          return `${
+            date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
+          }-${
+            date.getMonth() + 1 >= 10
+              ? date.getMonth() + 1
+              : `0${date.getMonth()}`
+          }-${date.getFullYear()}`;
+        }
+        return "";
       })(),
       status,
     };
 
-    const valid = validateDataForm(obj);
-    if (valid) {
-      axiosClient
-        .post(`${process.env.REACT_APP_URL}/promotion`, {
-          id: 0,
-          type: 0,
-          ...obj,
-        })
-        .then((res) => {
-          const _temps = [
-            ...promotions,
-            {
-              ...res.data,
-              startDate: (() => {
-                const date = new Date(startDate);
-                return `${
-                  date.getMonth() + 1 >= 10
-                    ? date.getMonth() + 1
-                    : `0${date.getMonth()}`
-                }-${
-                  date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-                }-${date.getFullYear()}`;
-              })(),
-              endDate: (() => {
-                const date = new Date(endDate);
-                return `${
-                  date.getMonth() + 1 >= 10
-                    ? date.getMonth() + 1
-                    : `0${date.getMonth()}`
-                }-${
-                  date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-                }-${date.getFullYear()}`;
-              })(),
-            },
-          ];
-
-          const sizePagin =
-            _temps.length % size === 0
-              ? _temps.length / size
-              : parseInt(_temps.length / size) + 1;
-          const _tempsPagin = new Array(sizePagin).fill(1);
-          setPagins(_tempsPagin);
-          setPromotions(_temps);
-          setCode("");
-          setPercent(0);
-          setAmount("");
-          setMaxAmount("");
-          setEndDate("");
-          setStartDate("");
-          setStatus(true);
-          setPopup(false);
-          console.log("Success");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    changeStyleElementByObject(obj, "boxShadow", "0 0 0 0.3mm");
+    let result = validate(obj);
+    if (result.error) {
+      return;
     }
+
+    result = validateCode(code);
+    console.log(result);
+    if (result.error) {
+      return;
+    }
+
+    result = validateNumber({
+      amount,
+      maxAmount,
+    });
+    if (result.error) {
+      return;
+    }
+    result = validateOperator({
+      amount,
+      maxAmount,
+    });
+    if (result.error) {
+      return;
+    }
+    axiosClient
+      .post(`${process.env.REACT_APP_URL}/promotion`, {
+        id: 0,
+        type: 0,
+        ...obj,
+      })
+      .then((res) => {
+        const _temps = [
+          ...promotions,
+          {
+            ...res.data,
+            startDate: (() => {
+              const date = new Date(startDate);
+              return `${
+                date.getMonth() + 1 >= 10
+                  ? date.getMonth() + 1
+                  : `0${date.getMonth()}`
+              }-${
+                date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
+              }-${date.getFullYear()}`;
+            })(),
+            endDate: (() => {
+              const date = new Date(endDate);
+              return `${
+                date.getMonth() + 1 >= 10
+                  ? date.getMonth() + 1
+                  : `0${date.getMonth()}`
+              }-${
+                date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
+              }-${date.getFullYear()}`;
+            })(),
+          },
+        ];
+
+        const sizePagin =
+          _temps.length % size === 0
+            ? _temps.length / size
+            : parseInt(_temps.length / size) + 1;
+        const _tempsPagin = new Array(sizePagin).fill(1);
+        setPagins(_tempsPagin);
+        setPromotions(_temps);
+        setCode("");
+        setPercent(0);
+        setAmount("");
+        setMaxAmount("");
+        setEndDate("");
+        setStartDate("");
+        setStatus(true);
+        setPopup(false);
+        console.log("Success");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const onSearch = async (e) => {
@@ -159,6 +197,16 @@ function Promo() {
       code: text,
     });
   };
+
+  const arrButton = useMemo(() => {
+    const sizeButton =
+      promotions.length % size === 0
+        ? promotions.length / size === 0
+          ? 1
+          : promotions.length / size
+        : parseInt(promotions.length / size) + 1;
+    return new Array(sizeButton).fill(1);
+  }, [promotions]);
 
   const openSetting = async (e, id) => {
     const promo = promotions.find((promo) => promo.id === id);
@@ -354,7 +402,7 @@ function Promo() {
               </table>
             </section>
             <ul className={"paginations"}>
-              {pagins.map((item, index) => (
+              {arrButton.map((item, index) => (
                 <li
                   className={`${"pagin-item"} ${`${
                     indexPagin === index + 1 ? "active" : ""

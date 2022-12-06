@@ -10,6 +10,7 @@ const changeStyleElementByObject = (obj, style, styleChange) => {
     const element = document.querySelector(`[name=${key}]`);
     element.style[style] = styleChange;
   }
+  
 };
 
 export { changeStyleElementByObject };
