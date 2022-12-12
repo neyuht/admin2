@@ -80,6 +80,9 @@ th {
   letter-spacing: 0.035em;
   border-bottom: 0.05rem solid rgb(240, 242, 245);
 }
+.list-category-table {
+ font-weight: 100;
+}
 tbody {
   display: table-row-group;
 }
@@ -152,4 +155,54 @@ td span {
   color: gray;
   font-weight: 700;
   border-color: #ffffff;
+}
+.rowct{
+  font-size: 14px;
+  font-weight: 500;
+  color: #5e5e5e;
+}
+.rowedit{ width: 80px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 5px;
+  background-color: rgb(2, 168, 55);
+  border: none;
+  margin-right: 15px;
+}
+.rowedit:hover{
+  width: 80px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 5px;
+  background-color: rgb(7, 119, 82);
+  border: none;
+  margin-right: 15px;
+}
+.rowremove{
+  width: 80px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 5px;
+  background-color: rgb(255, 0, 0);
+  border: none;
+ 
+}
+.rowremove:hover{
+  width: 80px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 5px;
+  background-color: rgb(119, 11, 11);
+  border: none;
+}
+.kkk{
+  color: aquamarine;
 }
