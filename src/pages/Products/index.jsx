@@ -11,7 +11,7 @@ import "../styles.css";
 import DoneIcon from "../../assets/icons/done.svg";
 import CancelIcon from "../../assets/icons/cancel.svg";
 import RefundedIcon from "../../assets/icons/refunded.svg";
-import FormProducts from '../../components/Form-product/index';
+import FormProducts from "../../components/Form-product/index";
 
 function Products() {
   const [search, setSearch] = useState("");
@@ -53,12 +53,12 @@ function Products() {
       <div className="dashboard-content">
         <DashboardHeader btnText="." />
         <div className="dashboard-content-container">
-            <div className="dashboard-content-header">
-                <h2>Promotion List</h2>
-            </div>
-            <FormProducts></FormProducts>
+          <div className="dashboard-content-header">
+            <h2>Promotion List</h2>
+          </div>
+          <FormProducts></FormProducts>
         </div>
-    </div>
+      </div>
     </>
   );
 }
