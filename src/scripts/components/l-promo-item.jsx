@@ -1,6 +1,16 @@
-import React from 'react';
+import React from "react";
 
-function PromoItem({ id, code, percent, amount, maxAmount, startDate, expire, status, onClick }) {
+function CategoryItem({
+  id,
+  code,
+  percent,
+  amount,
+  maxAmount,
+  startDate,
+  expire,
+  status,
+  onClick,
+}) {
   return (
     <tr
       className={"promo-table-item"}
@@ -34,4 +44,4 @@ function PromoItem({ id, code, percent, amount, maxAmount, startDate, expire, st
   );
 }
 
-export default PromoItem;
+export default CategoryItem;
