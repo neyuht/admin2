@@ -5,10 +5,8 @@
   overflow: auto;
 }
 .dashboard-content-container {
-  margin: 1em;
   border: none;
   border-radius: 10px;
-  padding: 1em;
   display: flex;
   background-color: #eee;
   flex-direction: column;

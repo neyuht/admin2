@@ -12,21 +12,48 @@ import Login from "./pages/Login";
 import Pesudo from "./pages/Promotion/promotion";
 import Promo from "./components/Promo";
 import DashBoard from "./pages/dashBoard";
+import {
+  faCircleUser,
+  faLock,
+  faToggleOff,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function App() {
-  const showHideMenu = () => {
-    const menuBar = document.querySelector(".menu-bar");
-    if (!menuBar.classList.contains("selected")) {
-        console.log('a');
-    }
-  };
-
+  const logout = () => {};
   return (
     <Router>
       <div className="dashboard-container">
         <SideBar menu={sidebar_menu} />
 
         <div className="dashboard-body">
+        <div className="dashboard-header">
+          <div class="dropdown">
+            <button class="dropbtn">
+              {" "}
+              <img
+                className="dashbord-header-avatar"
+                src="https://reqres.in/img/faces/9-image.jpg"
+              />
+            </button>
+            <div class="dropdown-content">
+              <div className="text-username">An Thuyen</div>
+              <br />
+              <div className="text-role">Admin</div>
+              <hr />
+              <a href="/admin/view">
+                {" "}
+                <FontAwesomeIcon icon={faCircleUser} /> &nbsp; View Profile
+              </a>
+              <a href="/admin/change-pass">
+                <FontAwesomeIcon icon={faLock} /> &nbsp; Change Password
+              </a>
+              <a className="logout-hv" onClick={logout}>
+                <FontAwesomeIcon icon={faToggleOff} /> &nbsp;Logout
+              </a>
+            </div>
+          </div>
+        </div>
           <Routes>
             <Route exact path="/" element={<DashBoard />} index/>
             <Route exact path="/admin/categories" element={<Categories />} />
