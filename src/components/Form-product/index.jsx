@@ -1,24 +1,27 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Category from "./Category";
-import DetailsTable from "./Details/details";
-import * as request from "../../utils/http";
+import Details from "./Details/details";
+import http, * as request from "../../utils/http";
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import { validate } from "../../scripts/helpers/validation";
-import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
+// import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import Buttons from "react-bootstrap/Button";
 import ProductItem from "../../scripts/components/l-product-item";
 import "./style.css";
 import { useMemo } from "react";
 import Overlay from "../Overlay/overlay";
 import axiosClient from "../../scripts/helpers/config";
+import convertArrayToString from "../../scripts/helpers/convert";
+import PopUpPromo from "./product-overlay";
+import iconPlus from "../../assets/icons/icon-plus.svg";
 
 const size = 5;
 
 function FormProducts({ fields }) {
   const [filter, setFilter] = useState("");
   const [indexPagin, setIndexPagin] = useState(1);
-  const [isCheck, setIsChecked] = useState(false);
+  const [sizePagin, setSizePagin] = useState(1);
   const [products, setProducts] = useState([]);
   const name = useRef("");
   const status = useRef("");
@@ -29,79 +32,98 @@ function FormProducts({ fields }) {
   const unitPrice = useRef("");
   const [detailsInfo, setDetailsInfo] = useState([]);
   const [popup, setPopup] = useState(false);
+  const [overlay, setOverlay] = useState();
+
+  /**
+   *  Code của detail
+   */
+  const [countForm, setCountForm] = useState(1);
+  const [variant, setVariant] = useState({});
+  const renderForm = useMemo(() => {
+    return new Array(countForm).fill(1);
+  }, [countForm]);
+  const handleAddDetail = useCallback((obj) => {
+    setVariant((prev) => ({
+      ...prev,
+      ...obj,
+    }));
+  }, []);
 
   const computePagins = useMemo(() => {
-    const sizePagin =
-      products.length % size === 0
-        ? products.length / size
-        : parseInt(products.length / size) + 1;
-    const _tempsPagin = new Array(sizePagin === 0 ? 1 : sizePagin).fill(1);
+    const _tempsPagin = new Array(sizePagin).fill(1);
     return _tempsPagin;
-  }, [products]);
-
-  const onChange = () => {
-    setIsChecked(!isCheck);
-  };
+  }, [sizePagin]);
 
   const createNewProduct = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const myForm = document.forms["formAddProduct"];
-    const name = myForm["name"].value.trim();
-    const status = myForm["status"].value.trim();
-    const categoryId = myForm["category"].value;
-    const description = myForm["description"].value.trim();
-    const image = myForm["image"].files[0];
-    // selectCategory,
-    let obj = {
+    console.log(variant);
+    const form = document.forms["formAddProduct"];
+    const name = form["name"].value;
+    const category = form["category"].value;
+    const status = form["status"].value;
+    const images = Array.from(form["images"].files);
+    const description2 = form["description2"].value;
+    const variantRq = Object.values(variant).map((obj) => ({
+      ...obj,
+      description: convertArrayToString(obj.description),
+    }));
+
+    const data = {
       name,
       status,
-      description,
-      categoryId,
+      description: description2,
+      categoryId: category,
+      productVariantList: variantRq,
     };
-    const empty = validate(obj);
-    const emptyLength = Object.keys(empty).length;
-    if (emptyLength) {
-      changeStyleElementByObject(empty, "boxShadow", "0 0 0.5mm red");
-      console.log(empty);
+
+    const { productVariantList, description, ...obj } = data;
+    const result = validate({
+      ...obj,
+      description2: description,
+      images,
+    });
+    if (result.error) {
+      alert("Vui long nhap day du thong tin");
       return;
     }
-    const respone = await axiosClient.post(
-      `http://localhost:8080/api/v1/admin/products`,
-      {
-        ...obj,
-        productVariantList: [
-          {
-            quantity: 0,
-            unitPrice: 0,
-            description: "string",
-            productId: 0,
-            imageId: 0,
+    if (!productVariantList.length) {
+      alert("Vui long nhap variant");
+      return;
+    }
+
+    const response = await http.post(
+      `${process.env.REACT_APP_URL}/products`,
+      data
+    );
+    if (response.status === 200) {
+      const { id } = response.data.data;
+      const bodyFormData = new FormData();
+      console.log(typeof images);
+      console.log(images);
+      Object.values(images).forEach((images) => {
+        bodyFormData.append("images", images);
+      });
+      // images.forEach((item, index) => {
+      //   console.log(images[index]);
+      //   bodyFormData.append("images", images[index]);
+      // });
+      bodyFormData.append("type", "3");
+      bodyFormData.append("id", id + "");
+      const response2 = await axiosClient.post(
+        `${process.env.REACT_APP_URL}/images/upload-multiple/`,
+        bodyFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
           },
-        ],
-      }
-    );
-    const { id } = respone.data;
-    const formData = new FormData();
-    formData.append("image", image);
-    formData.append("destination", "images");
-    formData.append("create_thumbnail", true);
-    const response2 = await axiosClient.post(
-      `${process.env.REACT_APP_URL}/images?id=${id}&type=2`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    setProducts([...products, { ...obj, id }]);
+        }
+      );
+      console.log(response2);
+    }
+
     // const id = 1;
     // send request image id = 1, type = 2, image = list anh
-  };
-
-  const resetProduct = (e) => {
-    document.forms[1].reset();
   };
 
   const handleDelete = useCallback((id) => {}, []);
@@ -109,12 +131,27 @@ function FormProducts({ fields }) {
   const handleUpdate = useCallback((id) => {}, []);
   const handleSearch = useCallback((event) => {}, []);
 
-  const openSetting = useCallback((e, id) => {
-    console.log(id);
-  }, []);
+  const openSetting = useCallback(
+    (e, id) => {
+      const product = products.find((product) => product.id === id);
+      // console.log(product);
+      setOverlay(product);
+    },
+    [products]
+  );
 
   // call api
-  useEffect(() => {}, []);
+  useEffect(() => {
+    axiosClient
+      .get(`${process.env.REACT_APP_URL}/products?page=${indexPagin}`)
+      .then((response) => {
+        const data = response.data.content;
+        const _sizePagin = response.data.totalPage;
+        console.log(response);
+        setProducts(data);
+        setSizePagin(_sizePagin);
+      });
+  }, [indexPagin]);
 
   return (
     <main className={"main-wrapper"}>
@@ -143,36 +180,11 @@ function FormProducts({ fields }) {
                       <input
                         ref={name}
                         type="text"
-                        className={"products-input products-input products-name"}
+                        className={"products-input products-name"}
                         name="name"
                         placeholder="Name"
                       />
                     </div>
-
-                    <div className={"form-group-two"}>
-                      <div>
-                        <label htmlFor="">Quantity</label>
-                        <input
-                          ref={quantity}
-                          type="text"
-                          className={"products-input products-input products-quantity"}
-                          name="name"
-                          placeholder="Quantity"
-                        />
-                      </div>
-
-                      <div>
-                        <label htmlFor="">Price</label>
-                        <input
-                          ref={unitPrice}
-                          type="text"
-                          className={"products-input products-input products-price"}
-                          name="name"
-                          placeholder="Price"
-                        />
-                      </div>
-                    </div>
-
                     <div className={"form-group-two"}>
                       <div className={"form-status"} id="productStatus">
                         <label htmlFor="">Status</label>
@@ -196,7 +208,7 @@ function FormProducts({ fields }) {
                     <div className={"form-group"}>
                       <label htmlFor="">Description</label>
                       <textarea
-                        name="description"
+                        name="description2"
                         ref={description}
                         type="text"
                         className={"products-description"}
@@ -204,11 +216,30 @@ function FormProducts({ fields }) {
                       />
                     </div>
 
-                      <label htmlFor="">Details</label>
-                      <DetailsTable
-                        detailsInfo={detailsInfo}
-                        setDetailsInfo={setDetailsInfo}
-                      />
+                    <label htmlFor="">Details</label>
+                    {/* <DetailsTable
+                      detailsInfo={detailsInfo}
+                      setDetailsInfo={setDetailsInfo}
+                    /> */}
+                    {/* <button
+                      type="button"
+                      onClick={() => {
+                        setCountForm((prev) => prev + 1);
+                      }}
+                    >
+                      add
+                    </button> */}
+                    <figure
+                      className="icon-plus-cover"
+                      onClick={() => {
+                        setCountForm((prev) => prev + 1);
+                      }}
+                    >
+                      <img src={iconPlus} alt="icon plus" />
+                    </figure>
+                    {renderForm.map((form, index) => (
+                      <Details countForm={index + 1} handle={handleAddDetail} />
+                    ))}
                   </div>
 
                   <div className={"form-img"}>
@@ -216,7 +247,7 @@ function FormProducts({ fields }) {
                       <div className={"images"}></div>
                       <input
                         ref={image}
-                        name="image"
+                        name="images"
                         type="file"
                         className={"products-name"}
                         accept="image/png, image/jpeg"
@@ -240,7 +271,8 @@ function FormProducts({ fields }) {
           </Overlay>
         )}
         <section className={"section-list"}>
-          <section className={"list-promo"}>
+          <div className="dashboard-content-header">
+            <h2>Products List</h2>
             <Buttons
               type="button"
               title="submit"
@@ -251,9 +283,10 @@ function FormProducts({ fields }) {
             >
               Add New Product
             </Buttons>
+          </div>
 
-            <section className={"filter-promo"}>
-              <h2 className="heading">list promotion</h2>
+          <section className={"list-promo"}>
+            <section className={"filter-product"}>
               <Input
                 type={"text"}
                 name="search"
@@ -274,15 +307,16 @@ function FormProducts({ fields }) {
                 </thead>
                 <tbody>
                   {products.map((product, index) => {
-                    if (
-                      index >= indexPagin * size - size &&
-                      index < indexPagin * size
-                    ) {
-                      return (
-                        <ProductItem id={product.id} onClick={openSetting} />
-                      );
-                    }
-                    return <></>;
+                    return (
+                      <ProductItem
+                        id={product.id}
+                        productName={product.name}
+                        amount={0}
+                        category={product.category.name}
+                        status={product.status}
+                        onClick={openSetting}
+                      />
+                    );
                   })}
                 </tbody>
               </table>
@@ -307,6 +341,11 @@ function FormProducts({ fields }) {
           </section>
         </section>
       </section>
+      {overlay && (
+        <Overlay onClick={setOverlay}>
+          <PopUpPromo data={overlay} />
+        </Overlay>
+      )}
     </main>
   );
 }

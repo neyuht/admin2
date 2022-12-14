@@ -14,7 +14,8 @@ import Login from "./pages/Login";
 import Pesudo from "./pages/Promotion/promotion";
 import Promo from "./components/Promo";
 import LoginForm from "./components/FormLogin";
-import { isAdmin } from "./service/authService";
+import { isAdmin } from "./service/authService";import DashBoard from "./pages/dashBoard";
+
 function App() {
   useEffect(() => {
     isAdmin().then((res) => {
@@ -38,7 +39,8 @@ function App() {
 
         <div className="dashboard-body">
           <Routes>
-            <Route exact path="/" element={<Categories />} />
+            <Route exact path="/" element={<DashBoard />} index/>
+            <Route exact path="/admin/categories" element={<Categories />} />
             <Route exact path="/admin/orders" element={<Orders />} />
             <Route exact path="/admin/products" element={<Products />} />
             <Route exact path="/admin/categories" element={<Categories />} />

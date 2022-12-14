@@ -20,10 +20,10 @@ function Products() {
   const [pagination, setPagination] = useState([]);
 
   useEffect(() => {
-    getAllProduct("").then((res) => {
-      setProducts(res.data.data.content);
-      console.log(res.data.data.content);
-    });
+    // getAllProduct("").then((res) => {
+    //   setProducts(res.data.data.content);
+    //   console.log(res.data.data.content);
+    // });
   }, []);
 
   // Search
@@ -51,11 +51,7 @@ function Products() {
   return (
     <>
       <div className="dashboard-content">
-        <DashboardHeader btnText="." />
         <div className="dashboard-content-container">
-          <div className="dashboard-content-header">
-            <h2>Promotion List</h2>
-          </div>
           <FormProducts></FormProducts>
         </div>
       </div>

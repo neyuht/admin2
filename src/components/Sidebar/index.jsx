@@ -25,29 +25,75 @@ function SideBar({ menu }) {
     setActive(id);
   };
 
+  const showHideMenu = (e) => {
+    const logo = document.querySelector(".icon-logo-brand");
+    const label = document.querySelectorAll(".sidebar-item-label");
+    const width1 = document.querySelector(
+      ".sidebar-item-active .sidebar-content"
+    );
+    const width2 = document.querySelectorAll(".sidebar-content");
+    const menuBar = document.querySelector(".menu-bar");
+    const sidebar = document.querySelector(".sidebar");
+
+    if (menuBar.classList.contains("selected")) {
+      label.forEach((item) => {
+        item.classList.remove("hide");
+      });
+      logo.classList.remove("hide");
+      menuBar.classList.remove("selected");
+      sidebar.style.width = "320px";
+      width1.style.width = "250px";
+      width2.forEach((item) => {
+        item.style.width = "250px";
+      });
+    } else {
+      logo.classList.add("hide");
+      menuBar.classList.add("selected");
+      width1.style.width = "80px";
+      width2.forEach((item) => {
+        item.style.width = "80px";
+      });
+      label.forEach((item) => {
+        item.classList.add("hide");
+      });
+      sidebar.style.width = "150px";
+    }
+  };
+
   return (
     <nav className="sidebar">
-      <div className="sidebar-container">
-        <div className="sidebar-logo-container">
-          <img src={logo} alt="logo" />
-        </div>
-
+      <div className="sidebar-p">
         <div className="sidebar-container">
-          <div className="sidebar-items">
-            {menu.map((item, index) => (
-              <div key={index} onClick={() => __navigate(item.id)}>
-                <SideBarItem active={item.id === active} item={item} />
-              </div>
-            ))}
+          <div className="sidebar-logo-container">
+            <div className="menu-bar" onClick={showHideMenu}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <img src={logo} className="icon-logo-brand" alt="logo" />
           </div>
 
-          <div className="sidebar-footer">
-            <span className="sidebar-item-label">Logout</span>
-            <img
-              src={LogoutIcon}
-              alt="icon-logout"
-              className="sidebar-item-icon"
-            />
+          <div className="sidebar-container">
+            <div className="sidebar-items">
+              {menu.map((item, index) => (
+                <div
+                  className="sidebar-box"
+                  key={index}
+                  onClick={() => __navigate(item.id)}
+                >
+                  <SideBarItem active={item.id === active} item={item} />
+                </div>
+              ))}
+            </div>
+
+            <div className="sidebar-footer">
+              <img
+                src={LogoutIcon}
+                alt="icon-logout"
+                className="sidebar-item-icon"
+              />
+              <span className="sidebar-item-label">Logout</span>
+            </div>
           </div>
         </div>
       </div>

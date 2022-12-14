@@ -26,7 +26,7 @@ function Categories() {
   useEffect(() => {
     setPagination(calculateRange(data, 5));
     setOrders(sliceData(data, page, 5));
-    console.log(data.length);
+    console.log(data.length);;
   }, []);
   useEffect(() => {
     callAPI(setData);
@@ -39,8 +39,6 @@ function Categories() {
   return (
     <>
       <div className="dashboard-content">
-        <DashboardHeader />
-
         <div className="dashboard-content-container">
           <div className="dashboard-content-header">
             <h2>Category List</h2>
