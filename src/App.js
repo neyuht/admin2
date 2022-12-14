@@ -73,7 +73,7 @@ function App() {
           </div>
         </div>
           <Routes>
-            <Route exact path="/" element={<DashBoard />} index/>
+            <Route exact path="/" element={<Orders />}/>
             <Route exact path="/admin/categories" element={<Categories />} />
             <Route exact path="/admin/orders" element={<Orders />} />
             <Route exact path="/admin/products" element={<Products />} />

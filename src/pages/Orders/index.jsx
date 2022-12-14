@@ -13,6 +13,7 @@ import iconDollar from "../../assets/icons/icon-dollar.svg";
 import iconOrders from "../../assets/icons/icon-orders.svg";
 import Total from "../../components/Orders/Total";
 import axiosClient from "../../scripts/helpers/config";
+import Input from "../../scripts/components/input";
 
 function Orders() {
   const [search, setSearch] = useState("");
@@ -111,15 +112,15 @@ function Orders() {
         <div className="list-orders">
           <div className="dashboard-content-header">
             <h2>Orders List</h2>
-            <div className="dashboard-content-search">
-              <input
-                type="text"
-                value={search}
-                placeholder="Search.."
-                className="dashboard-content-input"
-                onChange={(e) => __handleSearch(e)}
+            <section className={"filter-product"}>
+              <Input
+                type={"text"}
+                name="search"
+                // value={filter}
+                placeholder="Enter promotion"
+                // onChange={onSearch}
               />
-            </div>
+            </section>
           </div>
 
           <table>

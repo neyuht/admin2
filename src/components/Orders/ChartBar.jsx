@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import "./style.css";
 
 function ChartBar({ data, data2, data3 }) {
+  console.log("a");
   const best = () => {
     const label = [];
     const data = [];

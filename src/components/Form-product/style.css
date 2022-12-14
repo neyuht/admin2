@@ -191,6 +191,10 @@
   padding: 10px;
 }
 
+.section-list {
+  margin-bottom: 50px;
+}
+
 .section-list .dashboard-content-header {
   display: flex;
   justify-content: space-between;

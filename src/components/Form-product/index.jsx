@@ -291,7 +291,7 @@ function FormProducts({ fields }) {
                 type={"text"}
                 name="search"
                 value={filter}
-                placeholder="Enter promotion"
+                placeholder="Enter product's name"
                 // onChange={onSearch}
               />
             </section>
