@@ -20,9 +20,9 @@ export default function LoginForm() {
     adminLogin(data).then((res) => {
       localStorage.setItem("token", "Bearer " + res.data.data);
       console.log(localStorage.getItem("token"));
+      alert("Login succsecfuly");
       window.location.reload(false);
     });
-    console.log(data);
   };
 
   return (
@@ -31,15 +31,25 @@ export default function LoginForm() {
         <div class="shape"></div>
         <div class="shape"></div>
       </div>
-      <form onClick={handleSubmit}>
+      <form className="form-login" onClick={handleSubmit}>
         <h3>Please Login</h3>
 
-        <label for="username">Username</label>
-        <input type="text" placeholder="Email or Phone" id="username" />
+        <label for="username"></label>
+        <input
+          class="input-data"
+          type="text"
+          placeholder="Email or Phone"
+          id="username"
+        />
 
-        <label for="password">Password</label>
-        <input type="password" placeholder="Password" id="password" />
-
+        <label for="password"></label>
+        <input
+          class="input-data"
+          type="password"
+          placeholder="Password"
+          id="password"
+        />
+        <div className="khoang"></div>
         <button class="btn-login" type="button">
           Submit
         </button>

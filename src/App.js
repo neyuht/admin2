@@ -8,6 +8,8 @@ import "./App.css";
 import Orders from "./pages/Orders";
 import Products from "./pages/Products";
 import Categories from "./pages/Categories";
+import ViewProfile from "./pages/ViewProfile";
+import ChangePass from "./pages/ChangePass";
 import Login from "./pages/Login";
 import Pesudo from "./pages/Promotion/promotion";
 import Promo from "./components/Promo";
@@ -40,6 +42,8 @@ function App() {
             <Route exact path="/admin/orders" element={<Orders />} />
             <Route exact path="/admin/products" element={<Products />} />
             <Route exact path="/admin/categories" element={<Categories />} />
+            <Route exact path="/admin/view" element={<ViewProfile />} />
+            <Route exact path="/admin/change-pass" element={<ChangePass />} />
             <Route
               exact
               path="/admin/promo"
