@@ -1,8 +1,11 @@
 import React, { Component, useCallback } from "react";
 // Table from react-bootstrap
 import { Table } from "react-bootstrap";
+import { calculateRange, sliceData } from "../../utils/table-pagination";
 // Bootstrap CSS
 import "bootstrap/dist/css/bootstrap.min.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faRemove } from "@fortawesome/free-solid-svg-icons";
 // To make rows collapsible
 import CategoryMd from "../../components/ModalPro/CategoryMd";
 import { useEffect, useState } from "react";

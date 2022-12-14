@@ -1,31 +1,52 @@
-import React from 'react';
+import React from "react";
 
-import './styles.css';
-import NotificationIcon from '../../assets/icons/notification.svg';
-import SettingsIcon from '../../assets/icons/settings.svg';
+import "./styles.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCircleUser,
+  faLock,
+  faToggleOff,
+} from "@fortawesome/free-solid-svg-icons";
 
-function DashboardHeader ({ btnText, onClick }) {
-    return(
-        <div className='dashbord-header-container'>
-            {btnText && 
-                <button className='dashbord-header-btn' onClick={onClick}>{btnText}</button>
-            }
+function DashboardHeader() {
+  function logout() {
+    window.localStorage.clear();
+    window.location.reload();
+    alert("Logout successful");
+  }
+  return (
+    <div className="dashbord-header-container">
+      <div className="admin-pnl"># Admin Pannel</div>
 
-            <div className='dashbord-header-right'>
-                <img 
-                    src={NotificationIcon}
-                    alt='notification-icon'
-                    className='dashbord-header-icon' />
-                <img 
-                    src={SettingsIcon}
-                    alt='settings-icon'
-                    className='dashbord-header-icon' />
-                <img
-                    className='dashbord-header-avatar'
-                    src='https://reqres.in/img/faces/9-image.jpg' />
-            </div>
+      <div className="dashbord-header-right">
+        <div class="dropdown">
+          <button class="dropbtn">
+            {" "}
+            <img
+              className="dashbord-header-avatar"
+              src="https://reqres.in/img/faces/9-image.jpg"
+            />
+          </button>
+          <div class="dropdown-content">
+            <div className="text-username">An Thuyen</div>
+            <br />
+            <div className="text-role">Admin</div>
+            <hr />
+            <a href="/admin/view">
+              {" "}
+              <FontAwesomeIcon icon={faCircleUser} /> &nbsp; View Profile
+            </a>
+            <a href="/admin/change-pass">
+              <FontAwesomeIcon icon={faLock} /> &nbsp; Change Password
+            </a>
+            <a className="logout-hv" onClick={logout}>
+              <FontAwesomeIcon icon={faToggleOff} /> &nbsp;Logout
+            </a>
+          </div>
         </div>
-    )
+      </div>
+    </div>
+  );
 }
 
 export default DashboardHeader;

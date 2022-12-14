@@ -21,3 +21,13 @@ body {
   padding: 0;
   margin: 0;
 }
+.btn-newct{
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: rgb(0, 166, 255);
+  border: none;
+  height: 40px;
+}

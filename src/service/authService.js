@@ -1,9 +1,11 @@
-import http from "../utils/http"
-
+import http from "../utils/http";
 
 //ADMIN
 function adminLogin(data) {
-  return http.post('public/users/admin-login', data);
+  return http.post("public/users/admin-login", data);
+}
+function isAdmin() {
+  return http.get("admin/users");
 }
 
 // function loginWithGoogle(data) {
@@ -23,4 +25,4 @@ function adminLogin(data) {
 //   return axiosApp.delete('admin/logout');
 // }
 
-export {adminLogin};
+export { adminLogin, isAdmin };

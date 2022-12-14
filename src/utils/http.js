@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
 const http = axios.create({
-  baseURL: 'http://localhost:8080/api/v1/',
+  baseURL: "http://localhost:8080/api/v1/",
 });
 
 http.interceptors.request.use(function (config) {
@@ -9,7 +9,7 @@ http.interceptors.request.use(function (config) {
     ...config,
     headers: {
       ...config.headers,
-      'Authorization': localStorage.getItem("token"),
+      Authorization: localStorage.getItem("token"),
     },
   };
 });
