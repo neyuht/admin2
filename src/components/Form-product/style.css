@@ -1,10 +1,11 @@
 .main-wrapper {
-  padding: 50px 20px;
+  padding: 0 20px;
 }
 
 .form-products {
   margin: auto;
   width: fit-content;
+  max-height: 900px;
   padding: 35px 40px;
   border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
@@ -13,6 +14,9 @@
   flex-direction: column;
   gap: 30px;
   background-color: #fff;
+  overflow-y: scroll;
+  scrollbar-color: rebeccapurple green;
+  scrollbar-width: thin;
 }
 
 .form-information {
@@ -152,7 +156,7 @@
   height: 250px;
   margin-bottom: 20px;
   border-radius: 8px;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px;
 }
 
 .form-cta {
@@ -179,4 +183,115 @@
 
 .form-cta .btn-create:hover {
   background-color: #76d88d;
+}
+
+.form-details-variant {
+  border: 1px solid rgb(226, 225, 225);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.section-list .dashboard-content-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.filter-product {
+  display: flex;
+  justify-content: end;
+}
+
+.filter-product .heading {
+  box-shadow: unset;
+}
+
+.filter-product input {
+  width: 50%;
+  padding: 8px;
+  outline: none;
+  border: none;
+  box-shadow: 0 0 0 0.05mm;
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+
+.icon-plus-cover {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
+.details-box-two {
+  display: flex;
+  gap: 20px;
+}
+
+.details-box-two .form-group input {
+  width: 100%;
+}
+
+.details-box input {
+  margin-top: 10px;
+  width: 50%;
+  outline: none;
+}
+
+.details-information input {
+  width: 50%;
+}
+
+.product-form-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.form-product-variant {
+  min-width: 500px;
+  padding: 10px 0;
+  height: 500px;
+  overflow-y: auto;
+}
+
+.form-details-product-box {
+  padding: 10px;
+  border: 1px solid rgb(207, 206, 206);
+  border-radius: 8px;
+}
+
+.form-product-variant .details-box-two {
+  margin: 0 5px;
+}
+
+.form-product-variant .details-box-two .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 48%;
+}
+
+.form-product-update {
+  width: 350px;
+}
+
+.form-product-variant .details-box-two .form-group input {
+  box-shadow: 0 0 0 0.07mm;
+  background-color: #fff;
+  border-radius: 3px;
+  padding: 0 10px;
+  height: 45px;
+}
+
+.description-update {
+  display: flex;
+  flex-direction: column;
+}
+
+.products-description-update {
+  border: 1px solid rgb(207, 206, 206);
+  height: 150px;
+  padding: 10px;
+  outline: none;
+  border-radius: 8px;
 }

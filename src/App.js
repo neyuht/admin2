@@ -11,8 +11,16 @@ import Categories from "./pages/Categories";
 import Login from "./pages/Login";
 import Pesudo from "./pages/Promotion/promotion";
 import Promo from "./components/Promo";
+import DashBoard from "./pages/dashBoard";
 
 function App() {
+  const showHideMenu = () => {
+    const menuBar = document.querySelector(".menu-bar");
+    if (!menuBar.classList.contains("selected")) {
+        console.log('a');
+    }
+  };
+
   return (
     <Router>
       <div className="dashboard-container">
@@ -20,7 +28,8 @@ function App() {
 
         <div className="dashboard-body">
           <Routes>
-            <Route exact path="/" element={<Categories />} />
+            <Route exact path="/" element={<DashBoard />} index/>
+            <Route exact path="/admin/categories" element={<Categories />} />
             <Route exact path="/admin/orders" element={<Orders />} />
             <Route exact path="/admin/products" element={<Products />} />
             <Route exact path="/admin/categories" element={<Categories />} />

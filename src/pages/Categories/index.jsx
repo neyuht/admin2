@@ -16,7 +16,7 @@ function Categories() {
   const callAPI = async (callback) => {
     const res = await getAllCategory();
     callback(res.data.data);
-  }
+  };
 
   useEffect(() => {
     callAPI(setData);
@@ -25,8 +25,6 @@ function Categories() {
   return (
     <>
       <div className="dashboard-content">
-        <DashboardHeader btnText="New Order" />
-
         <div className="dashboard-content-container">
           <div className="dashboard-content-header">
             <h2>Orders List</h2>

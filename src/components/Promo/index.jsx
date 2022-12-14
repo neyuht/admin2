@@ -327,14 +327,24 @@ function Promo() {
             </section>
           </Overlay>
         )}
+        <div className="dashboard-content-header">
+          <h2>Promotion List</h2>
+          <Buttons
+            type="button"
+            title="submit"
+            variant="primary"
+            onClick={popupAddPromo}
+          >
+            Add New Promotion
+          </Buttons>
+        </div>
         <section className={"section-list"}>
           <section className={"list-promo"}>
-            <Buttons variant="primary" onClick={popupAddPromo}>
+            {/* <Buttons variant="primary" onClick={popupAddPromo}>
               Add New Product
-            </Buttons>
+            </Buttons> */}
 
-            <section className={"filter-promo"}>
-              <h2 className="heading">list promotion</h2>
+            <section className={"filter-product"}>
               <Input
                 type={"text"}
                 name="search"

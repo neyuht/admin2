@@ -1,71 +1,184 @@
 .sidebar {
-    top: 0;
-    left: 0;
-    width: 250px;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    position: sticky;
-    background-image: linear-gradient(#00eeff, #2D83B5, #1d4762);
+  width: 320px;
+  height: 100vh;
+  transition: width 0.5s;
+  background-color: #eee;
 }
+
+.sidebar-p {
+  top: 0;
+  left: 0;
+  width: max-content;
+  height: 96vh;
+  border-radius: 20px;
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  background-color: rgb(51, 153, 255, 0.7);
+}
+
 .sidebar-logo-container {
-    display: 'flex';
-    align-items: center;
+  margin-left: 25px;
+  padding: 2em 0;
+  display: flex;
+  align-items: center;
+  transition: width 1.5s;
 }
 .sidebar-logo-container img {
-    width: 50%;
-    padding: 2em;
+  animation: fadeIn 2s;
+  width: 50%;
 }
 .sidebar-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .sidebar-items {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
 }
 .sidebar-item {
-    padding: 1.5em;
-    padding-left: 2em;
-    display: flex;
-    color: #FFFFFF;
-    list-style: none;
-    text-decoration: none;
-    align-items: center;
-    justify-content: flex-start;
-    cursor: pointer;
+  /* margin-left: 5px; */
+  margin-left: 2px;
+  width: 98%;
+  padding-left: 1em;
+  display: flex;
+  flex-direction: row;
+  color: #2c2c2e;
+  font-family: var(--font-medium);
+  list-style: none;
+  text-decoration: none;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
 }
+
+.menu-bar {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  padding: 15px 10px;
+  border-radius: 50%;
+  gap: 2px;
+  margin-right: 22px;
+}
+
+.menu-bar:hover {
+  background-color: rgb(121, 125, 129, 0.3);
+}
+
+.menu-bar span {
+  background-color: #f8f8fc;
+  width: 25px;
+  height: 3px;
+}
+
+.sidebar-details {
+  width: 15%;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar-item-active .sidebar-content,
+.sidebar-item-active .sidebar-details {
+  background-color: #eee;
+}
+
+.sidebar-radius {
+  height: 13px;
+  display: block;
+  width: 100%;
+  background-color: #6bb2fa;
+}
+
+.sidebar-top {
+  border-bottom-right-radius: 25px;
+}
+
+.sidebar-bottom {
+  border-top-right-radius: 25px;
+}
+
+.sidebar-item-active .sidebar-content {
+  padding: 15px;
+  height: 54px;
+  width: 250px;
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+  transition: width 1s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hide {
+  display: none;
+}
+
+.sidebar-content {
+  padding: 15px;
+  height: 54px;
+  width: 250px;
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+  transition: width 1s;
+}
+
 .sidebar-item:hover {
-    background-color: #004B77;
+  font-family: var(--font-medium);
 }
 .sidebar-item-active {
-    padding: 1.5em;
-    padding-left: 2em;
-    display: flex;
-    color: #FFFFFF;
-    list-style: none;
-    text-decoration: none;
-    align-items: center;
-    justify-content: flex-start;
-    background-color: #004B77;
-    cursor: pointer;
+  margin-left: 5px;
+  width: 98%;
+  padding-left: 1em;
+  display: flex;
+  flex-direction: row;
+  color: #999da0;
+  font-family: var(--font-medium);
+  list-style: none;
+  text-decoration: none;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
 }
+
 .sidebar-item-icon {
-    width: 20px;
+  width: 20px;
 }
+
+.sidebar-item .sidebar-content:hover,
+.sidebar-item .sidebar-content:hover + .sidebar-details {
+  animation: fadeIn 0.6s;
+  background-color: rgb(121, 125, 129, 0.3);
+}
+
 .sidebar-item-label {
-    font-size: small;
-    font-weight: 600;
-    margin-left: 15px;
+  height: 54px;
+  font-size: small;
+  font-weight: 600;
+  margin-left: 15px;
+  animation: fadeIn 2s;
 }
-/* Footer */
+
 .sidebar-footer {
-    padding: 1.5em;
-    color: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
+  padding: 1.5em;
+  margin-left: 15px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sidebar-footer span {
+  height: 20px;
 }

@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Category from "./Category";
-import DetailsTable from "./Details/details";
+import Details from "./Details/details";
 import http, * as request from "../../utils/http";
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import { validate } from "../../scripts/helpers/validation";
-import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
+// import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import Buttons from "react-bootstrap/Button";
 import ProductItem from "../../scripts/components/l-product-item";
 import "./style.css";
@@ -13,6 +13,8 @@ import { useMemo } from "react";
 import Overlay from "../Overlay/overlay";
 import axiosClient from "../../scripts/helpers/config";
 import convertArrayToString from "../../scripts/helpers/convert";
+import PopUpPromo from "./product-overlay";
+import iconPlus from "../../assets/icons/icon-plus.svg";
 
 const size = 5;
 
@@ -30,6 +32,22 @@ function FormProducts({ fields }) {
   const unitPrice = useRef("");
   const [detailsInfo, setDetailsInfo] = useState([]);
   const [popup, setPopup] = useState(false);
+  const [overlay, setOverlay] = useState();
+
+  /**
+   *  Code của detail
+   */
+  const [countForm, setCountForm] = useState(1);
+  const [variant, setVariant] = useState({});
+  const renderForm = useMemo(() => {
+    return new Array(countForm).fill(1);
+  }, [countForm]);
+  const handleAddDetail = useCallback((obj) => {
+    setVariant((prev) => ({
+      ...prev,
+      ...obj,
+    }));
+  }, []);
 
   const computePagins = useMemo(() => {
     const _tempsPagin = new Array(sizePagin).fill(1);
@@ -39,45 +57,62 @@ function FormProducts({ fields }) {
   const createNewProduct = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log(variant);
     const form = document.forms["formAddProduct"];
     const name = form["name"].value;
-    const quantity = form["quantity"].value;
-    const price = form["price"].value;
     const category = form["category"].value;
     const status = form["status"].value;
-    const images = form["image"].files;
-    const description = form["description"].value;
-    const description2 = JSON.stringify(convertArrayToString(detailsInfo));
+    const images = Array.from(form["images"].files);
+    const description2 = form["description2"].value;
+    const variantRq = Object.values(variant).map((obj) => ({
+      ...obj,
+      description: convertArrayToString(obj.description),
+    }));
+
     const data = {
       name,
       status,
-      // description,
+      description: description2,
       categoryId: category,
-      productVariantList: [
-        {
-          quantity,
-          unitPrice: price,
-          description: description2,
-        },
-      ],
+      productVariantList: variantRq,
     };
+
+    const { productVariantList, description, ...obj } = data;
+    const result = validate({
+      ...obj,
+      description2: description,
+      images,
+    });
+    if (result.error) {
+      alert("Vui long nhap day du thong tin");
+      return;
+    }
+    if (!productVariantList.length) {
+      alert("Vui long nhap variant");
+      return;
+    }
+
     const response = await http.post(
       `${process.env.REACT_APP_URL}/products`,
       data
     );
     if (response.status === 200) {
-      console.log("Success");
       const { id } = response.data.data;
-      const formData = new FormData();
-      const newImages = [];
-      Object.entries(images).forEach(([key, value]) => {
-        newImages.push(value);
+      const bodyFormData = new FormData();
+      console.log(typeof images);
+      console.log(images);
+      Object.values(images).forEach((images) => {
+        bodyFormData.append("images", images);
       });
-      formData.append("images", newImages);
-      console.log(formData.values);
+      // images.forEach((item, index) => {
+      //   console.log(images[index]);
+      //   bodyFormData.append("images", images[index]);
+      // });
+      bodyFormData.append("type", "3");
+      bodyFormData.append("id", id + "");
       const response2 = await axiosClient.post(
-        `${process.env.REACT_APP_URL}/images/upload-multiple/?id=${id}&type=2`,
-        formData,
+        `${process.env.REACT_APP_URL}/images/upload-multiple/`,
+        bodyFormData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -96,9 +131,14 @@ function FormProducts({ fields }) {
   const handleUpdate = useCallback((id) => {}, []);
   const handleSearch = useCallback((event) => {}, []);
 
-  const openSetting = useCallback((e, id) => {
-    console.log(id);
-  }, []);
+  const openSetting = useCallback(
+    (e, id) => {
+      const product = products.find((product) => product.id === id);
+      // console.log(product);
+      setOverlay(product);
+    },
+    [products]
+  );
 
   // call api
   useEffect(() => {
@@ -140,42 +180,11 @@ function FormProducts({ fields }) {
                       <input
                         ref={name}
                         type="text"
-                        className={
-                          "products-input products-input products-name"
-                        }
+                        className={"products-input products-name"}
                         name="name"
                         placeholder="Name"
                       />
                     </div>
-
-                    <div className={"form-group-two"}>
-                      <div>
-                        <label htmlFor="">Quantity</label>
-                        <input
-                          ref={quantity}
-                          type="text"
-                          className={
-                            "products-input products-input products-quantity"
-                          }
-                          name="quantity"
-                          placeholder="Quantity"
-                        />
-                      </div>
-
-                      <div>
-                        <label htmlFor="">Price</label>
-                        <input
-                          ref={unitPrice}
-                          type="text"
-                          className={
-                            "products-input products-input products-price"
-                          }
-                          name="price"
-                          placeholder="Price"
-                        />
-                      </div>
-                    </div>
-
                     <div className={"form-group-two"}>
                       <div className={"form-status"} id="productStatus">
                         <label htmlFor="">Status</label>
@@ -199,7 +208,7 @@ function FormProducts({ fields }) {
                     <div className={"form-group"}>
                       <label htmlFor="">Description</label>
                       <textarea
-                        name="description"
+                        name="description2"
                         ref={description}
                         type="text"
                         className={"products-description"}
@@ -208,10 +217,29 @@ function FormProducts({ fields }) {
                     </div>
 
                     <label htmlFor="">Details</label>
-                    <DetailsTable
+                    {/* <DetailsTable
                       detailsInfo={detailsInfo}
                       setDetailsInfo={setDetailsInfo}
-                    />
+                    /> */}
+                    {/* <button
+                      type="button"
+                      onClick={() => {
+                        setCountForm((prev) => prev + 1);
+                      }}
+                    >
+                      add
+                    </button> */}
+                    <figure
+                      className="icon-plus-cover"
+                      onClick={() => {
+                        setCountForm((prev) => prev + 1);
+                      }}
+                    >
+                      <img src={iconPlus} alt="icon plus" />
+                    </figure>
+                    {renderForm.map((form, index) => (
+                      <Details countForm={index + 1} handle={handleAddDetail} />
+                    ))}
                   </div>
 
                   <div className={"form-img"}>
@@ -219,7 +247,7 @@ function FormProducts({ fields }) {
                       <div className={"images"}></div>
                       <input
                         ref={image}
-                        name="image"
+                        name="images"
                         type="file"
                         className={"products-name"}
                         accept="image/png, image/jpeg"
@@ -243,7 +271,8 @@ function FormProducts({ fields }) {
           </Overlay>
         )}
         <section className={"section-list"}>
-          <section className={"list-promo"}>
+          <div className="dashboard-content-header">
+            <h2>Products List</h2>
             <Buttons
               type="button"
               title="submit"
@@ -254,9 +283,10 @@ function FormProducts({ fields }) {
             >
               Add New Product
             </Buttons>
+          </div>
 
-            <section className={"filter-promo"}>
-              <h2 className="heading">list promotion</h2>
+          <section className={"list-promo"}>
+            <section className={"filter-product"}>
               <Input
                 type={"text"}
                 name="search"
@@ -311,6 +341,11 @@ function FormProducts({ fields }) {
           </section>
         </section>
       </section>
+      {overlay && (
+        <Overlay onClick={setOverlay}>
+          <PopUpPromo data={overlay} />
+        </Overlay>
+      )}
     </main>
   );
 }

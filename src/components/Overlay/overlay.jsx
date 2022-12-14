@@ -3,6 +3,7 @@ export default function Overlay({ children, onClick }) {
     <section
       className="overlay"
       onClick={(e) => {
+        console.log(123);
         onClick();
       }}
     >

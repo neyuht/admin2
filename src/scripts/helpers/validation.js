@@ -8,7 +8,8 @@ import { changeStyleElementByObject } from "./styles-change";
 const validate = (obj) => {
   const empty = {};
   for (const [key, value] of Object.entries(obj)) {
-    if (!Boolean(value)) {
+    if ((typeof value === 'object' && !Boolean(Object.values(value).length) )|| !Boolean(value) ) {
+      console.log(value);
       empty[key] = "Can't be left blank";
     }
   }

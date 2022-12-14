@@ -14,7 +14,7 @@ import iconOrders from "../../assets/icons/icon-orders.svg";
 import Total from "../../components/Orders/Total";
 import axiosClient from "../../scripts/helpers/config";
 
-function Orders() {
+function DashBoard() {
   const [search, setSearch] = useState("");
   const [orders, setOrders] = useState(all_orders);
   const [page, setPage] = useState(1);
@@ -53,22 +53,18 @@ function Orders() {
   const [earning, setEarning] = useState([]);
   const [productSold, setProductSold] = useState([]);
   const [orderSold, setOrderSold] = useState([]);
-  const [bestSelling, setBestSelling] = useState([]);
-  const [lowestSelling, setLowestSelling] = useState([]);
 
   useEffect(() => {
     axiosClient
       .get(`${process.env.REACT_APP_URL}/orders/statistical`)
       .then((response) => {
         const data = response.data;
-        console.log(data.bestSelling);
-        setBestSelling(data.bestSelling);
+        console.log(data);
         setTotalRevenue(data.totalRevenue);
         setCustomerCount(data.customerCount);
         setEarning(data.earning);
         setProductSold(data.productSold);
         setOrderSold(data.orderSold);
-        setLowestSelling(data.lowestSelling);
       });
   }, []);
 
@@ -102,11 +98,7 @@ function Orders() {
           />
         </div>
 
-        <ChartBar
-          data={totalRevenue}
-          data2={bestSelling}
-          data3={lowestSelling}
-        />
+        <ChartBar data={totalRevenue} />
 
         <div className="list-orders">
           <div className="dashboard-content-header">
@@ -213,4 +205,4 @@ function Orders() {
   );
 }
 
-export default Orders;
+export default DashBoard;
