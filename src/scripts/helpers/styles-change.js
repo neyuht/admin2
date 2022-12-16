@@ -8,7 +8,6 @@
 const changeStyleElementByObject = (obj, style, styleChange) => {
   for (const [key, value] of Object.entries(obj)) {
     const element = document.querySelector(`[name=${key}]`);
-    console.log(element);
     element.style[style] = styleChange;
   }
   

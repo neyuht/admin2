@@ -28,7 +28,6 @@ function DashBoard() {
   // Search
   const __handleSearch = (event) => {
     setSearch(event.target.value);
-    console.log(event.target.value);
     if (event.target.value !== "") {
       let search_results = orders.filter(
         (item) =>
@@ -59,7 +58,6 @@ function DashBoard() {
       .get(`${process.env.REACT_APP_URL}/orders/statistical`)
       .then((response) => {
         const data = response.data;
-        console.log(data);
         setTotalRevenue(data.totalRevenue);
         setCustomerCount(data.customerCount);
         setEarning(data.earning);

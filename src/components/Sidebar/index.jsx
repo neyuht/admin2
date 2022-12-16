@@ -5,7 +5,6 @@ import SideBarItem from "./sidebar-item";
 
 import "./styles.css";
 import logo from "../../assets/images/white-logo.png";
-import LogoutIcon from "../../assets/icons/logout.svg";
 
 function SideBar({ menu }) {
   const location = useLocation();
@@ -21,7 +20,6 @@ function SideBar({ menu }) {
   }, [location.pathname]);
 
   const __navigate = (id) => {
-    console.log(id);
     setActive(id);
   };
 
@@ -84,15 +82,6 @@ function SideBar({ menu }) {
                   <SideBarItem active={item.id === active} item={item} />
                 </div>
               ))}
-            </div>
-
-            <div className="sidebar-footer">
-              <img
-                src={LogoutIcon}
-                alt="icon-logout"
-                className="sidebar-item-icon"
-              />
-              <span className="sidebar-item-label">Logout</span>
             </div>
           </div>
         </div>

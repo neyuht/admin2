@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBox, faUser, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
 import "../styles.css";
 import DashboardHeader from "../../components/DashboardHeader";
 function ChangePass() {

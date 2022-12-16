@@ -5,7 +5,6 @@ import { useCallback, useState } from "react";
 import {
   validate,
   validateCode,
-  validateDataForm,
   validateNumber,
   validateOperator,
 } from "../../scripts/helpers/validation";
@@ -80,7 +79,6 @@ function PopUpPromo({
     }
 
     result = validateCode(codeUpdate);
-    console.log(result);
     if (result.error) {
       return;
     }
@@ -103,8 +101,6 @@ function PopUpPromo({
     axiosClient
       .put(`${process.env.REACT_APP_URL}/promotion/${id}`, obj)
       .then((res) => {
-        console.log("success", res);
-
         window.location.reload();
       })
       .catch((err) => {
@@ -159,7 +155,6 @@ function PopUpPromo({
               name="status"
               value={statusUpdate}
               onChange={(event) => {
-                console.log(event.target.value);
                 setStatus(event.target.value);
               }}
             />

@@ -86,7 +86,7 @@ function Details({ countForm, handle }) {
     const form = document.forms[`form${countForm}`];
     const key = form["key"];
     const value = form["value"];
-    const price = form["price"].value;
+    const unitPrice = form["unitPrice"].value;
     const quantity = form["quantity"].value;
     const data = {
       key: key.value,
@@ -96,14 +96,14 @@ function Details({ countForm, handle }) {
       event.which === 13 &&
       Boolean(data.value) &&
       Boolean(data.key) &&
-      Boolean(price) &&
+      Boolean(unitPrice) &&
       Boolean(quantity)
     ) {
       const dataTemp = datas;
       dataTemp.push(data);
       const obj = {
         [countForm]: {
-          price,
+          unitPrice,
           quantity,
           description: dataTemp,
         },
@@ -122,7 +122,7 @@ function Details({ countForm, handle }) {
           name={`form${countForm}`}
           action="#"
           method="POST"
-          style={{ margin: "10px 0", width: "500px" }}
+          style={{ width: "500px" }}
         >
           <div className="details-box-two" style={{ margin: "10px 0" }}>
             <div className={"form-group"}>
@@ -130,8 +130,8 @@ function Details({ countForm, handle }) {
               <input
                 type="number"
                 min={0}
-                name="price"
-                placeholder="price"
+                name="unitPrice"
+                placeholder="unitPrice"
                 onKeyDown={add}
                 className="products-input"
               />
@@ -164,4 +164,5 @@ function Details({ countForm, handle }) {
     </>
   );
 }
+
 export default Details;

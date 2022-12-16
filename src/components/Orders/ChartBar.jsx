@@ -1,19 +1,21 @@
 import "chart.js/auto";
 import { Chart, Line } from "react-chartjs-2";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "./style.css";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
+import { useRef } from "react";
+import { useEffect } from "react";
 
 function ChartBar({ data, data2, data3 }) {
-  console.log("a");
   const best = () => {
     const label = [];
     const data = [];
     Object.values(data2).forEach((item) => {
-      console.log(item);
       label.push(item.name);
       data.push(item.count);
     });
-
     return { label, data };
   };
 
@@ -21,7 +23,6 @@ function ChartBar({ data, data2, data3 }) {
     const label = [];
     const data = [];
     Object.values(data3).forEach((item) => {
-      console.log(item);
       label.push(item.name);
       data.push(item.count);
     });
@@ -62,6 +63,8 @@ function ChartBar({ data, data2, data3 }) {
       },
     ],
   };
+
+  const [selectData, setSelectData] = useState(dataTop);
 
   const dataBottom = {
     labels: lowest().label,
@@ -114,6 +117,32 @@ function ChartBar({ data, data2, data3 }) {
     ],
   };
 
+  const commonBoard = (props) => {
+    return (
+      <div className="item-wrapper">
+        <figure className="image-wrapper">
+          <img src={props.img} alt="" />
+        </figure>
+        <div className="board-description">
+          <p className="board-title">{props.title}</p>
+          {props.description ? (
+            <p className="board-title">{props.description}</p>
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const changeDataChart = (e) => {
+    if (e.target.value === "bestSelling") {
+      setSelectData(dataTop);
+    } else if (e.target.value === "lowestSelling") {
+      setSelectData(dataBottom);
+    }
+  };
+
   return (
     <div className="chart-board">
       <div className="chart-earning-wrapper">
@@ -121,20 +150,84 @@ function ChartBar({ data, data2, data3 }) {
         <Line width={"0%"} className="chart-earning" data={dataLine} />
       </div>
       <div className="chart-products">
-        <div className="chart-top-seller">
-          <h2 className="chart-top-title">Best Selling</h2>
-          <div className="chart-board">
-            <Chart className="chart-board-bottom" type="bar" data={dataTop} />
+        <div className="char-products-box">
+          <div className="chart-top-seller">
+            <div className="title-chart">
+              <h2 className="chart-top-title">Products Selling</h2>
+              <select name="selectData" onChange={changeDataChart}>
+                <option className="option-filter" value="bestSelling">
+                  Best Selling
+                </option>
+                <option className="option-filter" value="lowestSelling">
+                  Lowest Selling
+                </option>
+              </select>
+            </div>
+            <div className="chart-board">
+              <Chart
+                className="chart-board-bottom"
+                type="bar"
+                data={selectData}
+              />
+            </div>
           </div>
+          {/* <div className="chart-bottom-seller">
+            <h2 className="chart-top-title">Lowest Selling</h2>
+            <div className="chart-board">
+              <Chart
+                className="chart-board-bottom"
+                type="bar"
+                data={dataBottom}
+              />
+            </div>
+          </div> */}
         </div>
-        <div className="chart-bottom-seller">
-          <h2 className="chart-top-title">Lowest Selling</h2>
-          <div className="chart-board">
-            <Chart
-              className="chart-board-bottom"
-              type="bar"
-              data={dataBottom}
-            />
+        <div className="char-products-box-left">
+          <div className="board-wrapper">
+            <div className="title-chart">
+              <h3>Recent Users</h3>
+              <div className="board-details">
+                <span>More</span>
+                <FontAwesomeIcon icon={faArrowRight} />
+              </div>
+            </div>
+            <div className="board-content">
+              <div className="item-wrapper">
+                <figure className="image-wrapper">
+                  <img src="" alt="" />
+                </figure>
+                <div className="board-description">
+                  <p className="board-title">adasdadasdasd</p>
+                  <p className="board-title">adasdadasdasd</p>
+                </div>
+              </div>
+              {commonBoard({
+                img: "asd",
+                title: "asdasd",
+                description: "sass",
+              })}
+            </div>
+          </div>
+
+          <div className="board-wrapper">
+            <div className="title-chart">
+              <h3>Recent Comments</h3>
+              <div className="board-details">
+                <span>More</span>
+                <FontAwesomeIcon icon={faArrowRight} />
+              </div>
+            </div>
+            <div className="board-content">
+              <div className="item-wrapper">
+                <figure className="image-wrapper">
+                  <img src="" alt="" />
+                </figure>
+                <div className="board-description">
+                  <p className="board-title">adasdadasdasd</p>
+                  <p className="board-title">adasdadasdasd</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

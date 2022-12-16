@@ -10,7 +10,7 @@
   display: flex;
   background-color: #eee;
   flex-direction: column;
-  gap: 35px;
+  gap: 50px;
   overflow: auto;
 }
 .dashboard-content-header {
@@ -79,7 +79,7 @@ th {
   border-bottom: 0.05rem solid rgb(240, 242, 245);
 }
 .list-category-table {
- font-weight: 100;
+  font-weight: 100;
 }
 tbody {
   display: table-row-group;
@@ -154,12 +154,13 @@ td span {
   font-weight: 700;
   border-color: #ffffff;
 }
-.rowct{
+.rowct {
   font-size: 14px;
   font-weight: 500;
   color: #5e5e5e;
 }
-.rowedit{ width: 80px;
+.rowedit {
+  width: 80px;
   font-size: 14px;
   font-weight: 500;
   color: #ffffff;
@@ -169,7 +170,7 @@ td span {
   border: none;
   margin-right: 15px;
 }
-.rowedit:hover{
+.rowedit:hover {
   width: 80px;
   font-size: 14px;
   font-weight: 500;
@@ -180,7 +181,7 @@ td span {
   border: none;
   margin-right: 15px;
 }
-.rowremove{
+.rowremove {
   width: 80px;
   font-size: 14px;
   font-weight: 500;
@@ -189,9 +190,8 @@ td span {
   padding: 5px;
   background-color: rgb(255, 0, 0);
   border: none;
- 
 }
-.rowremove:hover{
+.rowremove:hover {
   width: 80px;
   font-size: 14px;
   font-weight: 500;
@@ -201,39 +201,38 @@ td span {
   background-color: rgb(119, 11, 11);
   border: none;
 }
-.admin-left{
+.admin-left {
   width: 200px;
   float: left;
   height: 100%;
   top: 10px;
 }
-.admin-right{
+.admin-right {
   width: auto;
 }
-.admin-right label{
+.admin-right label {
   background-color: #2d83b5;
   padding: 3px 10px 3px 10px;
   color: white;
   border-radius: 10px;
   font-weight: 600;
 }
-.avatar-admin img{
+.avatar-admin img {
   border-radius: 50%;
   margin-left: 10px;
 }
-.fullname{
+.fullname {
   font-size: 20px;
   font-weight: bold;
   padding-top: 20px;
 }
-.left{
+.left {
   float: left;
- width: 50%;
+  width: 50%;
 }
-.buttom-text{
+.buttom-text {
   margin-bottom: 100px;
   margin-top: 10px;
-
 }
 label {
   display: inline-block;
@@ -242,56 +241,6 @@ label {
   margin-top: 10px;
   color: rgb(47, 47, 47);
   font-weight: 600;
-}
-input[type="text"] {
-  outline: none;
-  padding: 10px;
-  display: block;
-  width: 100%;
-  font-size: 16px;
-  background-color: rgb(255, 255, 255);
-  height: 50px;
-  letter-spacing: 2.0;
-  border-radius: 3px;
-  border: none;
-}
-input[type=text]:disabled {
-  background: #c5c5c5;}
-input[type="password"] {
-  outline: none;
-  padding: 10px;
-  display: block;
-  width: 100%;
-  color: #fff;
-  font-size: 16px;
-  background-color: #eee;
-  color: rgb(0, 0, 0);
-  height: 50px;
-  letter-spacing: 2.0;
-  border-radius: 3px;
-  border: none;
-}
-
-input[type="submit"] {
-  display: inline-block;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #fff;
-  outline: 2px solid #fff;
-  padding: 10px 30px;
-  position: relative;
-  overflow: hidden;
-  transition: color 1s;
-  background-color:  #0091ff;
-  border-radius: 3px;
-  margin-top: 15px;
-  border: none;
-}
-
-input[type="submit"]:hover {
-  color: #fff;
-
 }
 
 .button-container {

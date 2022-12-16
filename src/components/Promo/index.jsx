@@ -5,9 +5,8 @@ import Select from "../../scripts/components/select";
 import Overlay from "../Overlay/overlay";
 import PromoItem from "../../scripts/components/l-promo-item";
 import PopUpPromo from "./promo-overlay";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  validateDataForm,
   validate,
   validateNumber,
   validateOperator,
@@ -21,6 +20,8 @@ import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { adminLogin } from "../../service/authService";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -35,6 +36,9 @@ const statuss = new Array(2).fill(1).map((item, index) => ({
 const size = 8;
 
 function Promo() {
+  const [searchParams, setSearchparams] = useSearchParams({
+    page: 1,
+  });
   const [code, setCode] = useState("");
   const [percent, setPercent] = useState(0);
   const [amount, setAmount] = useState("");
@@ -50,9 +54,40 @@ function Promo() {
   const [timer, setTimer] = useState("");
   const [overlay, setOverlay] = useState();
   const [popup, setPopup] = useState(false);
+  const responsePagins = useRef([]);
+  const lists = useRef([]);
+
+  const nextPage = (currentPage) => {
+    const temps = lists.current.filter((item) => {
+      return item.includes(currentPage);
+    });
+    if (temps.length != 1) {
+      return temps[1];
+    }
+    return temps[0];
+  };
+
+  const changePage = (step) => {
+    let currentPage = +searchParams.get("page") + step;
+    setSearchparams({
+      page: currentPage,
+    });
+  };
+
+  const computePagins = useMemo(() => {
+    let currentPage = +searchParams.get("page");
+    if (currentPage <= 0) {
+      currentPage = 1;
+    } else if (
+      currentPage > responsePagins.current[responsePagins.current.length - 1]
+    ) {
+      currentPage = responsePagins.current[responsePagins.current.length - 1];
+    }
+    const data = nextPage(currentPage) || [];
+    return data;
+  }, [searchParams, promotions]);
 
   const onSubmit = (event) => {
-    console.log(adminLogin);
     event.preventDefault();
     const obj = {
       code,
@@ -97,7 +132,6 @@ function Promo() {
     }
 
     result = validateCode(code);
-    console.log(result);
     if (result.error) {
       return;
     }
@@ -165,7 +199,6 @@ function Promo() {
         setStartDate("");
         setStatus(true);
         setPopup(false);
-        console.log("Success");
       })
       .catch((err) => {
         console.log(err);
@@ -179,13 +212,11 @@ function Promo() {
       const url = `${process.env.REACT_APP_URL}/promotion${
         text ? "?code=" + text : ""
       }`;
-      console.log("URL", url);
       axiosClient
         .get(url)
         .then((response) => {
           const datas = response.data.content;
           setPromotions(datas);
-          console.log(response);
         })
         .catch((err) => {
           console.log(err);
@@ -221,6 +252,22 @@ function Promo() {
     axiosClient
       .get(`${process.env.REACT_APP_URL}/promotion`)
       .then((response) => {
+        const _sizePagin = response.data.totalPage;
+        responsePagins.current = new Array(_sizePagin)
+          .fill(1)
+          .map((item, index) => index + 1);
+        for (
+          let index = 0;
+          index < responsePagins.current.length;
+          index += size - 1
+        ) {
+          lists.current.push([
+            responsePagins.current[index],
+            responsePagins.current[index + 1],
+            responsePagins.current[index + 2],
+            responsePagins.current[index + 3],
+          ]);
+        }
         setPromotions(response.data.content);
       })
       .catch((err) => {
@@ -340,18 +387,30 @@ function Promo() {
         </div>
         <section className={"section-list"}>
           <section className={"list-promo"}>
-            {/* <Buttons variant="primary" onClick={popupAddPromo}>
-              Add New Product
-            </Buttons> */}
-
             <section className={"filter-product"}>
-              <Input
-                type={"text"}
-                name="search"
-                value={filter}
-                placeholder="Enter promotion"
-                onChange={onSearch}
-              />
+              <div className="filter-product-search">
+                <Input
+                  type={"text"}
+                  name="search"
+                  value={filter}
+                  placeholder="Enter promotion"
+                  onChange={onSearch}
+                />
+                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
+              </div>
+              <div className="filter-product-search">
+                <select name="" id="">
+                  <option className="option-filter" value="all">
+                    All
+                  </option>
+                  <option className="option-filter" value="done">
+                    Available
+                  </option>
+                  <option className="option-filter" value="notYet">
+                    Expire
+                  </option>
+                </select>
+              </div>
             </section>
             <section className={"table-promo"}>
               <table>
@@ -372,15 +431,6 @@ function Promo() {
                       indexPagin * size - size <= index &&
                       index < size * indexPagin
                     ) {
-                      console.log(promotion.endDate);
-                      console.log(
-                        new Date(promotion.endDate)
-                          .toLocaleString("en-GB")
-                          .split(",")[0]
-                      );
-                      console.log(
-                        new Date().toLocaleString("en-GB").split(",")[0]
-                      );
                       return (
                         <PromoItem
                           id={promotion.id}

@@ -1,5 +1,4 @@
 import React from "react";
-import DashboardHeader from "../../components/DashboardHeader";
 
 function Pesudo({ children }) {
   return (

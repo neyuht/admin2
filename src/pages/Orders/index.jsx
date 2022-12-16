@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import DashboardHeader from "../../components/DashboardHeader";
-
 import all_orders from "../../constants/orders";
 import { calculateRange, sliceData } from "../../utils/table-pagination";
 import DoneIcon from "../../assets/icons/done.svg";
@@ -14,6 +12,8 @@ import iconOrders from "../../assets/icons/icon-orders.svg";
 import Total from "../../components/Orders/Total";
 import axiosClient from "../../scripts/helpers/config";
 import Input from "../../scripts/components/input";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 function Orders() {
   const [search, setSearch] = useState("");
@@ -29,7 +29,6 @@ function Orders() {
   // Search
   const __handleSearch = (event) => {
     setSearch(event.target.value);
-    console.log(event.target.value);
     if (event.target.value !== "") {
       let search_results = orders.filter(
         (item) =>
@@ -49,6 +48,8 @@ function Orders() {
     setOrders(sliceData(all_orders, new_page, 5));
   };
 
+  const onSearch = () => {};
+
   const [totalRevenue, setTotalRevenue] = useState([]);
   const [customerCount, setCustomerCount] = useState([]);
   const [earning, setEarning] = useState([]);
@@ -62,7 +63,6 @@ function Orders() {
       .get(`${process.env.REACT_APP_URL}/orders/statistical`)
       .then((response) => {
         const data = response.data;
-        console.log(data.bestSelling);
         setBestSelling(data.bestSelling);
         setTotalRevenue(data.totalRevenue);
         setCustomerCount(data.customerCount);
@@ -113,83 +113,101 @@ function Orders() {
           <div className="dashboard-content-header">
             <h2>Orders List</h2>
             <section className={"filter-product"}>
-              <Input
-                type={"text"}
-                name="search"
-                // value={filter}
-                placeholder="Enter promotion"
-                // onChange={onSearch}
-              />
+              <div className="filter-product-search">
+                <Input
+                  type={"text"}
+                  name="search"
+                  // value={filter}
+                  placeholder="Enter promotion"
+                  // onChange={onSearch}
+                />
+                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
+              </div>
+              <div className="filter-product-search">
+                <select name="" id="">
+                  <option className="option-filter" value="all">
+                    All
+                  </option>
+                  <option className="option-filter" value="done">
+                    Done
+                  </option>
+                  <option className="option-filter" value="notYet">
+                    Not Done Yet
+                  </option>
+                </select>
+              </div>
             </section>
           </div>
 
-          <table>
-            <thead>
-              <th>ID</th>
-              <th>DATE</th>
-              <th>STATUS</th>
-              <th>COSTUMER</th>
-              <th>PRODUCT</th>
-              <th>REVENUE</th>
-            </thead>
+          <section className="table-promo">
+            <table>
+              <thead>
+                <th>ID</th>
+                <th>DATE</th>
+                <th>STATUS</th>
+                <th>COSTUMER</th>
+                <th>PRODUCT</th>
+                <th>REVENUE</th>
+              </thead>
 
-            {orders.length !== 0 ? (
-              <tbody>
-                {orders.map((order, index) => (
-                  <tr key={index}>
-                    <td>
-                      <span>{order.id}</span>
-                    </td>
-                    <td>
-                      <span>{order.date}</span>
-                    </td>
-                    <td>
-                      <div>
-                        {order.status === "Paid" ? (
+              {orders.length !== 0 ? (
+                <tbody>
+                  {orders.map((order, index) => (
+                    <tr key={index}>
+                      <td>
+                        <span>{order.id}</span>
+                      </td>
+                      <td>
+                        <span>{order.date}</span>
+                      </td>
+                      <td>
+                        <div>
+                          {order.status === "Paid" ? (
+                            <img
+                              src={DoneIcon}
+                              alt="paid-icon"
+                              className="dashboard-content-icon"
+                            />
+                          ) : order.status === "Canceled" ? (
+                            <img
+                              src={CancelIcon}
+                              alt="canceled-icon"
+                              className="dashboard-content-icon"
+                            />
+                          ) : order.status === "Refunded" ? (
+                            <img
+                              src={RefundedIcon}
+                              alt="refunded-icon"
+                              className="dashboard-content-icon"
+                            />
+                          ) : null}
+                          <span>{order.status}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
                           <img
-                            src={DoneIcon}
-                            alt="paid-icon"
-                            className="dashboard-content-icon"
+                            src={order.avatar}
+                            className="dashboard-content-avatar"
+                            alt={order.first_name + " " + order.last_name}
                           />
-                        ) : order.status === "Canceled" ? (
-                          <img
-                            src={CancelIcon}
-                            alt="canceled-icon"
-                            className="dashboard-content-icon"
-                          />
-                        ) : order.status === "Refunded" ? (
-                          <img
-                            src={RefundedIcon}
-                            alt="refunded-icon"
-                            className="dashboard-content-icon"
-                          />
-                        ) : null}
-                        <span>{order.status}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div>
-                        <img
-                          src={order.avatar}
-                          className="dashboard-content-avatar"
-                          alt={order.first_name + " " + order.last_name}
-                        />
-                        <span>
-                          {order.first_name} {order.last_name}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span>{order.product}</span>
-                    </td>
-                    <td>
-                      <span>${order.price}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            ) : null}
-          </table>
+                          <span>
+                            {order.first_name} {order.last_name}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span>{order.product}</span>
+                      </td>
+                      <td>
+                        <span>${order.price}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              ) : null}
+            </table>
+          </section>
 
           {orders.length !== 0 ? (
             <div className="dashboard-content-footer">

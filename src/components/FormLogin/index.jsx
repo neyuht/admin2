@@ -1,13 +1,9 @@
-import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import { adminLogin } from "../../service/authService";
 
 import "./style.css";
 
 export default function LoginForm() {
-  const [username, setUserName] = useState();
-  const [password, setPassword] = useState();
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const handleSubmit = (event) => {
     event.preventDefault();
     var username = document.getElementById("username").value;
@@ -19,7 +15,6 @@ export default function LoginForm() {
     };
     adminLogin(data).then((res) => {
       localStorage.setItem("token", "Bearer " + res.data.data);
-      console.log(localStorage.getItem("token"));
       alert("Login succsecfuly");
       window.location.reload(false);
     });

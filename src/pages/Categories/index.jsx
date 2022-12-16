@@ -1,17 +1,10 @@
-import React, { Component, useCallback } from "react";
-// Table from react-bootstrap
-import { Table } from "react-bootstrap";
-import { calculateRange, sliceData } from "../../utils/table-pagination";
-// Bootstrap CSS
+import React, { useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faRemove } from "@fortawesome/free-solid-svg-icons";
-// To make rows collapsible
-import CategoryMd from "../../components/ModalPro/CategoryMd";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { getAllCategory } from "../../service/categoryService";
 import "../styles.css";
-import DashboardHeader from "../../components/DashboardHeader";
 import Overlay from "../../components/Overlay/overlay";
 import PopUpPromo from "../../components/Form-product/product-overlay";
 import Button from "../../scripts/components/button";
@@ -45,7 +38,7 @@ function Categories() {
   }, []);
 
   const onSubmit = (event) => {};
-
+  const onSearch = () => {};
   return (
     <>
       <div className="dashboard-content">
@@ -170,13 +163,19 @@ function Categories() {
             </Buttons> */}
 
                   <section className={"filter-product"}>
-                    <Input
-                      type={"text"}
-                      name="search"
-                      // value={filter}
-                      placeholder="Enter promotion"
-                      // onChange={onSearch}
-                    />
+                    <div className="filter-product-search">
+                      <Input
+                        type={"text"}
+                        name="search"
+                        // value={filter}
+                        placeholder="Enter promotion"
+                        // onChange={onSearch}
+                      />
+                      <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        onClick={onSearch}
+                      />
+                    </div>
                   </section>
                   <section className={"table-promo"}>
                     <table>

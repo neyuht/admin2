@@ -2,20 +2,9 @@ import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
 import { useCallback, useMemo, useState } from "react";
-import {
-  validate,
-  validateCode,
-  validateDataForm,
-  validateNumber,
-  validateOperator,
-} from "../../scripts/helpers/validation";
-import Select from "../../scripts/components/select";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
-import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import Category from "./Category";
-import { useEffect } from "react";
-import { RenderDetails } from "./Details/details";
 import http from "../../utils/http";
 
 function PopUpPromo({ id, data }) {
@@ -126,7 +115,7 @@ function PopUpPromo({ id, data }) {
       [key]: value,
     }));
   }, []);
-  console.log(variant);
+
   return (
     <form
       action="#"
@@ -160,7 +149,6 @@ function PopUpPromo({ id, data }) {
                 value={update.name}
                 onChange={(e) => {
                   const value = e.target.value;
-                  console.log(value);
                   handleChange("name", value);
                 }}
               />
@@ -228,7 +216,7 @@ function PopUpPromo({ id, data }) {
                 <section style={{ margin: "10px 0" }}>
                   <input
                     type="text"
-                    value={vitem.price}
+                    value={vitem.unitPrice}
                     onChange={(event) => {
                       const value = event.target.value;
                       handlechangePrice(indexParent, "unitPrice", value);
@@ -240,6 +228,22 @@ function PopUpPromo({ id, data }) {
                     onChange={(event) => {
                       const value = event.target.value;
                       handlechangePrice(indexParent, "quantity", value);
+                    }}
+                  />
+                </section>
+                <section>
+                  <input
+                    type="text"
+                    placeholder="New key"
+                    onChange={(event) => {
+                      const value = event.target.value;
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="New value"
+                    onChange={(event) => {
+                      const value = event.target.value;
                     }}
                   />
                 </section>

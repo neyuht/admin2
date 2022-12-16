@@ -23,22 +23,21 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function App() {
-  useEffect(() => {
-    isAdmin().then((res) => {
-      console.log(res);
-      if (res.statusCode == 401) {
-        setToken(false);
-      } else {
-        setToken(true);
-      }
-    });
-  }, []);
+    // useEffect(() => {
+    //   isAdmin().then((res) => {
+    //     if (res.statusCode == 401) {
+    //       setToken(false);
+    //     } else {
+    //       setToken(true);
+    //     }
+    //   });
+    // }, []);
 
-  const [token, setToken] = useState();
-  if (!token) {
-    return <LoginForm setToken={setToken} />;
-  }
-  const logout = () => {};
+    // const [token, setToken] = useState();
+    // if (!token) {
+    //   return <LoginForm setToken={setToken} />;
+    // }
+    // const logout = () => {};
   return (
     <Router>
       <div className="dashboard-container">
@@ -66,9 +65,9 @@ function App() {
               <a href="/admin/change-pass">
                 <FontAwesomeIcon icon={faLock} /> &nbsp; Change Password
               </a>
-              <a className="logout-hv" onClick={logout}>
+              {/* <a className="logout-hv" onClick={logout}>
                 <FontAwesomeIcon icon={faToggleOff} /> &nbsp;Logout
-              </a>
+              </a> */}
             </div>
           </div>
         </div>

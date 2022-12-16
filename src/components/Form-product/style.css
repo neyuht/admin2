@@ -14,9 +14,7 @@
   flex-direction: column;
   gap: 30px;
   background-color: #fff;
-  overflow-y: scroll;
-  scrollbar-color: rebeccapurple green;
-  scrollbar-width: thin;
+  overflow-y: auto;
 }
 
 .form-information {
@@ -59,7 +57,6 @@
   border: none;
   padding: 0 20px;
   border-radius: 8px;
-  background-color: #eee;
 }
 
 .form-status,
@@ -73,26 +70,28 @@
   font-family: sans-serif;
   height: 50px;
   width: 100%;
-  border-radius: 8px;
-  padding: 0 20px;
-  border: none;
-  background-color: #eee;
   font-size: 16px;
   outline: none;
   color: #757575;
+  padding: 10px;
+  border: none;
+  box-shadow: 0 0 0 0.07mm;
+  outline: none;
+  border-radius: 3px;
 }
 
 .form-content .form-group textarea {
   font-family: sans-serif;
   height: 100px;
-  border-radius: 8px;
-  padding: 10px 20px;
-  border: none;
-  background-color: #eee;
+  width: 100%;
   font-size: 16px;
   outline: none;
   color: #757575;
-  resize: none;
+  padding: 10px;
+  border: none;
+  box-shadow: 0 0 0 0.07mm;
+  outline: none;
+  border-radius: 3px;
 }
 
 .checkbox-related .products-related {
@@ -188,7 +187,7 @@
 .form-details-variant {
   border: 1px solid rgb(226, 225, 225);
   border-radius: 8px;
-  padding: 10px;
+  padding: 0 10px;
 }
 
 .section-list {
@@ -203,6 +202,7 @@
 
 .filter-product {
   display: flex;
+  gap: 10px;
   justify-content: end;
 }
 
@@ -210,14 +210,36 @@
   box-shadow: unset;
 }
 
-.filter-product input {
-  width: 50%;
-  padding: 8px;
+.filter-product-search {
+  box-shadow: 0 0 0 0.05mm;
+  padding: 0 8px;
+  border-radius: 3px;
+}
+
+.filter-product-search select {
+  cursor: pointer;
   outline: none;
   border: none;
-  box-shadow: 0 0 0 0.05mm;
-  border-radius: 3px;
+  margin-top: 8px;
+}
+
+.filter-product-search select .option-filter {
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.filter-product input {
+  width: 90%;
+  outline: none;
+  border: none;
   margin-bottom: 8px;
+}
+
+.filter-product svg {
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+  margin-top: 10px;
 }
 
 .icon-plus-cover {
@@ -232,7 +254,17 @@
 }
 
 .details-box-two .form-group input {
+  font-family: sans-serif;
+  height: 50px;
   width: 100%;
+  font-size: 16px;
+  outline: none;
+  color: #757575;
+  padding: 10px;
+  border: none;
+  box-shadow: 0 0 0 0.07mm;
+  outline: none;
+  border-radius: 3px;
 }
 
 .details-box input {
@@ -298,4 +330,13 @@
   padding: 10px;
   outline: none;
   border-radius: 8px;
+}
+
+.form-content .form-group-details {
+  flex-direction: row;
+}
+
+.form-content .form-group-details figure {
+  margin-top: 5px;
+  vertical-align: bottom;
 }

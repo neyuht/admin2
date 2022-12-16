@@ -17,7 +17,6 @@ function Login() {
     };
     adminLogin(data).then((res) => {
       localStorage.setItem("token", "Bearer " + res.data.data);
-      console.log(localStorage.getItem("token"));
     });
   }, []);
 

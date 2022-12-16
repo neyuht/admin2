@@ -47,11 +47,9 @@ const validateDataForm = (obj) => {
 
   if (Object.keys(empty).length) {
     changeStyleElementByObject(empty, "boxShadow", "0 0 0 0.3mm red");
-    console.log(empty);
     return false;
   } else if (Object.keys(notANumber).length) {
     changeStyleElementByObject(notANumber, "boxShadow", "0 0 0 0.3mm red");
-    console.log(notANumber);
     return false;
   }
   return true;

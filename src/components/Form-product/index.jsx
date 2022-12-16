@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Category from "./Category";
 import Details from "./Details/details";
 import http, * as request from "../../utils/http";
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import { validate } from "../../scripts/helpers/validation";
-// import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import Buttons from "react-bootstrap/Button";
 import ProductItem from "../../scripts/components/l-product-item";
 import "./style.css";
@@ -15,13 +15,23 @@ import axiosClient from "../../scripts/helpers/config";
 import convertArrayToString from "../../scripts/helpers/convert";
 import PopUpPromo from "./product-overlay";
 import iconPlus from "../../assets/icons/icon-plus.svg";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const size = 5;
+const size = 4;
 
 function FormProducts({ fields }) {
+  const [searchParams, setSearchparams] = useSearchParams({
+    page: 1,
+  });
   const [filter, setFilter] = useState("");
-  const [indexPagin, setIndexPagin] = useState(1);
-  const [sizePagin, setSizePagin] = useState(1);
+  const [statePagin, setStatePagin] = useState({
+    size: 4,
+    step: 1,
+    currentIndex: +searchParams.get("page"),
+    start: 0,
+    end: 3,
+  });
   const [products, setProducts] = useState([]);
   const name = useRef("");
   const status = useRef("");
@@ -33,6 +43,8 @@ function FormProducts({ fields }) {
   const [detailsInfo, setDetailsInfo] = useState([]);
   const [popup, setPopup] = useState(false);
   const [overlay, setOverlay] = useState();
+  const responsePagins = useRef([]);
+  const lists = useRef([]);
 
   /**
    *  Code của detail
@@ -49,15 +61,39 @@ function FormProducts({ fields }) {
     }));
   }, []);
 
+  const nextPage = (currentPage) => {
+    const temps = lists.current.filter((item) => {
+      return item.includes(currentPage);
+    });
+    if (temps.length != 1) {
+      return temps[1];
+    }
+    return temps[0];
+  };
+
+  const changePage = (step) => {
+    let currentPage = +searchParams.get("page") + step;
+    setSearchparams({
+      page: currentPage,
+    });
+  };
+
   const computePagins = useMemo(() => {
-    const _tempsPagin = new Array(sizePagin).fill(1);
-    return _tempsPagin;
-  }, [sizePagin]);
+    let currentPage = +searchParams.get("page");
+    if (currentPage <= 0) {
+      currentPage = 1;
+    } else if (
+      currentPage > responsePagins.current[responsePagins.current.length - 1]
+    ) {
+      currentPage = responsePagins.current[responsePagins.current.length - 1];
+    }
+    const data = nextPage(currentPage) || [];
+    return data;
+  }, [searchParams, products]);
 
   const createNewProduct = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log(variant);
     const form = document.forms["formAddProduct"];
     const name = form["name"].value;
     const category = form["category"].value;
@@ -76,7 +112,6 @@ function FormProducts({ fields }) {
       categoryId: category,
       productVariantList: variantRq,
     };
-
     const { productVariantList, description, ...obj } = data;
     const result = validate({
       ...obj,
@@ -99,15 +134,9 @@ function FormProducts({ fields }) {
     if (response.status === 200) {
       const { id } = response.data.data;
       const bodyFormData = new FormData();
-      console.log(typeof images);
-      console.log(images);
       Object.values(images).forEach((images) => {
         bodyFormData.append("images", images);
       });
-      // images.forEach((item, index) => {
-      //   console.log(images[index]);
-      //   bodyFormData.append("images", images[index]);
-      // });
       bodyFormData.append("type", "3");
       bodyFormData.append("id", id + "");
       const response2 = await axiosClient.post(
@@ -119,12 +148,13 @@ function FormProducts({ fields }) {
           },
         }
       );
-      console.log(response2);
     }
 
     // const id = 1;
     // send request image id = 1, type = 2, image = list anh
   };
+
+  const onSearch = () => {};
 
   const handleDelete = useCallback((id) => {}, []);
 
@@ -134,7 +164,6 @@ function FormProducts({ fields }) {
   const openSetting = useCallback(
     (e, id) => {
       const product = products.find((product) => product.id === id);
-      // console.log(product);
       setOverlay(product);
     },
     [products]
@@ -143,15 +172,30 @@ function FormProducts({ fields }) {
   // call api
   useEffect(() => {
     axiosClient
-      .get(`${process.env.REACT_APP_URL}/products?page=${indexPagin}`)
+      .get(
+        `${process.env.REACT_APP_URL}/products?page=${searchParams.get("page")}`
+      )
       .then((response) => {
         const data = response.data.content;
         const _sizePagin = response.data.totalPage;
-        console.log(response);
+        responsePagins.current = new Array(_sizePagin)
+          .fill(1)
+          .map((item, index) => index + 1);
+        for (
+          let index = 0;
+          index < responsePagins.current.length;
+          index += size - 1
+        ) {
+          lists.current.push([
+            responsePagins.current[index],
+            responsePagins.current[index + 1],
+            responsePagins.current[index + 2],
+            responsePagins.current[index + 3],
+          ]);
+        }
         setProducts(data);
-        setSizePagin(_sizePagin);
       });
-  }, [indexPagin]);
+  }, [searchParams]);
 
   return (
     <main className={"main-wrapper"}>
@@ -175,7 +219,7 @@ function FormProducts({ fields }) {
               >
                 <div className={"form-information"}>
                   <div className={"form-content"}>
-                    <div className={"form-group"}>
+                    <div className={"form-data-item"}>
                       <label htmlFor="">Name</label>
                       <input
                         ref={name}
@@ -216,27 +260,18 @@ function FormProducts({ fields }) {
                       />
                     </div>
 
-                    <label htmlFor="">Details</label>
-                    {/* <DetailsTable
-                      detailsInfo={detailsInfo}
-                      setDetailsInfo={setDetailsInfo}
-                    /> */}
-                    {/* <button
-                      type="button"
-                      onClick={() => {
-                        setCountForm((prev) => prev + 1);
-                      }}
-                    >
-                      add
-                    </button> */}
-                    <figure
-                      className="icon-plus-cover"
-                      onClick={() => {
-                        setCountForm((prev) => prev + 1);
-                      }}
-                    >
-                      <img src={iconPlus} alt="icon plus" />
-                    </figure>
+                    <div className={"form-group form-group-details"}>
+                      <label htmlFor="">Details</label>
+                      <figure
+                        className="icon-plus-cover"
+                        onClick={() => {
+                          setCountForm((prev) => prev + 1);
+                        }}
+                      >
+                        <img src={iconPlus} alt="icon plus" />
+                      </figure>
+                    </div>
+
                     {renderForm.map((form, index) => (
                       <Details countForm={index + 1} handle={handleAddDetail} />
                     ))}
@@ -287,13 +322,29 @@ function FormProducts({ fields }) {
 
           <section className={"list-promo"}>
             <section className={"filter-product"}>
-              <Input
-                type={"text"}
-                name="search"
-                value={filter}
-                placeholder="Enter product's name"
-                // onChange={onSearch}
-              />
+              <div className="filter-product-search">
+                <Input
+                  type={"text"}
+                  name="search"
+                  value={filter}
+                  placeholder="Enter product's name"
+                  // onChange={onSearch}
+                />
+                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
+              </div>
+              <div className="filter-product-search">
+                <select name="" id="">
+                  <option className="option-filter" value="all">
+                    All
+                  </option>
+                  <option className="option-filter" value="done">
+                    Available
+                  </option>
+                  <option className="option-filter" value="notYet">
+                    Sold Out
+                  </option>
+                </select>
+              </div>
             </section>
             <section className={"table-promo"}>
               <table>
@@ -322,21 +373,39 @@ function FormProducts({ fields }) {
               </table>
             </section>
             <ul className={"paginations"}>
-              {computePagins.map((item, index) => (
-                <li
-                  className={`${"pagin-item"} ${`${
-                    indexPagin === index + 1 ? "active" : ""
-                  }`}`}
-                >
-                  <Button
-                    type={"text"}
-                    title={index + 1}
-                    onClick={() => {
-                      setIndexPagin(index + 1);
-                    }}
-                  />
-                </li>
-              ))}
+              <button
+                onClick={() => {
+                  changePage(-1);
+                }}
+                disabled={searchParams.get("page") * 1 === 1}
+              >
+                prev
+              </button>
+              {computePagins.map(
+                (item, index) =>
+                  item && (
+                    <button
+                      onClick={() => {
+                        setSearchparams({
+                          page: item,
+                        });
+                      }}
+                    >
+                      {item}
+                    </button>
+                  )
+              )}
+              <button
+                onClick={() => {
+                  changePage(1);
+                }}
+                disabled={
+                  searchParams.get("page") * 1 ===
+                  responsePagins.current[responsePagins.current.length - 1]
+                }
+              >
+                next
+              </button>
             </ul>
           </section>
         </section>

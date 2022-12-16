@@ -7,7 +7,6 @@ function ModalView(props) {
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
-    // console.log(props.data);
   };
 
   return (
