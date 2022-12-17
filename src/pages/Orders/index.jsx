@@ -20,6 +20,7 @@ function Orders() {
   const [orders, setOrders] = useState(all_orders);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState([]);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     setPagination(calculateRange(all_orders, 5));
@@ -63,6 +64,7 @@ function Orders() {
       .get(`${process.env.REACT_APP_URL}/orders/statistical`)
       .then((response) => {
         const data = response.data;
+        console.log(data);
         setBestSelling(data.bestSelling);
         setTotalRevenue(data.totalRevenue);
         setCustomerCount(data.customerCount);
@@ -70,6 +72,7 @@ function Orders() {
         setProductSold(data.productSold);
         setOrderSold(data.orderSold);
         setLowestSelling(data.lowestSelling);
+        setData("acas");
       });
   }, []);
 
@@ -107,6 +110,7 @@ function Orders() {
           data={totalRevenue}
           data2={bestSelling}
           data3={lowestSelling}
+          datas={data}
         />
 
         <div className="list-orders">

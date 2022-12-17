@@ -8,11 +8,15 @@ import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
 
-function ChartBar({ data, data2, data3 }) {
+function ChartBar({ data, data2, data3, datas }) {
+  const [datas1, setDatas1] = useState(datas);
+  const [datas2, setDatas2] = useState(datas);
+  const [datas3, setDatas3] = useState(datas);
+
   const best = () => {
     const label = [];
     const data = [];
-    Object.values(data2).forEach((item) => {
+    Object.values(datas2).forEach((item) => {
       label.push(item.name);
       data.push(item.count);
     });
@@ -22,7 +26,7 @@ function ChartBar({ data, data2, data3 }) {
   const lowest = () => {
     const label = [];
     const data = [];
-    Object.values(data3).forEach((item) => {
+    Object.values(datas3).forEach((item) => {
       label.push(item.name);
       data.push(item.count);
     });
@@ -33,7 +37,7 @@ function ChartBar({ data, data2, data3 }) {
   const totalReve = () => {
     const datasLine = [];
 
-    Object.values(data).forEach((item) => {
+    Object.values(datas1).forEach((item) => {
       datasLine.push(Math.round(item[0]));
     });
     return datasLine;
@@ -63,8 +67,7 @@ function ChartBar({ data, data2, data3 }) {
       },
     ],
   };
-
-  const [selectData, setSelectData] = useState(dataTop);
+  const [selectData, setSelectData] = useState("bestSelling");
 
   const dataBottom = {
     labels: lowest().label,
@@ -137,11 +140,29 @@ function ChartBar({ data, data2, data3 }) {
 
   const changeDataChart = (e) => {
     if (e.target.value === "bestSelling") {
-      setSelectData(dataTop);
+      setSelectData("bestSelling");
     } else if (e.target.value === "lowestSelling") {
-      setSelectData(dataBottom);
+      setSelectData("lowestSelling");
     }
   };
+
+  const RenderChart = () => {
+    return (
+      <div className="chart-board">
+        <Chart
+          className="chart-board-bottom"
+          type="bar"
+          data={selectData === "bestSelling" ? dataTop : dataBottom}
+        />
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    setDatas1(data);
+    setDatas2(data2);
+    setDatas3(data3);
+  }, [data, data2, data3]);
 
   return (
     <div className="chart-board">
@@ -163,13 +184,14 @@ function ChartBar({ data, data2, data3 }) {
                 </option>
               </select>
             </div>
-            <div className="chart-board">
+            {/* <div className="chart-board">
               <Chart
                 className="chart-board-bottom"
                 type="bar"
                 data={selectData}
               />
-            </div>
+            </div> */}
+            <RenderChart></RenderChart>
           </div>
           {/* <div className="chart-bottom-seller">
             <h2 className="chart-top-title">Lowest Selling</h2>

@@ -14,12 +14,14 @@ import Login from "./pages/Login";
 import Pesudo from "./pages/Promotion/promotion";
 import Promo from "./components/Promo";
 import LoginForm from "./components/FormLogin";
-import { isAdmin } from "./service/authService";import DashBoard from "./pages/dashBoard";
+import { isAdmin } from "./service/authService";
 import {
   faCircleUser,
   faLock,
   faToggleOff,
 } from "@fortawesome/free-solid-svg-icons";
+import UsersTab from "./components/Users";
+import Users from "./pages/Users";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function App() {
@@ -74,14 +76,20 @@ function App() {
           <Routes>
             <Route exact path="/" element={<Orders />}/>
             <Route exact path="/admin/categories" element={<Categories />} />
-            <Route exact path="/admin/orders" element={<Orders />} />
+            <Route exact path="/admin/users" element={
+                <Users>
+                  {" "}
+                  <UsersTab />{" "}
+                </Users>
+              }
+            />
             <Route exact path="/admin/products" element={<Products />} />
             <Route exact path="/admin/categories" element={<Categories />} />
             <Route exact path="/admin/view" element={<ViewProfile />} />
             <Route exact path="/admin/change-pass" element={<ChangePass />} />
             <Route
               exact
-              path="/admin/promo"
+              path="/admin/promotion"
               element={
                 <Pesudo>
                   {" "}

@@ -3,8 +3,8 @@ import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import Select from "../../scripts/components/select";
 import Overlay from "../Overlay/overlay";
-import PromoItem from "../../scripts/components/l-promo-item";
-import PopUpPromo from "./promo-overlay";
+import UserItems from "../../scripts/components/I-users-item";
+import UserOverlay from "./users-overlay";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   validate,
@@ -35,7 +35,7 @@ const statuss = new Array(2).fill(1).map((item, index) => ({
 
 const size = 8;
 
-function Promo() {
+function UsersTab() {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
   });
@@ -49,7 +49,7 @@ function Promo() {
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useSearchParams({});
   const [indexPagin, setIndexPagin] = useState(1);
-  const [promotions, setPromotions] = useState([]);
+  const [users, setUsers] = useState([]);
   const [pagins, setPagins] = useState([1]);
   const [timer, setTimer] = useState("");
   const [overlay, setOverlay] = useState();
@@ -87,7 +87,7 @@ function Promo() {
     }
     const data = nextPage(currentPage) || [];
     return data;
-  }, [searchParams, promotions]);
+  }, [searchParams, users]);
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -160,7 +160,7 @@ function Promo() {
       })
       .then((res) => {
         const _temps = [
-          ...promotions,
+          ...users,
           {
             ...res.data,
             startDate: (() => {
@@ -192,7 +192,7 @@ function Promo() {
             : parseInt(_temps.length / size) + 1;
         const _tempsPagin = new Array(sizePagin).fill(1);
         setPagins(_tempsPagin);
-        setPromotions(_temps);
+        setUsers(_temps);
         setCode("");
         setPercent(0);
         setAmount("");
@@ -211,15 +211,13 @@ function Promo() {
     const text = e.target.value;
     if (timer) clearTimeout(timer);
     const _timer = setTimeout(() => {
-      const url = `${process.env.REACT_APP_URL}/promotion${
-        text ? "?code=" + text : ""
-      }`;
+      const url = `${process.env.REACT_APP_URL}/users?query=${text}`;
       console.log(url);
       axiosClient
         .get(url)
         .then((response) => {
           const datas = response.data.content;
-          setPromotions(datas);
+          setUsers(datas);
         })
         .catch((err) => {
           console.log(err);
@@ -246,16 +244,16 @@ function Promo() {
 
   const arrButton = useMemo(() => {
     const sizeButton =
-      promotions.length % size === 0
-        ? promotions.length / size === 0
+      users.length % size === 0
+        ? users.length / size === 0
           ? 1
-          : promotions.length / size
-        : parseInt(promotions.length / size) + 1;
+          : users.length / size
+        : parseInt(users.length / size) + 1;
     return new Array(sizeButton).fill(1);
-  }, [promotions]);
+  }, [users]);
 
   const openSetting = async (e, id) => {
-    const promo = promotions.find((promo) => promo.id === id);
+    const promo = users.find((promo) => promo.id === id);
     setOverlay(promo);
   };
 
@@ -265,8 +263,9 @@ function Promo() {
 
   useEffect(() => {
     axiosClient
-      .get(`${process.env.REACT_APP_URL}/promotion`)
+      .get(`${process.env.REACT_APP_URL}/users`)
       .then((response) => {
+        console.log(response);
         const _sizePagin = response.data.totalPage;
         responsePagins.current = new Array(_sizePagin)
           .fill(1)
@@ -283,7 +282,7 @@ function Promo() {
             responsePagins.current[index + 3],
           ]);
         }
-        setPromotions(response.data.content);
+        setUsers(response.data.content);
       })
       .catch((err) => {
         console.log(err);
@@ -302,9 +301,9 @@ function Promo() {
               }}
             >
               <form action="#" className={"form-wrapper"} onSubmit={onSubmit}>
-                <h2 className={"heading"}>add promotion</h2>
+                <h2 className={"heading"}>Users</h2>
                 <section className={"form-data"}>
-                  <FormDataItem label="code" id="code">
+                  <FormDataItem label="First Name" id="code">
                     <Input
                       type="text"
                       name="code"
@@ -315,30 +314,28 @@ function Promo() {
                       }}
                     />
                   </FormDataItem>
+                  <FormDataItem label="Last Name" id="percent">
+                    <Select
+                      datas={percents}
+                      name="percent"
+                      value={percent}
+                      onChange={(event) => {
+                        setPercent(event.target.value);
+                      }}
+                    />
+                  </FormDataItem>
+                  <FormDataItem label="Email" id="status">
+                    <Select
+                      datas={statuss}
+                      name="status"
+                      value={status}
+                      onChange={(event) => {
+                        setStatus(event.target.value);
+                      }}
+                    />
+                  </FormDataItem>
                   <div className={"form-group"}>
-                    <FormDataItem label="percent" id="percent">
-                      <Select
-                        datas={percents}
-                        name="percent"
-                        value={percent}
-                        onChange={(event) => {
-                          setPercent(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                    <FormDataItem label="status" id="status">
-                      <Select
-                        datas={statuss}
-                        name="status"
-                        value={status}
-                        onChange={(event) => {
-                          setStatus(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                  </div>
-                  <div className={"form-group"}>
-                    <FormDataItem label="amount" id="amount">
+                    <FormDataItem label="Phone" id="amount">
                       <Input
                         type="text"
                         name="amount"
@@ -390,15 +387,7 @@ function Promo() {
           </Overlay>
         )}
         <div className="dashboard-content-header">
-          <h2>Promotion List</h2>
-          <Buttons
-            type="button"
-            title="submit"
-            variant="primary"
-            onClick={popupAddPromo}
-          >
-            Add New Promotion
-          </Buttons>
+          <h2>Users List</h2>
         </div>
         <section className={"section-list"}>
           <section className={"list-promo"}>
@@ -408,7 +397,7 @@ function Promo() {
                   type={"text"}
                   name="search"
                   value={filter}
-                  placeholder="Enter promotion"
+                  placeholder="Enter name or email"
                   onChange={onSearch}
                 />
                 <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
@@ -431,42 +420,27 @@ function Promo() {
               <table>
                 <thead>
                   <tr>
-                    <th>code</th>
-                    <th>percent</th>
-                    <th>amount</th>
-                    <th>max amount</th>
-                    <th>start Date</th>
-                    <th>expires</th>
-                    <th>status</th>
+                    <th>Images</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {promotions.map((promotion, index) => {
+                  {users.map((user, index) => {
                     if (
                       indexPagin * size - size <= index &&
                       index < size * indexPagin
                     ) {
                       return (
-                        <PromoItem
-                          id={promotion.id}
-                          code={promotion.code}
-                          percent={promotion.percent}
-                          amount={promotion.amount}
-                          maxAmount={promotion.maxAmount}
-                          startDate={new Date(
-                            promotion.startDate
-                          ).toLocaleDateString("en-GB")}
-                          expire={new Date(
-                            promotion.endDate
-                          ).toLocaleDateString("en-GB")}
-                          status={
-                            new Date(promotion.endDate)
-                              .toLocaleString("en-GB")
-                              .split(",")[0] ===
-                            new Date().toLocaleString("en-GB").split(",")[0]
-                              ? "Expired"
-                              : "Available"
-                          }
+                        <UserItems
+                          id={user.id}
+                          images={user.image}
+                          firstName={user.firstName}
+                          lastName={user.lastName}
+                          email={user.email}
+                          phone={user.phone}
                           onClick={openSetting}
                         />
                       );
@@ -519,11 +493,12 @@ function Promo() {
       </section>
       {overlay && (
         <Overlay onClick={setOverlay}>
-          <PopUpPromo {...overlay} />
+          {console.log(overlay)}
+          <UserOverlay {...overlay} />
         </Overlay>
       )}
     </section>
   );
 }
 
-export default Promo;
+export default UsersTab;

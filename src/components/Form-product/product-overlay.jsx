@@ -89,6 +89,7 @@ function PopUpPromo({ id, data }) {
       categoryId: category.id,
       productVariants: temp,
     };
+    console.log("paylaod", payload);
     const response = await http.put(url, payload);
     if (response.status === 200) {
       window.location.reload();

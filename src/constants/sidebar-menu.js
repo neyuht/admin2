@@ -26,13 +26,13 @@ const sidebar_menu = [
   {
     id: 3,
     icon: ShippingIcon,
-    path: "/admin/orders",
-    title: "List Oder",
+    path: "/admin/users",
+    title: "Users",
   },
   {
     id: 4,
     icon: UserIcon,
-    path: "/admin/promo",
+    path: "/admin/promotion",
     title: "Promo",
   },
   {

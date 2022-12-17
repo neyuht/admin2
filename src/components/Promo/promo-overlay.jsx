@@ -125,7 +125,7 @@ function PopUpPromo({
         event.stopPropagation();
       }}
     >
-      <h2 className="heading">add promotion</h2>
+      <h2 className="heading">Promotion</h2>
       <section className="form-data">
         <FormDataItem label="code" id="code">
           <Input

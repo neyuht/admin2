@@ -45,7 +45,8 @@ function FormProducts({ fields }) {
   const [overlay, setOverlay] = useState();
   const responsePagins = useRef([]);
   const lists = useRef([]);
-
+  const [currentPages, setCurrentPages] = useState([]);
+  const timmerId = useRef(null);
   /**
    *  Code của detail
    */
@@ -72,14 +73,22 @@ function FormProducts({ fields }) {
   };
 
   const changePage = (step) => {
-    let currentPage = +searchParams.get("page") + step;
+    const currentPage = +searchParams.get("page") + step;
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        [key]: value,
+      };
+    }
     setSearchparams({
       page: currentPage,
+      ...obj,
     });
   };
 
   const computePagins = useMemo(() => {
     let currentPage = +searchParams.get("page");
+    setCurrentPages(currentPage);
     if (currentPage <= 0) {
       currentPage = 1;
     } else if (
@@ -154,7 +163,64 @@ function FormProducts({ fields }) {
     // send request image id = 1, type = 2, image = list anh
   };
 
-  const onSearch = () => {};
+  const showButtonActive = () => {
+    const buttons = document.querySelectorAll(".buttons-pagination");
+
+    buttons.forEach((item) => {
+      item.classList.remove("buttons-pagination-active");
+      if (Number(item.innerHTML.trim()) === currentPages) {
+        item.classList.add("buttons-pagination-active");
+      }
+    });
+  };
+  showButtonActive();
+
+  const getDataSearch = (value1) => {
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        [key]: value,
+      };
+    }
+    setSearchparams({
+      page: 1,
+      ...obj,
+      name: value1,
+    });
+    axiosClient
+      .get(`${process.env.REACT_APP_URL}/products?name=${value1}`)
+      .then((response) => {
+        console.log(response);
+        const data = response.data.content;
+        const _sizePagin = response.data.totalPage;
+        responsePagins.current = new Array(_sizePagin)
+          .fill(1)
+          .map((item, index) => index + 1);
+        for (
+          let index = 0;
+          index < responsePagins.current.length;
+          index += size - 1
+        ) {
+          lists.current.push([
+            responsePagins.current[index],
+            responsePagins.current[index + 1],
+            responsePagins.current[index + 2],
+            responsePagins.current[index + 3],
+          ]);
+        }
+        setProducts(data);
+      });
+  };
+
+  const onSearch = (event) => {
+    const value = event.target.value;
+    // if (!value) searchParams.delete("name");
+    setFilter(value);
+    if (timmerId.current) clearTimeout(timmerId.current);
+    timmerId.current = setTimeout(() => {
+      getDataSearch(value);
+    }, 600);
+  };
 
   const handleDelete = useCallback((id) => {}, []);
 
@@ -171,10 +237,13 @@ function FormProducts({ fields }) {
 
   // call api
   useEffect(() => {
+    let param = "?";
+    for (const [key, value] of searchParams.entries()) {
+      param += `${key}=${value}&`;
+    }
+    console.log(param);
     axiosClient
-      .get(
-        `${process.env.REACT_APP_URL}/products?page=${searchParams.get("page")}`
-      )
+      .get(`${process.env.REACT_APP_URL}/products${param}`)
       .then((response) => {
         const data = response.data.content;
         const _sizePagin = response.data.totalPage;
@@ -196,7 +265,6 @@ function FormProducts({ fields }) {
         setProducts(data);
       });
   }, [searchParams]);
-
   return (
     <main className={"main-wrapper"}>
       <section className={"container-main"}>
@@ -328,9 +396,14 @@ function FormProducts({ fields }) {
                   name="search"
                   value={filter}
                   placeholder="Enter product's name"
-                  // onChange={onSearch}
+                  onChange={onSearch}
                 />
-                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
+                <FontAwesomeIcon
+                  icon={faMagnifyingGlass}
+                  onClick={() => {
+                    getDataSearch(filter);
+                  }}
+                />
               </div>
               <div className="filter-product-search">
                 <select name="" id="">
@@ -374,6 +447,7 @@ function FormProducts({ fields }) {
             </section>
             <ul className={"paginations"}>
               <button
+                className="btn-pages button-pagination-move"
                 onClick={() => {
                   changePage(-1);
                 }}
@@ -385,10 +459,18 @@ function FormProducts({ fields }) {
                 (item, index) =>
                   item && (
                     <button
+                      className="buttons-pagination"
                       onClick={() => {
-                        setSearchparams({
-                          page: item,
-                        });
+                        const currentFiller = searchParams.get("name");
+                        const pyaload = currentFiller
+                          ? {
+                              page: item,
+                              name: currentFiller,
+                            }
+                          : {
+                              page: item,
+                            };
+                        setSearchparams(pyaload);
                       }}
                     >
                       {item}
@@ -396,6 +478,7 @@ function FormProducts({ fields }) {
                   )
               )}
               <button
+                className="btn-pages button-pagination-move"
                 onClick={() => {
                   changePage(1);
                 }}
