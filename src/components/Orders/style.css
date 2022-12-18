@@ -210,3 +210,46 @@
 .board-description p:first-child {
   font-weight: bold;
 }
+
+.ava-user-orders {
+  width: 50px;
+  margin: 0;
+  height: 50px;
+}
+
+.ava-user-orders img {
+  width: 100%;
+  height: 100%;
+}
+
+.infor-user-orders {
+  display: flex;
+  margin: 0;
+  gap: 20px;
+  align-items: center;
+}
+
+.infor-user-orders p {
+  margin: 0;
+}
+
+.form-infor {
+  display: flex;
+  justify-content: space-between;
+}
+
+.infor-orders {
+  display: flex;
+  align-items: center;
+  padding-right: 50px;
+}
+
+.list-order-items {
+  height: 350px;
+  overflow: auto;
+}
+
+.list-order-itemsz:hover {
+  cursor: pointer;
+  background-color: rgb(233, 233, 233);
+}

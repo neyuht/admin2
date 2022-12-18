@@ -18,7 +18,6 @@ import Buttons from "react-bootstrap/Button";
 import "./style.css";
 import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { adminLogin } from "../../service/authService";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
@@ -46,8 +45,10 @@ function Promo() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState(true);
-  const [filter, setFilter] = useState("");
-  const [search, setSearch] = useSearchParams({});
+  const [filter, setFilter] = useState({
+    code: "",
+    status: "",
+  });
   const [indexPagin, setIndexPagin] = useState(1);
   const [promotions, setPromotions] = useState([]);
   const [pagins, setPagins] = useState([1]);
@@ -57,6 +58,7 @@ function Promo() {
   const responsePagins = useRef([]);
   const lists = useRef([]);
   const [currentPages, setCurrentPages] = useState([]);
+  const timmerId = useRef(null);
 
   const nextPage = (currentPage) => {
     const temps = lists.current.filter((item) => {
@@ -207,29 +209,48 @@ function Promo() {
       });
   };
 
-  const onSearch = async (e) => {
-    const text = e.target.value;
-    if (timer) clearTimeout(timer);
-    const _timer = setTimeout(() => {
-      const url = `${process.env.REACT_APP_URL}/promotion${
-        text ? "?code=" + text : ""
-      }`;
-      console.log(url);
-      axiosClient
-        .get(url)
-        .then((response) => {
-          const datas = response.data.content;
-          setPromotions(datas);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }, 600);
-    setTimer(_timer);
-    setFilter(text);
-    setSearch({
-      code: text,
+  const getDataSearch = (value1) => {
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        [key]: value,
+      };
+    }
+    obj = {
+      ...obj,
+      ...value1,
+    };
+    console.log("Obj", obj);
+    let newObj = {};
+    Object.entries(obj).forEach(([key, value]) => {
+      if (value) {
+        newObj = {
+          ...newObj,
+          [key]: value,
+        };
+      }
     });
+    setSearchparams({
+      page: 1,
+      ...newObj,
+    });
+  };
+
+  const onSearch = async (e) => {
+    const value = e.target.value;
+    setFilter((prev) => ({
+      ...prev,
+      code: value,
+    }));
+    if (timmerId.current) clearTimeout(timmerId.current);
+    timmerId.current = setTimeout(() => {
+      const { code, ...rest } = filter;
+      const params = {
+        code: value,
+        ...rest,
+      };
+      getDataSearch(params);
+    }, 600);
   };
 
   const showButtonActive = () => {
@@ -242,7 +263,6 @@ function Promo() {
       }
     });
   };
-  showButtonActive();
 
   const arrButton = useMemo(() => {
     const sizeButton =
@@ -264,9 +284,15 @@ function Promo() {
   }, []);
 
   useEffect(() => {
+    let param = "?";
+    for (const [key, value] of searchParams.entries()) {
+      param += `${key}=${value}&`;
+    }
     axiosClient
-      .get(`${process.env.REACT_APP_URL}/promotion`)
+      .get(`${process.env.REACT_APP_URL}/promotion${param}`)
       .then((response) => {
+        console.log(response);
+        const data = response.data.content;
         const _sizePagin = response.data.totalPage;
         responsePagins.current = new Array(_sizePagin)
           .fill(1)
@@ -274,7 +300,7 @@ function Promo() {
         for (
           let index = 0;
           index < responsePagins.current.length;
-          index += size - 1
+          index += 4 - 1
         ) {
           lists.current.push([
             responsePagins.current[index],
@@ -283,12 +309,9 @@ function Promo() {
             responsePagins.current[index + 3],
           ]);
         }
-        setPromotions(response.data.content);
-      })
-      .catch((err) => {
-        console.log(err);
+        setPromotions(data);
       });
-  }, []);
+  }, [searchParams]);
 
   return (
     <section className={"promo-wrapper"}>
@@ -407,7 +430,7 @@ function Promo() {
                 <Input
                   type={"text"}
                   name="search"
-                  value={filter}
+                  value={filter.code}
                   placeholder="Enter promotion"
                   onChange={onSearch}
                 />
@@ -490,11 +513,22 @@ function Promo() {
                 (item, index) =>
                   item && (
                     <button
-                      className="buttons-pagination"
+                      className={`buttons-pagination ${
+                        +searchParams.get("page") === item
+                          ? "buttons-pagination-active"
+                          : ""
+                      }`}
                       onClick={() => {
-                        setSearchparams({
-                          page: item,
-                        });
+                        const currentFiller = searchParams.get("name");
+                        const pyaload = currentFiller
+                          ? {
+                              page: item,
+                              name: currentFiller,
+                            }
+                          : {
+                              page: item,
+                            };
+                        setSearchparams(pyaload);
                       }}
                     >
                       {item}

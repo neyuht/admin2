@@ -284,10 +284,22 @@
 }
 
 .form-product-variant {
-  min-width: 500px;
+  min-width: 430px;
   padding: 10px 0;
   height: 500px;
   overflow-y: auto;
+  margin-left: 20px;
+}
+
+.form-variant-wrapper .group {
+  display: flex;
+  flex-direction: column;
+}
+
+.variant-wrapper {
+  padding: 10px;
+  border: 1px solid rgb(196, 195, 195);
+  border-radius: 4px;
 }
 
 .form-details-product-box {

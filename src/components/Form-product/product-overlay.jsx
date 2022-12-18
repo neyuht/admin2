@@ -22,8 +22,8 @@ function PopUpPromo({ id, data }) {
       return temps;
     })()
   );
-
-  const descPparse = useMemo(() => {
+  const [variantItem, setVariantItem] = useState({});
+  useMemo(() => {
     const temps = [];
     description.forEach((item) => {
       const obj = {};
@@ -41,6 +41,12 @@ function PopUpPromo({ id, data }) {
       });
     });
   }, [description]);
+
+  const handleAddNewVariAntItem = (indexParent, object) => {
+    const temps = description[indexParent];
+    temps.push([object[indexParent].key, object[indexParent].value]);
+    setDescription((prev) => [...prev]);
+  };
 
   const handleChangeKey = (indexParent, indexChildren, value) => {
     const newVariant = description;
@@ -70,30 +76,31 @@ function PopUpPromo({ id, data }) {
   };
 
   const onSubmit = async (event) => {
-    event.preventDefault();
-    const id = update.id;
-    const { category, ...rest } = update;
-    const url = `${process.env.REACT_APP_URL}/products/${id}`;
-    const temp = variant.map((item) => {
-      const tempDesc = [];
-      Object.entries(item.description).forEach(([key, value]) => {
-        tempDesc.push(`\"${key}\": \"${value}\"`);
+    try {
+      event.preventDefault();
+      const id = update.id;
+      const { category, ...rest } = update;
+      const url = `${process.env.REACT_APP_URL}/products/${id}`;
+      const temp = variant.map((item) => {
+        const tempDesc = [];
+        Object.entries(item.description).forEach(([key, value]) => {
+          tempDesc.push(`\"${key}\": \"${value}\"`);
+        });
+        return {
+          ...item,
+          description: `{${tempDesc.join(",")}}`,
+        };
       });
-      return {
-        ...item,
-        description: `{${tempDesc.join(",")}}`,
+      const payload = {
+        ...rest,
+        categoryId: category.id,
+        productVariants: temp,
       };
-    });
-    const payload = {
-      ...rest,
-      categoryId: category.id,
-      productVariants: temp,
-    };
-    console.log("paylaod", payload);
-    const response = await http.put(url, payload);
-    if (response.status === 200) {
-      window.location.reload();
-    }
+      const response = await http.put(url, payload);
+      if (response.status === 200) {
+        window.location.reload();
+      }
+    } catch (error) {}
   };
 
   const onDelete = useCallback(async (_id) => {
@@ -117,11 +124,11 @@ function PopUpPromo({ id, data }) {
     }));
   }, []);
 
+  console.log(variant);
+
   return (
-    <form
-      action="#"
+    <section
       className="form-wrapper"
-      onSubmit={onSubmit}
       onClick={(event) => {
         event.stopPropagation();
       }}
@@ -213,44 +220,99 @@ function PopUpPromo({ id, data }) {
         <div className="form-product-variant">
           {variant.map((vitem, indexParent) => {
             return (
-              <section style={{ margin: "20px 0" }}>
-                <section style={{ margin: "10px 0" }}>
-                  <input
-                    type="text"
-                    value={vitem.unitPrice}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      handlechangePrice(indexParent, "unitPrice", value);
-                    }}
-                  />
-                  <input
-                    type="text"
-                    value={vitem.quantity}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      handlechangePrice(indexParent, "quantity", value);
-                    }}
-                  />
+              <section
+                style={{ margin: "15px 20px" }}
+                className="variant-wrapper"
+              >
+                <section
+                  style={{ display: "flex" }}
+                  className="form-variant-wrapper"
+                >
+                  <div className="group">
+                    <label htmlFor="">Price</label>
+                    <input
+                      name="unitPrice"
+                      type="text"
+                      value={vitem.unitPrice}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        handlechangePrice(indexParent, "unitPrice", value);
+                      }}
+                    />
+                  </div>
+                  <div className="group">
+                    <label htmlFor="">Quantity</label>
+                    <input
+                      type="text"
+                      name="quantity"
+                      value={vitem.quantity}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        handlechangePrice(indexParent, "quantity", value);
+                      }}
+                    />
+                  </div>
                 </section>
-                <section>
-                  <input
-                    type="text"
-                    placeholder="New key"
-                    onChange={(event) => {
-                      const value = event.target.value;
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="New value"
-                    onChange={(event) => {
-                      const value = event.target.value;
-                    }}
-                  />
-                </section>
+                <form name={`variant-item-${indexParent}`}>
+                  <label htmlFor="">Details</label>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="New key"
+                      onKeyDown={(event) => {
+                        const value = event.target.value;
+                        const key = event.code;
+                        console.log(key);
+                        const obj = {
+                          ...variantItem,
+                          [indexParent]: {
+                            ...variantItem[indexParent],
+                            key: value,
+                          },
+                        };
+                        setVariantItem(obj);
+                        if (key === "Enter" && value) {
+                          obj[indexParent] = {
+                            ...obj[indexParent],
+                            key: value,
+                          };
+                          handleAddNewVariAntItem(indexParent, obj);
+                        }
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="New value"
+                      onKeyDown={(event) => {
+                        const value = event.target.value;
+                        const key = event.code;
+                        const obj = {
+                          ...variantItem,
+                          [indexParent]: {
+                            ...variantItem[indexParent],
+                            value,
+                          },
+                        };
+                        setVariantItem(obj);
+                        if (key === "Enter" && value) {
+                          obj[indexParent] = {
+                            ...obj[indexParent],
+                            value,
+                          };
+                          handleAddNewVariAntItem(indexParent, obj);
+                        }
+                      }}
+                    />
+                  </div>
+                </form>
                 {description[indexParent].map(([key, value], indexChildren) => {
                   return (
-                    <section key={indexChildren}>
+                    <section
+                      key={indexChildren}
+                      onDoubleClick={() => {
+                        console.log(description[[indexParent]][indexChildren]);
+                      }}
+                    >
                       <input
                         type="text"
                         value={key}
@@ -275,7 +337,7 @@ function PopUpPromo({ id, data }) {
           })}
         </div>
       </div>
-    </form>
+    </section>
   );
 }
 

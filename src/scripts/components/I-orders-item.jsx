@@ -1,31 +1,90 @@
 import React from "react";
+import User from "../../assets/icons/user.png";
+import DoneIcon from "../../assets/icons/done.svg";
+import CancelIcon from "../../assets/icons/cancel.svg";
+import Pending from "../../assets/icons/pending.svg";
 
-function UserItems({ id, images, firstName, lastName, email, phone, onClick }) {
+function OrderItems({
+  id,
+  createdAt,
+  status,
+  image,
+  firstName,
+  lastName,
+  onClick,
+}) {
   return (
     <tr
-      className={"promo-table-item"}
-      key={id + "promo-item"}
+      key={id}
+      className="list-order-itemsz"
       onClick={(e) => {
         onClick(e, id);
       }}
     >
       <td>
-        <p></p>
+        <span>{id}</span>
       </td>
       <td>
-        <p>{firstName}</p>
+        <span></span>
+        <span>{new Date(createdAt).toLocaleDateString("en-GB")}</span>
       </td>
       <td>
-        <p>{lastName}</p>
+        {status === 1 ? (
+          <div>
+            <img
+              src={DoneIcon}
+              alt="paid-icon"
+              className="dashboard-content-icon"
+            />
+            <span>Done</span>
+          </div>
+        ) : status === 2 ? (
+          <div>
+            <img
+              src={CancelIcon}
+              alt="canceled-icon"
+              className="dashboard-content-icon"
+            />
+            <span>Canceled</span>
+          </div>
+        ) : status === 0 ? (
+          <div>
+            <img
+              src={Pending}
+              alt="pending-icon"
+              className="dashboard-content-icon"
+            />
+            <span>Pending</span>
+          </div>
+        ) : null}
       </td>
       <td>
-        <p>{email}</p>
+        <div>
+          {image ? (
+            <img
+              src={image}
+              className="dashboard-content-avatar"
+              alt={firstName + " " + lastName}
+            />
+          ) : (
+            <img
+              src={User}
+              className="dashboard-content-avatar"
+              alt={firstName + " " + lastName}
+            />
+          )}
+
+          <span>
+            {firstName} {lastName}
+          </span>
+        </div>
       </td>
       <td>
-        <p>{phone}</p>
+        Total
+        {/* <SumPrice orderItems={order.orderItems} /> */}
       </td>
     </tr>
   );
 }
 
-export default UserItems;
+export default OrderItems;

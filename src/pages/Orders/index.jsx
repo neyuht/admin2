@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import all_orders from "../../constants/orders";
 import { calculateRange, sliceData } from "../../utils/table-pagination";
-import DoneIcon from "../../assets/icons/done.svg";
-import CancelIcon from "../../assets/icons/cancel.svg";
-import RefundedIcon from "../../assets/icons/refunded.svg";
 import ChartBar from "../../components/Orders/ChartBar";
 import iconCustomers from "../../assets/icons/icon-customers.svg";
 import iconBoxest from "../../assets/icons/icon-boxest.svg";
@@ -14,6 +11,9 @@ import axiosClient from "../../scripts/helpers/config";
 import Input from "../../scripts/components/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import OrderItems from "../../scripts/components/I-orders-item";
+import Overlay from "../../components/Overlay/overlay";
+import OrderOverlay from "../../components/Orders/orders-overlay";
 
 function Orders() {
   const [search, setSearch] = useState("");
@@ -21,6 +21,9 @@ function Orders() {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState([]);
   const [data, setData] = useState([]);
+  const [dataOrders, setDataOrders] = useState([]);
+  const [price, setPrice] = useState(0);
+  const [overlay, setOverlay] = useState();
 
   useEffect(() => {
     setPagination(calculateRange(all_orders, 5));
@@ -59,12 +62,19 @@ function Orders() {
   const [bestSelling, setBestSelling] = useState([]);
   const [lowestSelling, setLowestSelling] = useState([]);
 
+  const openSetting = useCallback(
+    (e, id) => {
+      const product = dataOrders.find((order) => order.id === id);
+      setOverlay(product);
+    },
+    [dataOrders]
+  );
+
   useEffect(() => {
     axiosClient
       .get(`${process.env.REACT_APP_URL}/orders/statistical`)
       .then((response) => {
         const data = response.data;
-        console.log(data);
         setBestSelling(data.bestSelling);
         setTotalRevenue(data.totalRevenue);
         setCustomerCount(data.customerCount);
@@ -72,9 +82,24 @@ function Orders() {
         setProductSold(data.productSold);
         setOrderSold(data.orderSold);
         setLowestSelling(data.lowestSelling);
-        setData("acas");
       });
   }, []);
+
+  useEffect(() => {
+    axiosClient.get(`${process.env.REACT_APP_URL}/orders`).then((response) => {
+      const data = response.data;
+      console.log(data.content[0]);
+      setDataOrders(data.content);
+    });
+  }, []);
+
+  const SumPrice = (orderItems) => {
+    let sum = 0;
+    Object.entries(orderItems).forEach((item) => {
+      sum += item[1].unitPrice;
+      return <span>{Math.round(sum)}</span>;
+    });
+  };
 
   return (
     <div className="dashboard-content">
@@ -150,70 +175,28 @@ function Orders() {
                 <th>DATE</th>
                 <th>STATUS</th>
                 <th>COSTUMER</th>
-                <th>PRODUCT</th>
                 <th>REVENUE</th>
               </thead>
 
-              {orders.length !== 0 ? (
+              {dataOrders.length !== 0 ? (
                 <tbody>
-                  {orders.map((order, index) => (
-                    <tr key={index}>
-                      <td>
-                        <span>{order.id}</span>
-                      </td>
-                      <td>
-                        <span>{order.date}</span>
-                      </td>
-                      <td>
-                        <div>
-                          {order.status === "Paid" ? (
-                            <img
-                              src={DoneIcon}
-                              alt="paid-icon"
-                              className="dashboard-content-icon"
-                            />
-                          ) : order.status === "Canceled" ? (
-                            <img
-                              src={CancelIcon}
-                              alt="canceled-icon"
-                              className="dashboard-content-icon"
-                            />
-                          ) : order.status === "Refunded" ? (
-                            <img
-                              src={RefundedIcon}
-                              alt="refunded-icon"
-                              className="dashboard-content-icon"
-                            />
-                          ) : null}
-                          <span>{order.status}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div>
-                          <img
-                            src={order.avatar}
-                            className="dashboard-content-avatar"
-                            alt={order.first_name + " " + order.last_name}
-                          />
-                          <span>
-                            {order.first_name} {order.last_name}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span>{order.product}</span>
-                      </td>
-                      <td>
-                        <span>${order.price}</span>
-                      </td>
-                    </tr>
+                  {dataOrders.map((order, index) => (
+                    <OrderItems
+                      id={order.id}
+                      createdAt={order.createdAt}
+                      status={order.status}
+                      image={order.user.image}
+                      firstName={order.user.firstName}
+                      lastName={order.user.lastName}
+                      onClick={openSetting}
+                    />
                   ))}
                 </tbody>
               ) : null}
             </table>
           </section>
 
-          {orders.length !== 0 ? (
+          {dataOrders.length !== 0 ? (
             <div className="dashboard-content-footer">
               {pagination.map((item, index) => (
                 <span
@@ -232,6 +215,11 @@ function Orders() {
           )}
         </div>
       </div>
+      {overlay && (
+        <Overlay onClick={setOverlay}>
+          <OrderOverlay data={overlay} />
+        </Overlay>
+      )}
     </div>
   );
 }

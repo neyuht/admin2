@@ -89,124 +89,6 @@ function UsersTab() {
     return data;
   }, [searchParams, users]);
 
-  const onSubmit = (event) => {
-    event.preventDefault();
-    const obj = {
-      code,
-      percent: parseInt(percent),
-      amount,
-      maxAmount,
-      startDate: (() => {
-        if (startDate) {
-          const date = new Date(startDate);
-
-          return `${
-            date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-          }-${
-            date.getMonth() + 1 >= 10
-              ? date.getMonth() + 1
-              : `0${date.getMonth()}`
-          }-${date.getFullYear()}`;
-        }
-        return "";
-      })(),
-      endDate: (() => {
-        if (endDate) {
-          const date = new Date(startDate);
-
-          return `${
-            date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-          }-${
-            date.getMonth() + 1 >= 10
-              ? date.getMonth() + 1
-              : `0${date.getMonth()}`
-          }-${date.getFullYear()}`;
-        }
-        return "";
-      })(),
-      status,
-    };
-
-    changeStyleElementByObject(obj, "boxShadow", "0 0 0 0.3mm");
-    let result = validate(obj);
-    if (result.error) {
-      return;
-    }
-
-    result = validateCode(code);
-    if (result.error) {
-      return;
-    }
-
-    result = validateNumber({
-      amount,
-      maxAmount,
-    });
-    if (result.error) {
-      return;
-    }
-    result = validateOperator({
-      amount,
-      maxAmount,
-    });
-    if (result.error) {
-      return;
-    }
-    axiosClient
-      .post(`${process.env.REACT_APP_URL}/promotion`, {
-        id: 0,
-        type: 0,
-        ...obj,
-      })
-      .then((res) => {
-        const _temps = [
-          ...users,
-          {
-            ...res.data,
-            startDate: (() => {
-              const date = new Date(startDate);
-              return `${
-                date.getMonth() + 1 >= 10
-                  ? date.getMonth() + 1
-                  : `0${date.getMonth()}`
-              }-${
-                date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-              }-${date.getFullYear()}`;
-            })(),
-            endDate: (() => {
-              const date = new Date(endDate);
-              return `${
-                date.getMonth() + 1 >= 10
-                  ? date.getMonth() + 1
-                  : `0${date.getMonth()}`
-              }-${
-                date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-              }-${date.getFullYear()}`;
-            })(),
-          },
-        ];
-
-        const sizePagin =
-          _temps.length % size === 0
-            ? _temps.length / size
-            : parseInt(_temps.length / size) + 1;
-        const _tempsPagin = new Array(sizePagin).fill(1);
-        setPagins(_tempsPagin);
-        setUsers(_temps);
-        setCode("");
-        setPercent(0);
-        setAmount("");
-        setMaxAmount("");
-        setEndDate("");
-        setStartDate("");
-        setStatus(true);
-        setPopup(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   const onSearch = async (e) => {
     const text = e.target.value;
     if (timer) clearTimeout(timer);
@@ -262,10 +144,15 @@ function UsersTab() {
   }, []);
 
   useEffect(() => {
+    let param = "?";
+    for (const [key, value] of searchParams.entries()) {
+      param += `${key}=${value}&`;
+    }
     axiosClient
-      .get(`${process.env.REACT_APP_URL}/users`)
+      .get(`${process.env.REACT_APP_URL}/users${param}`)
       .then((response) => {
         console.log(response);
+        const data = response.data.content;
         const _sizePagin = response.data.totalPage;
         responsePagins.current = new Array(_sizePagin)
           .fill(1)
@@ -273,7 +160,7 @@ function UsersTab() {
         for (
           let index = 0;
           index < responsePagins.current.length;
-          index += size - 1
+          index += 4 - 1
         ) {
           lists.current.push([
             responsePagins.current[index],
@@ -282,12 +169,9 @@ function UsersTab() {
             responsePagins.current[index + 3],
           ]);
         }
-        setUsers(response.data.content);
-      })
-      .catch((err) => {
-        console.log(err);
+        setUsers(data);
       });
-  }, []);
+  }, [searchParams]);
 
   return (
     <section className={"promo-wrapper"}>
@@ -300,7 +184,7 @@ function UsersTab() {
                 event.stopPropagation();
               }}
             >
-              <form action="#" className={"form-wrapper"} onSubmit={onSubmit}>
+              <form action="#" className={"form-wrapper"}>
                 <h2 className={"heading"}>Users</h2>
                 <section className={"form-data"}>
                   <FormDataItem label="First Name" id="code">
@@ -381,7 +265,6 @@ function UsersTab() {
                     </FormDataItem>
                   </div>
                 </section>
-                <Button type="submit" title="submit" onClick={onSubmit} />
               </form>
             </section>
           </Overlay>
@@ -464,11 +347,22 @@ function UsersTab() {
                 (item, index) =>
                   item && (
                     <button
-                      className="buttons-pagination"
+                      className={`buttons-pagination ${
+                        +searchParams.get("page") === item
+                          ? "buttons-pagination-active"
+                          : ""
+                      }`}
                       onClick={() => {
-                        setSearchparams({
-                          page: item,
-                        });
+                        const currentFiller = searchParams.get("name");
+                        const pyaload = currentFiller
+                          ? {
+                              page: item,
+                              name: currentFiller,
+                            }
+                          : {
+                              page: item,
+                            };
+                        setSearchparams(pyaload);
                       }}
                     >
                       {item}

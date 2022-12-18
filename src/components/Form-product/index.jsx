@@ -17,14 +17,17 @@ import PopUpPromo from "./product-overlay";
 import iconPlus from "../../assets/icons/icon-plus.svg";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import FlashMessage from "../FlashMessage/flashMessage";
 const size = 4;
 
 function FormProducts({ fields }) {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
   });
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState({
+    name: "",
+    status: "",
+  });
   const [statePagin, setStatePagin] = useState({
     size: 4,
     step: 1,
@@ -47,6 +50,12 @@ function FormProducts({ fields }) {
   const lists = useRef([]);
   const [currentPages, setCurrentPages] = useState([]);
   const timmerId = useRef(null);
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
+
   /**
    *  Code của detail
    */
@@ -77,12 +86,14 @@ function FormProducts({ fields }) {
     let obj = {};
     for (const [key, value] of searchParams.entries()) {
       obj = {
+        ...obj,
         [key]: value,
       };
     }
+    const { page, ...rest } = obj;
     setSearchparams({
       page: currentPage,
-      ...obj,
+      ...rest,
     });
   };
 
@@ -157,23 +168,12 @@ function FormProducts({ fields }) {
           },
         }
       );
+      window.location.reload();
     }
 
     // const id = 1;
     // send request image id = 1, type = 2, image = list anh
   };
-
-  const showButtonActive = () => {
-    const buttons = document.querySelectorAll(".buttons-pagination");
-
-    buttons.forEach((item) => {
-      item.classList.remove("buttons-pagination-active");
-      if (Number(item.innerHTML.trim()) === currentPages) {
-        item.classList.add("buttons-pagination-active");
-      }
-    });
-  };
-  showButtonActive();
 
   const getDataSearch = (value1) => {
     let obj = {};
@@ -182,50 +182,65 @@ function FormProducts({ fields }) {
         [key]: value,
       };
     }
+    obj = {
+      ...obj,
+      ...value1,
+    };
+    console.log("Obj", obj);
+    let newObj = {};
+    Object.entries(obj).forEach(([key, value]) => {
+      if (value) {
+        newObj = {
+          ...newObj,
+          [key]: value,
+        };
+      }
+    });
     setSearchparams({
       page: 1,
-      ...obj,
-      name: value1,
+      ...newObj,
     });
-    axiosClient
-      .get(`${process.env.REACT_APP_URL}/products?name=${value1}`)
-      .then((response) => {
-        console.log(response);
-        const data = response.data.content;
-        const _sizePagin = response.data.totalPage;
-        responsePagins.current = new Array(_sizePagin)
-          .fill(1)
-          .map((item, index) => index + 1);
-        for (
-          let index = 0;
-          index < responsePagins.current.length;
-          index += size - 1
-        ) {
-          lists.current.push([
-            responsePagins.current[index],
-            responsePagins.current[index + 1],
-            responsePagins.current[index + 2],
-            responsePagins.current[index + 3],
-          ]);
-        }
-        setProducts(data);
-      });
+    // axiosClient
+    //   .get(`${process.env.REACT_APP_URL}/products${param}`)
+    //   .then((response) => {
+    //     console.log(response);
+    //     const data = response.data.content;
+    //     const _sizePagin = response.data.totalPage;
+    //     responsePagins.current = new Array(_sizePagin)
+    //       .fill(1)
+    //       .map((item, index) => index + 1);
+    //     for (
+    //       let index = 0;
+    //       index < responsePagins.current.length;
+    //       index += size - 1
+    //     ) {
+    //       lists.current.push([
+    //         responsePagins.current[index],
+    //         responsePagins.current[index + 1],
+    //         responsePagins.current[index + 2],
+    //         responsePagins.current[index + 3],
+    //       ]);
+    //     }
+    //     setProducts(data);
+    //   });
   };
 
   const onSearch = (event) => {
     const value = event.target.value;
-    // if (!value) searchParams.delete("name");
-    setFilter(value);
+    setFilter((prev) => ({
+      ...prev,
+      name: value,
+    }));
     if (timmerId.current) clearTimeout(timmerId.current);
     timmerId.current = setTimeout(() => {
-      getDataSearch(value);
+      const { name, ...rest } = filter;
+      const params = {
+        name: value,
+        ...rest,
+      };
+      getDataSearch(params);
     }, 600);
   };
-
-  const handleDelete = useCallback((id) => {}, []);
-
-  const handleUpdate = useCallback((id) => {}, []);
-  const handleSearch = useCallback((event) => {}, []);
 
   const openSetting = useCallback(
     (e, id) => {
@@ -235,13 +250,24 @@ function FormProducts({ fields }) {
     [products]
   );
 
+  const showHide = (action, type, message) => {
+    console.log("a");
+    const state = {
+      action,
+      type,
+      message,
+    };
+    setFlash({
+      ...state,
+    });
+  };
+
   // call api
   useEffect(() => {
     let param = "?";
     for (const [key, value] of searchParams.entries()) {
       param += `${key}=${value}&`;
     }
-    console.log(param);
     axiosClient
       .get(`${process.env.REACT_APP_URL}/products${param}`)
       .then((response) => {
@@ -387,14 +413,23 @@ function FormProducts({ fields }) {
               Add New Product
             </Buttons>
           </div>
-
+          <Buttons
+            type="button"
+            title="asdasd"
+            variant="primary"
+            onClick={() => {
+              showHide(true, "success", "Ok chua chi ");
+            }}
+          >
+            asdasd
+          </Buttons>
           <section className={"list-promo"}>
             <section className={"filter-product"}>
               <div className="filter-product-search">
                 <Input
                   type={"text"}
                   name="search"
-                  value={filter}
+                  value={filter.name}
                   placeholder="Enter product's name"
                   onChange={onSearch}
                 />
@@ -406,14 +441,26 @@ function FormProducts({ fields }) {
                 />
               </div>
               <div className="filter-product-search">
-                <select name="" id="">
-                  <option className="option-filter" value="all">
+                <select
+                  name=""
+                  id=""
+                  value={filter.status}
+                  onChange={(event) => {
+                    const params = {
+                      ...filter,
+                      status: event.target.value,
+                    };
+                    setFilter(params);
+                    getDataSearch(params);
+                  }}
+                >
+                  <option className="option-filter" value="">
                     All
                   </option>
-                  <option className="option-filter" value="done">
+                  <option className="option-filter" value="1">
                     Available
                   </option>
-                  <option className="option-filter" value="notYet">
+                  <option className="option-filter" value="0">
                     Sold Out
                   </option>
                 </select>
@@ -459,7 +506,11 @@ function FormProducts({ fields }) {
                 (item, index) =>
                   item && (
                     <button
-                      className="buttons-pagination"
+                      className={`buttons-pagination ${
+                        +searchParams.get("page") === item
+                          ? "buttons-pagination-active"
+                          : ""
+                      }`}
                       onClick={() => {
                         const currentFiller = searchParams.get("name");
                         const pyaload = currentFiller
@@ -497,6 +548,16 @@ function FormProducts({ fields }) {
         <Overlay onClick={setOverlay}>
           <PopUpPromo data={overlay} />
         </Overlay>
+      )}
+      {flash.action && (
+        <FlashMessage
+          rules={flash.type}
+          message={flash.message}
+          state={flash}
+          onClick={(event) => {
+            showHide(false, "", "");
+          }}
+        />
       )}
     </main>
   );
