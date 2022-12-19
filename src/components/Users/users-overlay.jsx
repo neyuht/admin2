@@ -15,7 +15,6 @@ import { changeStyleElementByObject } from "../../scripts/helpers/styles-change"
 import avaUser from "../../assets/icons/user.png";
 
 function UserOverlay({ cx, id, firstName, lastName, image, email, phone }) {
-  console.log(id);
   const [iamge, setImage] = useState(image);
   const [firstNames, setFirstName] = useState(firstName);
   const [lastNames, setLastName] = useState(lastName);

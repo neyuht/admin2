@@ -21,6 +21,8 @@ import { useSearchParams } from "react-router-dom";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import showHide from "../../scripts/scripts/helpers/flashMessage";
+import FlashMessage from "../FlashMessage/flashMessage";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -37,6 +39,11 @@ const size = 8;
 function Promo() {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
+  });
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
   });
   const [code, setCode] = useState("");
   const [percent, setPercent] = useState(0);
@@ -114,7 +121,7 @@ function Promo() {
       })(),
       endDate: (() => {
         if (endDate) {
-          const date = new Date(startDate);
+          const date = new Date(endDate);
 
           return `${
             date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
@@ -203,9 +210,10 @@ function Promo() {
         setStartDate("");
         setStatus(true);
         setPopup(false);
+        showHide(true, "success", "Add successfully", setFlash);
       })
       .catch((err) => {
-        console.log(err);
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   };
 
@@ -220,7 +228,6 @@ function Promo() {
       ...obj,
       ...value1,
     };
-    console.log("Obj", obj);
     let newObj = {};
     Object.entries(obj).forEach(([key, value]) => {
       if (value) {
@@ -255,7 +262,6 @@ function Promo() {
 
   const showButtonActive = () => {
     const buttons = document.querySelectorAll(".buttons-pagination");
-    console.log(currentPages);
     buttons.forEach((item) => {
       item.classList.remove("buttons-pagination-active");
       if (Number(item.innerHTML.trim()) === currentPages) {
@@ -483,12 +489,7 @@ function Promo() {
                             promotion.endDate
                           ).toLocaleDateString("en-GB")}
                           status={
-                            new Date(promotion.endDate)
-                              .toLocaleString("en-GB")
-                              .split(",")[0] ===
-                            new Date().toLocaleString("en-GB").split(",")[0]
-                              ? "Expired"
-                              : "Available"
+                            promotion.status === 1 ? "Expired" : "Available"
                           }
                           onClick={openSetting}
                         />
@@ -555,6 +556,16 @@ function Promo() {
         <Overlay onClick={setOverlay}>
           <PopUpPromo {...overlay} />
         </Overlay>
+      )}
+      {flash.action && (
+        <FlashMessage
+          rules={flash.type}
+          message={flash.message}
+          state={flash}
+          onClick={(event) => {
+            showHide(false, "", "", setFlash);
+          }}
+        />
       )}
     </section>
   );

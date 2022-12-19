@@ -94,7 +94,6 @@ function UsersTab() {
     if (timer) clearTimeout(timer);
     const _timer = setTimeout(() => {
       const url = `${process.env.REACT_APP_URL}/users?query=${text}`;
-      console.log(url);
       axiosClient
         .get(url)
         .then((response) => {
@@ -111,18 +110,6 @@ function UsersTab() {
       code: text,
     });
   };
-
-  const showButtonActive = () => {
-    const buttons = document.querySelectorAll(".buttons-pagination");
-    console.log(currentPages);
-    buttons.forEach((item) => {
-      item.classList.remove("buttons-pagination-active");
-      if (Number(item.innerHTML.trim()) === currentPages) {
-        item.classList.add("buttons-pagination-active");
-      }
-    });
-  };
-  showButtonActive();
 
   const arrButton = useMemo(() => {
     const sizeButton =
@@ -151,7 +138,6 @@ function UsersTab() {
     axiosClient
       .get(`${process.env.REACT_APP_URL}/users${param}`)
       .then((response) => {
-        console.log(response);
         const data = response.data.content;
         const _sizePagin = response.data.totalPage;
         responsePagins.current = new Array(_sizePagin)
@@ -387,7 +373,6 @@ function UsersTab() {
       </section>
       {overlay && (
         <Overlay onClick={setOverlay}>
-          {console.log(overlay)}
           <UserOverlay {...overlay} />
         </Overlay>
       )}

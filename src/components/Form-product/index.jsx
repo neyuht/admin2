@@ -13,7 +13,7 @@ import { useMemo } from "react";
 import Overlay from "../Overlay/overlay";
 import axiosClient from "../../scripts/helpers/config";
 import convertArrayToString from "../../scripts/helpers/convert";
-import PopUpPromo from "./product-overlay";
+import PopUpProduct from "./product-overlay";
 import iconPlus from "../../assets/icons/icon-plus.svg";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -112,67 +112,73 @@ function FormProducts({ fields }) {
   }, [searchParams, products]);
 
   const createNewProduct = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const form = document.forms["formAddProduct"];
-    const name = form["name"].value;
-    const category = form["category"].value;
-    const status = form["status"].value;
-    const images = Array.from(form["images"].files);
-    const description2 = form["description2"].value;
-    const variantRq = Object.values(variant).map((obj) => ({
-      ...obj,
-      description: convertArrayToString(obj.description),
-    }));
+    try {
+      e.preventDefault();
+      e.stopPropagation();
+      const form = document.forms["formAddProduct"];
+      const name = form["name"].value;
+      const category = form["category"].value;
+      const status = form["status"].value;
+      const images = Array.from(form["images"].files);
+      const description2 = form["description2"].value;
+      const variantRq = Object.values(variant).map((obj) => ({
+        ...obj,
+        description: convertArrayToString(obj.description),
+      }));
 
-    const data = {
-      name,
-      status,
-      description: description2,
-      categoryId: category,
-      productVariantList: variantRq,
-    };
-    const { productVariantList, description, ...obj } = data;
-    const result = validate({
-      ...obj,
-      description2: description,
-      images,
-    });
-    if (result.error) {
-      alert("Vui long nhap day du thong tin");
-      return;
-    }
-    if (!productVariantList.length) {
-      alert("Vui long nhap variant");
-      return;
-    }
-
-    const response = await http.post(
-      `${process.env.REACT_APP_URL}/products`,
-      data
-    );
-    if (response.status === 200) {
-      const { id } = response.data.data;
-      const bodyFormData = new FormData();
-      Object.values(images).forEach((images) => {
-        bodyFormData.append("images", images);
+      const data = {
+        name,
+        status,
+        description: description2,
+        categoryId: category,
+        productVariantList: variantRq,
+      };
+      const { productVariantList, description, ...obj } = data;
+      const result = validate({
+        ...obj,
+        description2: description,
+        images,
       });
-      bodyFormData.append("type", "3");
-      bodyFormData.append("id", id + "");
-      const response2 = await axiosClient.post(
-        `${process.env.REACT_APP_URL}/images/upload-multiple/`,
-        bodyFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      window.location.reload();
-    }
+      if (result.error) {
+        alert("Vui long nhap day du thong tin");
+        return;
+      }
+      if (!productVariantList.length) {
+        alert("Vui long nhap variant");
+        return;
+      }
 
-    // const id = 1;
-    // send request image id = 1, type = 2, image = list anh
+      const response = await http.post(
+        `${process.env.REACT_APP_URL}/products`,
+        data
+      );
+      console.log(response);
+      if (response.status === 200) {
+        const { id } = response.data.data;
+        const newProducts = [response.data.data, ...products];
+        setProducts(newProducts);
+        const bodyFormData = new FormData();
+        Object.values(images).forEach((images) => {
+          bodyFormData.append("images", images);
+        });
+        bodyFormData.append("type", "3");
+        bodyFormData.append("id", id + "");
+        const response2 = await axiosClient.post(
+          `${process.env.REACT_APP_URL}/images/upload-multiple/`,
+          bodyFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        // window.location.reload();
+        setPopup(false);
+      }
+      showHide(true, "success", "Add successfully", setFlash);
+    } catch (error) {
+      showHide(true, "success", "Oops, something when wrong", setFlash);
+    }
   };
 
   const getDataSearch = (value1) => {
@@ -186,7 +192,6 @@ function FormProducts({ fields }) {
       ...obj,
       ...value1,
     };
-    console.log("Obj", obj);
     let newObj = {};
     Object.entries(obj).forEach(([key, value]) => {
       if (value) {
@@ -200,29 +205,6 @@ function FormProducts({ fields }) {
       page: 1,
       ...newObj,
     });
-    // axiosClient
-    //   .get(`${process.env.REACT_APP_URL}/products${param}`)
-    //   .then((response) => {
-    //     console.log(response);
-    //     const data = response.data.content;
-    //     const _sizePagin = response.data.totalPage;
-    //     responsePagins.current = new Array(_sizePagin)
-    //       .fill(1)
-    //       .map((item, index) => index + 1);
-    //     for (
-    //       let index = 0;
-    //       index < responsePagins.current.length;
-    //       index += size - 1
-    //     ) {
-    //       lists.current.push([
-    //         responsePagins.current[index],
-    //         responsePagins.current[index + 1],
-    //         responsePagins.current[index + 2],
-    //         responsePagins.current[index + 3],
-    //       ]);
-    //     }
-    //     setProducts(data);
-    //   });
   };
 
   const onSearch = (event) => {
@@ -242,16 +224,16 @@ function FormProducts({ fields }) {
     }, 600);
   };
 
-  const openSetting = useCallback(
-    (e, id) => {
-      const product = products.find((product) => product.id === id);
-      setOverlay(product);
-    },
-    [products]
-  );
+  const openSetting = useCallback((e, id) => {
+    axiosClient
+      .get(`http://localhost:8080/api/v1/public/products/${id}`)
+      .then((response) => {
+        console.log(response.data);
+        setOverlay(response.data);
+      });
+  }, []);
 
   const showHide = (action, type, message) => {
-    console.log("a");
     const state = {
       action,
       type,
@@ -291,6 +273,7 @@ function FormProducts({ fields }) {
         setProducts(data);
       });
   }, [searchParams]);
+
   return (
     <main className={"main-wrapper"}>
       <section className={"container-main"}>
@@ -413,16 +396,6 @@ function FormProducts({ fields }) {
               Add New Product
             </Buttons>
           </div>
-          <Buttons
-            type="button"
-            title="asdasd"
-            variant="primary"
-            onClick={() => {
-              showHide(true, "success", "Ok chua chi ");
-            }}
-          >
-            asdasd
-          </Buttons>
           <section className={"list-promo"}>
             <section className={"filter-product"}>
               <div className="filter-product-search">
@@ -546,7 +519,7 @@ function FormProducts({ fields }) {
       </section>
       {overlay && (
         <Overlay onClick={setOverlay}>
-          <PopUpPromo data={overlay} />
+          <PopUpProduct data={overlay} />
         </Overlay>
       )}
       {flash.action && (

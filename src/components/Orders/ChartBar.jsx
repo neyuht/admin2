@@ -7,11 +7,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
+import axiosClient from "../../scripts/helpers/config";
+import User from "../../assets/icons/user.png";
+import Overlay from "../Overlay/overlay";
+import PopUpChart from "./order-users-overlay";
 
 function ChartBar({ data, data2, data3, datas }) {
   const [datas1, setDatas1] = useState(datas);
   const [datas2, setDatas2] = useState(datas);
   const [datas3, setDatas3] = useState(datas);
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [overlay, setOverlay] = useState();
 
   const best = () => {
     const label = [];
@@ -67,6 +73,7 @@ function ChartBar({ data, data2, data3, datas }) {
       },
     ],
   };
+
   const [selectData, setSelectData] = useState("bestSelling");
 
   const dataBottom = {
@@ -120,22 +127,26 @@ function ChartBar({ data, data2, data3, datas }) {
     ],
   };
 
-  const commonBoard = (props) => {
+  const CommonBoard = (props) => {
     return (
       <div className="item-wrapper">
         <figure className="image-wrapper">
-          <img src={props.img} alt="" />
+          {props.image ? (
+            <img src={props.img} alt="" />
+          ) : (
+            <img src={User} alt="" />
+          )}
         </figure>
         <div className="board-description">
           <p className="board-title">{props.title}</p>
-          {props.description ? (
-            <p className="board-title">{props.description}</p>
-          ) : (
-            ""
-          )}
+          <p className="board-title">{props.description}</p>
         </div>
       </div>
     );
+  };
+
+  const openSetting = () => {
+    setOverlay({ title: "Recent Users", data: recentUsers });
   };
 
   const changeDataChart = (e) => {
@@ -164,6 +175,25 @@ function ChartBar({ data, data2, data3, datas }) {
     setDatas3(data3);
   }, [data, data2, data3]);
 
+  useEffect(() => {
+    axiosClient
+      .get(`${process.env.REACT_APP_URL}/orders/recent-order`)
+      .then((response) => {
+        const data = response.data;
+        console.log(data);
+        setRecentUsers(data.user);
+      });
+  }, []);
+
+  useEffect(() => {
+    axiosClient
+      .get(`${process.env.REACT_APP_URL}/comments`)
+      .then((response) => {
+        const data = response.data;
+        console.log(data);
+      });
+  }, []);
+
   return (
     <div className="chart-board">
       <div className="chart-earning-wrapper">
@@ -184,49 +214,27 @@ function ChartBar({ data, data2, data3, datas }) {
                 </option>
               </select>
             </div>
-            {/* <div className="chart-board">
-              <Chart
-                className="chart-board-bottom"
-                type="bar"
-                data={selectData}
-              />
-            </div> */}
-            <RenderChart></RenderChart>
+            <RenderChart />
           </div>
-          {/* <div className="chart-bottom-seller">
-            <h2 className="chart-top-title">Lowest Selling</h2>
-            <div className="chart-board">
-              <Chart
-                className="chart-board-bottom"
-                type="bar"
-                data={dataBottom}
-              />
-            </div>
-          </div> */}
         </div>
         <div className="char-products-box-left">
           <div className="board-wrapper">
             <div className="title-chart">
               <h3>Recent Users</h3>
               <div className="board-details">
-                <span>More</span>
+                <span onClick={openSetting}>More</span>
                 <FontAwesomeIcon icon={faArrowRight} />
               </div>
             </div>
             <div className="board-content">
-              <div className="item-wrapper">
-                <figure className="image-wrapper">
-                  <img src="" alt="" />
-                </figure>
-                <div className="board-description">
-                  <p className="board-title">adasdadasdasd</p>
-                  <p className="board-title">adasdadasdasd</p>
-                </div>
-              </div>
-              {commonBoard({
-                img: "asd",
-                title: "asdasd",
-                description: "sass",
+              {recentUsers.slice(0, 10).map((user, index) => {
+                return (
+                  <CommonBoard
+                    img={user.image}
+                    title={user.firstName + " " + user.lastName}
+                    description={user.email}
+                  />
+                );
               })}
             </div>
           </div>
@@ -253,6 +261,11 @@ function ChartBar({ data, data2, data3, datas }) {
           </div>
         </div>
       </div>
+      {overlay && (
+        <Overlay onClick={setOverlay}>
+          <PopUpChart {...overlay} />
+        </Overlay>
+      )}
     </div>
   );
 }

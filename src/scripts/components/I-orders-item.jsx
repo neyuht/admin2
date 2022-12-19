@@ -36,7 +36,7 @@ function OrderItems({
               alt="paid-icon"
               className="dashboard-content-icon"
             />
-            <span>Done</span>
+            <span>Success</span>
           </div>
         ) : status === 2 ? (
           <div>

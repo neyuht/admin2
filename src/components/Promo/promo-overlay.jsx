@@ -1,7 +1,7 @@
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   validate,
   validateCode,
@@ -115,6 +115,16 @@ function PopUpPromo({
         window.location.reload();
       });
   }, []);
+
+  // useEffect(() => {
+  //   axiosClient
+  //     .get(`http://localhost:8080/api/v1/public/products/${id}`)
+  //     .then((response) => {
+  //       console.log("a");
+  //       console.log(response);
+  //       setImage(response);
+  //     });
+  // }, []);
 
   return (
     <form

@@ -13,7 +13,7 @@ import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import User from "../../assets/icons/user.png";
-import OrderItemsForm from "./I-orderItems-form";
+import OrderItemsForm from "../../scripts/components/I-orderItems-form";
 
 function OrderOverlay({ data }) {
   return (

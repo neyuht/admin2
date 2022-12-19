@@ -12,9 +12,7 @@ function ProductItem({ id, productName, amount, category, status, onClick }) {
       <td>
         <p>{productName}</p>
       </td>
-      <td>
-        <p>{status}</p>
-      </td>
+      <td>{status === 1 ? <p>Available</p> : <p>Sold Out</p>}</td>
       <td>
         <p>{amount}</p>
       </td>

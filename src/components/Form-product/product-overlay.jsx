@@ -6,10 +6,17 @@ import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Category from "./Category";
 import http from "../../utils/http";
+import showHide from "../../scripts/scripts/helpers/flashMessage";
 
-function PopUpPromo({ id, data }) {
+function PopUpProduct({ id, data }) {
   const [update, setUpdate] = useState(data);
   const [variant, setVariant] = useState(data.productVariants);
+  const [image, setImage] = useState(0);
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
   const [description, setDescription] = React.useState(
     (() => {
       const temps = variant.map((item) => {
@@ -98,9 +105,26 @@ function PopUpPromo({ id, data }) {
       };
       const response = await http.put(url, payload);
       if (response.status === 200) {
-        window.location.reload();
+        showHide(true, "success", "Add successfully", setFlash);
       }
-    } catch (error) {}
+    } catch (error) {
+      showHide(true, "errors", "Oops, something when wrong", setFlash);
+    }
+  };
+
+  const ImagesList = (image) => {
+    return (
+      <figure
+        className={`product-images-wrapper ${image.classes}`}
+        onClick={image.onClick}
+      >
+        <img src={image.image} alt="" />
+      </figure>
+    );
+  };
+
+  const changeImage = (e) => {
+    setImage(e.target.src);
   };
 
   const onDelete = useCallback(async (_id) => {
@@ -124,8 +148,6 @@ function PopUpPromo({ id, data }) {
     }));
   }, []);
 
-  console.log(variant);
-
   return (
     <section
       className="form-wrapper"
@@ -137,15 +159,34 @@ function PopUpPromo({ id, data }) {
       <div className="product-form-wrapper">
         <div className={"form-img"}>
           <div className={"form-group"}>
-            <div className={"images"}></div>
-            <input
-              name="images"
-              type="file"
-              className={"products-name"}
-              accept="image/png, image/jpeg"
-              multiple
-            />
+            <div className={"images"}>
+              <img src={image ? image : update.imageList[0]} alt="" />
+            </div>
+            <div className="list-images">
+              {update.imageList.map((item, index) =>
+                index === 0 ? (
+                  <ImagesList
+                    image={item}
+                    classes={"product-images-wrapper-active"}
+                    onClick={changeImage}
+                  />
+                ) : (
+                  <ImagesList
+                    image={item}
+                    classes={" "}
+                    onClick={changeImage}
+                  />
+                )
+              )}
+            </div>
           </div>
+          <input
+            name="images"
+            type="file"
+            className={"products-name"}
+            accept="image/png, image/jpeg"
+            multiple
+          />
         </div>
         <div className="form-product-update">
           <section className="form-data">
@@ -341,4 +382,4 @@ function PopUpPromo({ id, data }) {
   );
 }
 
-export default PopUpPromo;
+export default PopUpProduct;
