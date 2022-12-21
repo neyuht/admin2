@@ -257,3 +257,8 @@
   height: 600px;
   overflow: auto;
 }
+
+.information-left .form-group-infor {
+  margin-top: 10px;
+  justify-content: space-between;
+}

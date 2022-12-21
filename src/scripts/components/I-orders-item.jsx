@@ -11,6 +11,7 @@ function OrderItems({
   image,
   firstName,
   lastName,
+  total,
   onClick,
 }) {
   return (
@@ -79,10 +80,7 @@ function OrderItems({
           </span>
         </div>
       </td>
-      <td>
-        Total
-        {/* <SumPrice orderItems={order.orderItems} /> */}
-      </td>
+      <td>{Math.round(total * 10000) / 10000}</td>
     </tr>
   );
 }

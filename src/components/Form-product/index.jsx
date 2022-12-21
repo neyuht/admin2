@@ -18,6 +18,7 @@ import iconPlus from "../../assets/icons/icon-plus.svg";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FlashMessage from "../FlashMessage/flashMessage";
+import { clearStyle } from "../../scripts/helpers/styles-change";
 const size = 4;
 
 function FormProducts({ fields }) {
@@ -134,20 +135,23 @@ function FormProducts({ fields }) {
         productVariantList: variantRq,
       };
       const { productVariantList, description, ...obj } = data;
+      clearStyle({
+        name: obj.name,
+        description2: description,
+        images,
+      });
       const result = validate({
         ...obj,
         description2: description,
         images,
       });
       if (result.error) {
-        alert("Vui long nhap day du thong tin");
         return;
       }
       if (!productVariantList.length) {
         alert("Vui long nhap variant");
         return;
       }
-
       const response = await http.post(
         `${process.env.REACT_APP_URL}/products`,
         data
@@ -172,12 +176,11 @@ function FormProducts({ fields }) {
             },
           }
         );
-        // window.location.reload();
         setPopup(false);
       }
       showHide(true, "success", "Add successfully", setFlash);
     } catch (error) {
-      showHide(true, "success", "Oops, something when wrong", setFlash);
+      showHide(true, "errors", "Oops, something when wrong", setFlash);
     }
   };
 
@@ -207,6 +210,10 @@ function FormProducts({ fields }) {
     });
   };
 
+  /**
+   * Event search products
+   * @param {e} event
+   */
   const onSearch = (event) => {
     const value = event.target.value;
     setFilter((prev) => ({
@@ -224,6 +231,9 @@ function FormProducts({ fields }) {
     }, 600);
   };
 
+  /**
+   * Open form products to update, delete
+   */
   const openSetting = useCallback((e, id) => {
     axiosClient
       .get(`http://localhost:8080/api/v1/public/products/${id}`)
@@ -253,11 +263,13 @@ function FormProducts({ fields }) {
     axiosClient
       .get(`${process.env.REACT_APP_URL}/products${param}`)
       .then((response) => {
+        console.log(response.data);
         const data = response.data.content;
         const _sizePagin = response.data.totalPage;
         responsePagins.current = new Array(_sizePagin)
           .fill(1)
           .map((item, index) => index + 1);
+        lists.current = [];
         for (
           let index = 0;
           index < responsePagins.current.length;
@@ -270,9 +282,12 @@ function FormProducts({ fields }) {
             responsePagins.current[index + 3],
           ]);
         }
+
         setProducts(data);
       });
   }, [searchParams]);
+
+  console.log(responsePagins.current, lists.current);
 
   return (
     <main className={"main-wrapper"}>
@@ -443,10 +458,11 @@ function FormProducts({ fields }) {
               <table>
                 <thead>
                   <tr>
+                    <th>ID</th>
                     <th>Product's Name</th>
                     <th>Status</th>
-                    <th>amount</th>
-                    <th>Category</th>
+                    <th>Products's Variant</th>
+                    <th>Description</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -455,8 +471,8 @@ function FormProducts({ fields }) {
                       <ProductItem
                         id={product.id}
                         productName={product.name}
-                        amount={0}
-                        category={product.category.name}
+                        productsVariant={product.productVariants}
+                        description={product.description}
                         status={product.status}
                         onClick={openSetting}
                       />
@@ -485,16 +501,18 @@ function FormProducts({ fields }) {
                           : ""
                       }`}
                       onClick={() => {
-                        const currentFiller = searchParams.get("name");
-                        const pyaload = currentFiller
-                          ? {
-                              page: item,
-                              name: currentFiller,
-                            }
-                          : {
-                              page: item,
-                            };
-                        setSearchparams(pyaload);
+                        let obj = {};
+                        for (const [key, value] of searchParams.entries()) {
+                          obj = {
+                            ...obj,
+                            [key]: value,
+                          };
+                        }
+                        obj["page"] = item;
+
+                        setSearchparams({
+                          ...obj,
+                        });
                       }}
                     >
                       {item}
@@ -527,9 +545,9 @@ function FormProducts({ fields }) {
           rules={flash.type}
           message={flash.message}
           state={flash}
-          onClick={(event) => {
-            showHide(false, "", "");
-          }}
+          onClick={setTimeout((event) => {
+            showHide(false, "", "", setFlash);
+          }, 3000)}
         />
       )}
     </main>

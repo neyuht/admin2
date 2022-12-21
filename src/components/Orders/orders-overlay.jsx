@@ -38,7 +38,7 @@ function OrderOverlay({ data }) {
               <span>ID: #{data.id}</span>
             </div>
           </div>
-          <div className={"form-group"}>
+          <div className={"form-group form-group-infor"}>
             <div>
               <label htmlFor="">Status</label>
               {data.status === 1 ? (
@@ -61,6 +61,7 @@ function OrderOverlay({ data }) {
               type="text"
               className={"products-description-update"}
               placeholder="Product's Description"
+              disabled
               style={{ height: "80px" }}
               value={data.description}
             />
@@ -70,7 +71,7 @@ function OrderOverlay({ data }) {
             <span>
               <strong>Total: </strong>
             </span>
-            <span>123123123</span>
+            <span>{Math.round(data.total * 10000) / 10000}</span>
           </div>
         </div>
         <div className="list-order-items">

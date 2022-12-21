@@ -19,8 +19,8 @@ const percents = new Array(101).fill(1).map((item, index) => ({
 }));
 
 const statuss = new Array(2).fill(1).map((item, index) => ({
-  title: `${Boolean(index)}`,
-  value: `${Boolean(index)}`,
+  title: `${Boolean(index) ? "Expired" : "Available"}`,
+  value: `${index}`,
 }));
 
 function PopUpPromo({
@@ -160,6 +160,7 @@ function PopUpPromo({
             />
           </FormDataItem>
           <FormDataItem label="status" id="status">
+            {console.log(statuss)}
             <Select
               datas={statuss}
               name="status"
