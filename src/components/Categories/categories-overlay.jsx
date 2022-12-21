@@ -12,7 +12,7 @@ import CategoryMd from "../../components/ModalPro/CategoryMd";
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllCategory } from "../../service/categoryService";
-import "../styles.css";
+import "./style.css";
 import DashboardHeader from "../../components/DashboardHeader";
 import Overlay from "../../components/Overlay/overlay";
 import PopUpPromo from "../../components/Form-product/product-overlay";
@@ -31,7 +31,7 @@ import Buttons from "react-bootstrap/Button";
 import FormDataItem from "../../scripts/components/form-data-item";
 import Select from "../../scripts/components/select";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
-function PopUpCategory({ cx, id, nameCategory }) {
+function PopUpCategory({ cx, id, nameCategories }) {
   const [stt, setStt] = useState("");
   const [nameCategory, setNameCategory] = useState("");
   const [createAt, setCreateAt] = useState("");

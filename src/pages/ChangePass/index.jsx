@@ -47,8 +47,6 @@ function ChangePass() {
   );
   return (
     <div className="dashboard-content">
-      <DashboardHeader />
-
       <div className="dashboard-content-container">
         <div className="dashboard-content-header">
           <h2>Change Password</h2>

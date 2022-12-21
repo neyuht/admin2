@@ -9,10 +9,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faRemove } from "@fortawesome/free-solid-svg-icons";
 // To make rows collapsible
 import CategoryMd from "../../components/ModalPro/CategoryMd";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllCategory } from "../../service/categoryService";
-import "../styles.css";
+import "./style.css";
 import DashboardHeader from "../../components/DashboardHeader";
 import Overlay from "../../components/Overlay/overlay";
 import PopUpCategory from "./categories-overlay";
@@ -25,13 +25,17 @@ import {
 } from "../../scripts/helpers/validation";
 import axiosClient from "../../scripts/helpers/config";
 import Button from "../../scripts/components/button";
-import CategoryItem from "../../scripts/components/l-promo-item";
+import CategoriesItem from "../../scripts/components/I-categories-item";
 import Input from "../../scripts/components/input";
 import Buttons from "react-bootstrap/Button";
 import FormDataItem from "../../scripts/components/form-data-item";
 import Select from "../../scripts/components/select";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
-function Categories() {
+function CategoriesTab() {
+  const [searchParams, setSearchparams] = useSearchParams({
+    page: 1,
+  });
+  const lists = useRef([]);
   const [stt, setStt] = useState("");
   const [nameCategory, setNameCategory] = useState("");
   const [createAt, setCreateAt] = useState("");
@@ -46,76 +50,29 @@ function Categories() {
   const [pagins, setPagins] = useState([1]);
   const [status, setStatus] = useState(true);
   const [popup, setPopup] = useState(false);
+  const responsePagins = useRef([]);
   const size = 8;
-  const onSubmit = (event) => {
-    event.preventDefault();
-    const obj = {
-      nameCategory,
-    };
-    changeStyleElementByObject(obj, "boxShadow", "0 0 0 0.3mm");
-    let result = validate(obj);
-    if (result.error) {
-      return;
-    }
-    result = validateDataForm(nameCategory);
-    console.log(result);
-    if (result.error) {
-      return;
-    }
-    axiosClient
-      .post(`${process.env.REACT_APP_URL}/categories`, {
-        id: 0,
-        type: 0,
-        ...obj,
-      })
-      .then((res) => {
-        const _temps = [
-          ...categories,
-          {
-            ...res.data,
-          },
-        ];
 
-        const sizePagin =
-          _temps.length % size === 0
-            ? _temps.length / size
-            : parseInt(_temps.length / size) + 1;
-        const _tempsPagin = new Array(sizePagin).fill(1);
-        setPagins(_tempsPagin);
-        setCategories(_temps);
-        setNameCategory("");
-        setStatus(true);
-        setPopup(false);
-        console.log("Success");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
   useEffect(() => {
     axiosClient
-      .get(`${process.env.REACT_APP_URL}/categories`)
+      .get(`http://localhost:8080/api/v1/public/categories`)
       .then((response) => {
-        setCategories(response.data.content);
-      })
-      .catch((err) => {
-        console.log(err);
+        const data = response.data;
+        console.log(data);
+        setCategories(data);
       });
-  }, []);
+  }, [searchParams]);
+
   const onSearch = async (e) => {
     const text = e.target.value;
     if (timer) clearTimeout(timer);
     const _timer = setTimeout(() => {
-      const url = `${process.env.REACT_APP_URL}/categories${
-        text ? "?nameCategories=" + text : ""
-      }`;
-      console.log("URL", url);
+      const url = `http://localhost:8080/api/v1/public/categories?query=${text}`;
       axiosClient
         .get(url)
         .then((response) => {
-          const datas = response.data.content;
+          const datas = response.data;
           setCategories(datas);
-          console.log(response);
         })
         .catch((err) => {
           console.log(err);
@@ -127,6 +84,7 @@ function Categories() {
       code: text,
     });
   };
+
   const arrButton = useMemo(() => {
     const sizeButton =
       categories.length % size === 0
@@ -145,11 +103,6 @@ function Categories() {
     const category = categories.find((promo) => promo.id === id);
     setOverlay(category);
   };
-
-  useEffect(() => {
-    callAPI(setData);
-  }, []);
-
   const PopUpNewCategory = useCallback(() => {
     setPopup((prev) => !prev);
   }, []);
@@ -168,11 +121,7 @@ function Categories() {
                       event.stopPropagation();
                     }}
                   >
-                    <form
-                      action="#"
-                      className={"form-wrapper"}
-                      onSubmit={onSubmit}
-                    >
+                    <form action="#" className={"form-wrapper"}>
                       <h2 className={"heading"}>Add New Categories</h2>
                       <section className={"form-data"}>
                         <FormDataItem id="categories">
@@ -187,21 +136,13 @@ function Categories() {
                           />
                         </FormDataItem>
                       </section>
-                      <Button type="submit" title="submit" onClick={onSubmit} />
+                      <Button type="submit" title="submit" />
                     </form>
                   </section>
                 </Overlay>
               )}
               <div className="dashboard-content-header">
                 <h2>Categories List</h2>
-                <Buttons
-                  type="button"
-                  title="submit"
-                  variant="primary"
-                  onClick={PopUpNewCategory}
-                >
-                  New Categories
-                </Buttons>
               </div>
               <section className={"section-list"}>
                 <section className={"list-promo"}>
@@ -209,15 +150,6 @@ function Categories() {
               Add New Product
             </Buttons> */}
 
-                  <section className={"filter-product"}>
-                    <Input
-                      type={"text"}
-                      name="search"
-                      value={filter}
-                      placeholder="Enter Category Name"
-                      onChange={onSearch}
-                    />
-                  </section>
                   <section className={"table-promo"}>
                     <table>
                       <thead>
@@ -230,15 +162,24 @@ function Categories() {
                       </thead>
                       <tbody>
                         {categories.map((category, index) => {
-                          return (
-                            <CategoryItem
-                              stt={categories.stt}
-                              nameCategory={categories.nameCategory}
-                              createAt={categories.createAt}
-                              updateAt={categories.updateAt}
-                              onClick={openSetting}
-                            />
-                          );
+                          if (
+                            indexPagin * size - size <= index &&
+                            index < size * indexPagin
+                          ) {
+                            return (
+                              <CategoriesItem
+                                id={category.id}
+                                name={category.name}
+                                createAt={new Date(
+                                  category.createdAt
+                                ).toLocaleDateString("en-GB")}
+                                updateAt={new Date(
+                                  category.updatedAt
+                                ).toLocaleDateString("en-GB")}
+                              />
+                            );
+                          }
+                          return <></>;
                         })}
                       </tbody>
                     </table>
@@ -275,4 +216,4 @@ function Categories() {
   );
 }
 
-export default Categories;
+export default CategoriesTab;

@@ -64,14 +64,16 @@
     padding: 10px;
     display: block;
     width: 100%;
-    color: #fff;
+    color: rgb(0, 0, 0);
     font-size: 16px;
-    background-color: rgb(96, 96, 96);
+    background-color: rgb(255, 255, 255);
+   border: none ;
+   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
    
     height: 50px;
     letter-spacing: 2.0;
     border-radius: 3px;
-    border: none;
+
 }
 
 

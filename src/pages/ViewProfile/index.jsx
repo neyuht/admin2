@@ -5,8 +5,6 @@ import DashboardHeader from "../../components/DashboardHeader";
 function ViewProfile() {
   return (
     <div className="dashboard-content">
-      <DashboardHeader />
-
       <div className="dashboard-content-container">
         <div className="dashboard-content-header">
           <h2>View Profile</h2>
