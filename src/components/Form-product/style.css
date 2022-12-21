@@ -227,6 +227,20 @@
   box-shadow: unset;
 }
 
+.line {
+  border: 1px solid #eee;
+}
+
+.filter-total {
+  display: flex;
+}
+
+.filter-total-right {
+  display: flex;
+  margin-left: 8px;
+  align-items: center;
+}
+
 .filter-product-search {
   box-shadow: 0 0 0 0.05mm;
   padding: 0 8px;
@@ -238,6 +252,15 @@
   outline: none;
   border: none;
   margin-top: 8px;
+  height: 35px;
+}
+
+.list-orders
+  .dashboard-content-header
+  .filter-product
+  .filter-input-date
+  input {
+  width: 200px;
 }
 
 .filter-product-search select .option-filter {

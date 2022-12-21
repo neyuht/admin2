@@ -446,10 +446,10 @@ function Promo() {
                   <option className="option-filter" value="">
                     All
                   </option>
-                  <option className="option-filter" value="2">
+                  <option className="option-filter" value="1">
                     Available
                   </option>
-                  <option className="option-filter" value="1">
+                  <option className="option-filter" value="0">
                     Expire
                   </option>
                 </select>
@@ -488,7 +488,7 @@ function Promo() {
                             promotion.endDate
                           ).toLocaleDateString("en-GB")}
                           status={
-                            promotion.status === 1 ? "Expired" : "Available"
+                            promotion.status === 0 ? "Expired" : "Available"
                           }
                           onClick={openSetting}
                         />

@@ -19,7 +19,7 @@ const percents = new Array(101).fill(1).map((item, index) => ({
 }));
 
 const statuss = new Array(2).fill(1).map((item, index) => ({
-  title: `${Boolean(index) ? "Expired" : "Available"}`,
+  title: `${Boolean(index) ? "Available" : "Expired"}`,
   value: `${index}`,
 }));
 
@@ -115,16 +115,6 @@ function PopUpPromo({
         window.location.reload();
       });
   }, []);
-
-  // useEffect(() => {
-  //   axiosClient
-  //     .get(`http://localhost:8080/api/v1/public/products/${id}`)
-  //     .then((response) => {
-  //       console.log("a");
-  //       console.log(response);
-  //       setImage(response);
-  //     });
-  // }, []);
 
   return (
     <form

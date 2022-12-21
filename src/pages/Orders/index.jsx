@@ -160,7 +160,7 @@ function Orders() {
     let param = "?";
     let sum = 0;
     for (const [key, value] of searchParams.entries()) {
-      param += `${key}=${value}&`;
+      param += `${key}=${value}`;
     }
     axiosClient
       .get(`${process.env.REACT_APP_URL}/orders${param}`)
@@ -237,48 +237,127 @@ function Orders() {
           <div className="dashboard-content-header">
             <h2>Orders List</h2>
             <section className={"filter-product"}>
-              <div className="filter-product-search">
-                <Input
-                  type={"text"}
-                  name="search"
-                  // value={filter.status}
-                  placeholder="Enter user or Email"
-                  onChange={onSearch}
-                />
-                <FontAwesomeIcon
-                  icon={faMagnifyingGlass}
-                  onClick={() => {
-                    getDataSearch(filter);
-                  }}
-                />
+              <div className="filter-total">
+                <div className="filter-total-left">
+                  <label htmlFor="">Enter end date and start date</label>
+                  <div className="filter-product-search filter-input-date">
+                    <Input
+                      type="date"
+                      name="startDate"
+                      // value={startDate}
+                      // onChange={(event) => {
+                      //   setStartDate(event.target.value);
+                      // }}
+                    />
+                  </div>
+                  <div
+                    className="filter-product-search filter-input-date"
+                    style={{ marginTop: "8px" }}
+                  >
+                    <Input
+                      type="date"
+                      name="startDate"
+                      // value={startDate}
+                      // onChange={(event) => {
+                      //   setStartDate(event.target.value);
+                      // }}
+                    />
+                  </div>
+                </div>
+                <div className="filter-total-right">
+                  <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    onClick={() => {
+                      getDataSearch(filter);
+                    }}
+                  />
+                </div>
               </div>
-              <div className="filter-product-search">
-                <select
-                  name=""
-                  id=""
-                  value={filter.status}
-                  onChange={(event) => {
-                    const params = {
-                      ...filter,
-                      status: event.target.value,
-                    };
-                    setFilter(params);
-                    getDataSearch(params);
-                  }}
-                >
-                  <option className="option-filter" value="">
-                    All
-                  </option>
-                  <option className="option-filter" value="1">
-                    Success
-                  </option>
-                  <option className="option-filter" value="0">
-                    Pending
-                  </option>
-                  <option className="option-filter" value="2">
-                    Canceled
-                  </option>
-                </select>
+              <span className="line"></span>
+              <div className="filter-total">
+                <div className="filter-total-left">
+                  <label htmlFor="">Enter min and max price</label>
+                  <div className="filter-product-search filter-input-date">
+                    <Input
+                      type={"text"}
+                      name="search"
+                      // value={filter.status}
+                      placeholder="Enter min price"
+                      onChange={onSearch}
+                    />
+                  </div>
+                  <div
+                    className="filter-product-search filter-input-date"
+                    style={{ marginTop: "8px" }}
+                  >
+                    <Input
+                      type={"text"}
+                      name="search"
+                      // value={filter.status}
+                      placeholder="Enter max price"
+                      onChange={onSearch}
+                    />
+                  </div>
+                </div>
+                <div className="filter-total-right">
+                  <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    onClick={() => {
+                      getDataSearch(filter);
+                    }}
+                  />
+                </div>
+              </div>
+              <span className="line"></span>
+              <div>
+                <label htmlFor="">Search by username</label>
+                <div className="filter-product-search">
+                  <Input
+                    type={"text"}
+                    name="search"
+                    // value={filter.status}
+                    placeholder="Enter user or Email"
+                    onChange={onSearch}
+                  />
+                  <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    onClick={() => {
+                      getDataSearch(filter);
+                    }}
+                  />
+                </div>
+              </div>
+              <span className="line"></span>
+              <div>
+                <label htmlFor="">Sort by status</label>
+                <div className="filter-product-search">
+                  <select
+                    name=""
+                    id=""
+                    value={filter.status}
+                    onChange={(event) => {
+                      const params = {
+                        ...filter,
+                        status: event.target.value,
+                      };
+                      setFilter(params);
+                      getDataSearch(params);
+                    }}
+                  >
+                    <option className="option-filter" value="">
+                      All
+                    </option>
+                    <option className="option-filter" value="1">
+                      Success
+                    </option>
+                    <option className="option-filter" value="0">
+                      Pending
+                    </option>
+                    <option className="option-filter" value="2">
+                      Canceled
+                    </option>
+                  </select>
+                </div>
               </div>
             </section>
           </div>
