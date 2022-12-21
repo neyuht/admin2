@@ -1,0 +1,26 @@
+.input-data{
+    outline: none;
+    padding: 10px;
+    display: block;
+    width: 100%;
+    color: #000000b0;
+    font-size: 16px;
+    background-color: rgb(255, 255, 255);
+   border: none ;
+   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+   
+    height: 50px;
+    letter-spacing: 2.0;
+    border-radius: 3px;
+
+}
+.btn-change{
+    width: 120px;
+    border-radius: 10px;
+    border: none;
+    padding: 10px;
+    margin-top: 40px;
+    background-color: #23a2f6;
+    color: white;
+    font-weight: bold;
+}

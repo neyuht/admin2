@@ -1,12 +1,19 @@
 import React from "react";
-
+import axiosClient from "../../scripts/helpers/config";
+import { useEffect } from "react";
 import "../styles.css";
 import DashboardHeader from "../../components/DashboardHeader";
 function ViewProfile() {
+  useEffect(() => {
+    axiosClient
+      .get(`http://localhost:8080/api/v1/public/categories`)
+      .then((response) => {
+        const data = response.data;
+        console.log(data);
+      });
+  }, []);
   return (
     <div className="dashboard-content">
-      <DashboardHeader />
-
       <div className="dashboard-content-container">
         <div className="dashboard-content-header">
           <h2>View Profile</h2>

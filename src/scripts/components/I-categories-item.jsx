@@ -1,6 +1,6 @@
 import React from "react";
 
-function ProductItem({ id, productName, amount, category, status, onClick }) {
+function CategoriesItem({ id, name, createAt, updateAt, deleteAt, onClick }) {
   return (
     <tr
       className={"promo-table-item"}
@@ -10,19 +10,19 @@ function ProductItem({ id, productName, amount, category, status, onClick }) {
       }}
     >
       <td>
-        <p>{productName}</p>
+        <p>#{id}</p>
       </td>
       <td>
-        <p>{status}</p>
+        <p>{name}</p>
       </td>
       <td>
-        <p>{amount}</p>
+        <p>{createAt}</p>
       </td>
       <td>
-        <p>{category}</p>
+        <p>{updateAt}</p>
       </td>
     </tr>
   );
 }
 
-export default ProductItem;
+export default CategoriesItem;
