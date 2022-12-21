@@ -326,7 +326,7 @@
 .form-product-variant {
   min-width: 430px;
   padding: 10px 0;
-  height: 500px;
+  height: 450px;
   overflow-y: auto;
   margin-left: 20px;
 }
@@ -484,4 +484,15 @@
 }
 .custom-file-input:active::before {
   background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+}
+
+.variant-icon-label {
+  display: flex;
+  justify-content: space-between;
+}
+
+.variant-icon-label svg {
+  cursor: pointer;
+  margin-top: 10px;
+  color: red;
 }

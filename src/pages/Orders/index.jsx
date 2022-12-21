@@ -27,19 +27,17 @@ function Orders() {
     page: 1,
   });
   const [filter, setFilter] = useState({
-    name: "",
+    username: "",
     status: "",
+    endDate: "",
+    startDate: "",
+    min: "",
+    max: "",
   });
   const timmerId = useRef(null);
-  const [search, setSearch] = useState("");
-  const [orders, setOrders] = useState(all_orders);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState([]);
   const [data, setData] = useState([]);
   const [dataOrders, setDataOrders] = useState([]);
-  const [price, setPrice] = useState(0);
   const [overlay, setOverlay] = useState();
-  const [currentPages, setCurrentPages] = useState([]);
   const responsePagins = useRef([]);
   const lists = useRef([]);
 
@@ -78,26 +76,38 @@ function Orders() {
    * @param {*} event
    */
   const onSearch = (event) => {
+    const key = event.target.name;
     const value = event.target.value;
     setFilter((prev) => ({
       ...prev,
-      name: value,
+      [key]: value,
     }));
+    // debounce: có đang gõ hay ko
     if (timmerId.current) clearTimeout(timmerId.current);
+    // dừng lại rồi mới gửi request
     timmerId.current = setTimeout(() => {
-      const { name, ...rest } = filter;
+      const { ...rest } = filter;
       const params = {
-        name: value,
         ...rest,
+        [key]: value,
       };
       getDataSearch(params);
     }, 600);
   };
 
   const changePage = (step) => {
-    let currentPage = +searchParams.get("page") + step;
+    const currentPage = +searchParams.get("page") + step;
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        ...obj,
+        [key]: value,
+      };
+    }
+    const { page, ...rest } = obj;
     setSearchparams({
       page: currentPage,
+      ...rest,
     });
   };
 
@@ -113,7 +123,6 @@ function Orders() {
 
   const computePagins = useMemo(() => {
     let currentPage = +searchParams.get("page");
-    setCurrentPages(currentPage);
     if (currentPage <= 0) {
       currentPage = 1;
     } else if (
@@ -160,7 +169,7 @@ function Orders() {
     let param = "?";
     let sum = 0;
     for (const [key, value] of searchParams.entries()) {
-      param += `${key}=${value}`;
+      param += `${key}=${value}&`;
     }
     axiosClient
       .get(`${process.env.REACT_APP_URL}/orders${param}`)
@@ -182,17 +191,7 @@ function Orders() {
             responsePagins.current[index + 3],
           ]);
         }
-        const newData = data.map((item) => {
-          const total = item.orderItems.reduce((result, i) => {
-            return result + i.quantity * i.unitPrice;
-          }, 0);
-          return {
-            ...item,
-            total,
-          };
-        });
-        console.log(response.data);
-        setDataOrders(newData);
+        setDataOrders(data);
       });
   }, [searchParams]);
 
@@ -244,10 +243,8 @@ function Orders() {
                     <Input
                       type="date"
                       name="startDate"
-                      // value={startDate}
-                      // onChange={(event) => {
-                      //   setStartDate(event.target.value);
-                      // }}
+                      value={filter.startDate}
+                      onChange={onSearch}
                     />
                   </div>
                   <div
@@ -256,11 +253,9 @@ function Orders() {
                   >
                     <Input
                       type="date"
-                      name="startDate"
-                      // value={startDate}
-                      // onChange={(event) => {
-                      //   setStartDate(event.target.value);
-                      // }}
+                      name="endDate"
+                      value={filter.endDate}
+                      onChange={onSearch}
                     />
                   </div>
                 </div>
@@ -279,9 +274,9 @@ function Orders() {
                   <label htmlFor="">Enter min and max price</label>
                   <div className="filter-product-search filter-input-date">
                     <Input
-                      type={"text"}
-                      name="search"
-                      // value={filter.status}
+                      type={"number"}
+                      name="min"
+                      value={filter.min}
                       placeholder="Enter min price"
                       onChange={onSearch}
                     />
@@ -291,9 +286,9 @@ function Orders() {
                     style={{ marginTop: "8px" }}
                   >
                     <Input
-                      type={"text"}
-                      name="search"
-                      // value={filter.status}
+                      type={"number"}
+                      name="max"
+                      value={filter.max}
                       placeholder="Enter max price"
                       onChange={onSearch}
                     />
@@ -314,8 +309,8 @@ function Orders() {
                 <div className="filter-product-search">
                   <Input
                     type={"text"}
-                    name="search"
-                    // value={filter.status}
+                    name="name"
+                    value={filter.name}
                     placeholder="Enter user or Email"
                     onChange={onSearch}
                   />

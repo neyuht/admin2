@@ -6,7 +6,9 @@ import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Category from "./Category";
 import http from "../../utils/http";
-import showHide from "../../scripts/scripts/helpers/flashMessage";
+// import showHide from "../../scripts/scripts/helpers/flashMessage";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faX } from "@fortawesome/free-solid-svg-icons";
 
 function PopUpProduct({ id, data }) {
   const [update, setUpdate] = useState(data);
@@ -20,6 +22,7 @@ function PopUpProduct({ id, data }) {
   });
   const [description, setDescription] = React.useState(
     (() => {
+      // tách variant trong description -> variant[]
       const temps = variant.map((item) => {
         const arr = [];
         Object.entries(item.description).forEach((data) => {
@@ -30,7 +33,9 @@ function PopUpProduct({ id, data }) {
       return temps;
     })()
   );
+
   const [variantItem, setVariantItem] = useState({});
+  // key and value of variant
   useMemo(() => {
     const temps = [];
     description.forEach((item) => {
@@ -40,8 +45,13 @@ function PopUpProduct({ id, data }) {
       });
       temps.push(obj);
     });
+
+    // callback -> trạng thái trước đó của state
+    // nhận lại một arr[obj] -> list variant
     setVariant((prev) => {
+      // trạng thái trước
       return prev.map((item, index) => {
+        // variant[]
         return {
           ...item,
           description: temps[index],
@@ -106,10 +116,28 @@ function PopUpProduct({ id, data }) {
       };
       const response = await http.put(url, payload);
       if (response.status === 200) {
-        showHide(true, "success", "Add successfully", setFlash);
+        const { id } = response.data.data;
+
+        const bodyFormData = new FormData();
+        // Object.values(images).forEach((images) => {
+        //   bodyFormData.append("images", images);
+        // });
+        bodyFormData.append("type", "3");
+        bodyFormData.append("id", id + "");
+        const response2 = await axiosClient.post(
+          `${process.env.REACT_APP_URL}/images/upload-multiple/`,
+          bodyFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        // setPopup(false);
       }
+      window.location.reload();
     } catch (error) {
-      showHide(true, "errors", "Oops, something when wrong", setFlash);
+      // showHide(true, "errors", "Oops, something when wrong", setFlash);
     }
   };
 
@@ -276,15 +304,20 @@ function PopUpProduct({ id, data }) {
                 style={{ margin: "15px 20px" }}
                 className="variant-wrapper"
               >
-                <label htmlFor="" style={{ fontSize: "18px" }}>
-                  {(() => {
-                    const name = update.name;
-                    const nameVariant = vitem.displayName;
-                    const newName =
-                      "Version:   " + nameVariant.replace(name, "");
-                    return newName;
-                  })()}
-                </label>
+                <div className="variant-icon-label">
+                  <label htmlFor="" style={{ fontSize: "18px" }}>
+                    {(() => {
+                      const name = update.name;
+                      const nameVariant = vitem.displayName;
+                      const newName =
+                        "Version:   " + nameVariant.replace(name, "");
+                      return newName;
+                    })()}
+                  </label>
+                  <figure id={vitem.id}>
+                    <FontAwesomeIcon icon={faX} />
+                  </figure>
+                </div>
                 <section
                   style={{ display: "flex" }}
                   className="form-variant-wrapper"
@@ -323,7 +356,6 @@ function PopUpProduct({ id, data }) {
                       onKeyDown={(event) => {
                         const value = event.target.value;
                         const key = event.code;
-                        console.log(key);
                         const obj = {
                           ...variantItem,
                           [indexParent]: {
@@ -368,12 +400,7 @@ function PopUpProduct({ id, data }) {
                 </form>
                 {description[indexParent].map(([key, value], indexChildren) => {
                   return (
-                    <section
-                      key={indexChildren}
-                      onDoubleClick={() => {
-                        console.log(description[[indexParent]][indexChildren]);
-                      }}
-                    >
+                    <section key={indexChildren}>
                       <input
                         type="text"
                         value={key}

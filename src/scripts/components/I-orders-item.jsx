@@ -80,7 +80,7 @@ function OrderItems({
           </span>
         </div>
       </td>
-      <td>{Math.round(total * 10000) / 10000}</td>
+      <td>{total}</td>
     </tr>
   );
 }

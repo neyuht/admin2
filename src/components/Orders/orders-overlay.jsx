@@ -16,6 +16,16 @@ import User from "../../assets/icons/user.png";
 import OrderItemsForm from "../../scripts/components/I-orderItems-form";
 
 function OrderOverlay({ data }) {
+  const [update, setUpdate] = useState(data);
+  const onSubmit = (e) => {
+    e.preventDefault();
+    axiosClient
+      .put(`${process.env.REACT_APP_URL}/orders/${data.id}`, update)
+      .then((res) => {
+        window.location.reload();
+      });
+  };
+
   return (
     <form
       action="#"
@@ -39,18 +49,29 @@ function OrderOverlay({ data }) {
             </div>
           </div>
           <div className={"form-group form-group-infor"}>
+            <FormDataItem label="Status" id="status">
+              <select
+                name="status"
+                id=""
+                className={"products-status"}
+                value={update.status}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setUpdate((prev) => {
+                    return {
+                      ...prev,
+                      status: value,
+                    };
+                  });
+                }}
+              >
+                <option value="0">Pending</option>
+                <option value="2">Canceled</option>
+                <option value="1">Success</option>
+              </select>
+            </FormDataItem>
             <div>
-              <label htmlFor="">Status</label>
-              {data.status === 1 ? (
-                <p>Success</p>
-              ) : data.status === 2 ? (
-                <p>Canceled</p>
-              ) : data.status === 0 ? (
-                <p>Pending</p>
-              ) : null}
-            </div>
-            <div>
-              <label htmlFor="">Status</label>
+              <label htmlFor="">Date</label>
               <p>{data.createdAt}</p>
             </div>
           </div>
@@ -67,11 +88,10 @@ function OrderOverlay({ data }) {
             />
           </div>
           <div className="form-group" style={{ marginTop: "20px" }}>
-            {console.log(data.orderItems)}
             <span>
               <strong>Total: </strong>
             </span>
-            <span>{Math.round(data.total * 10000) / 10000}</span>
+            <span>{data.total}</span>
           </div>
         </div>
         <div className="list-order-items">
@@ -92,6 +112,9 @@ function OrderOverlay({ data }) {
               />
             ))}
           </div>
+        </div>
+        <div>
+          <Button type="submit" title="Update" onClick={onSubmit} />
         </div>
       </section>
     </form>

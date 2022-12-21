@@ -12,8 +12,6 @@ const changeStyleElementByObject = (obj, style, styleChange) => {
     const parentElement = element.parentElement
     parentElement.setAttribute('data-error', value)
    parentElement.classList.add('err')
-   console.log(parentElement);
-
   }
   
 };

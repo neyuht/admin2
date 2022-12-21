@@ -13,7 +13,6 @@ export default function LoginForm() {
       email: username,
       password: password,
     };
-    console.log(data);
     adminLogin(data)
       .then((res) => {
         localStorage.setItem("token", "Bearer " + res.data.data);
@@ -21,7 +20,6 @@ export default function LoginForm() {
           "Successful login please wait!!";
         document.getElementById("noti").style.backgroundColor = "#008545b0";
         setTimeout(() => window.location.reload(), 3000);
-        console.log(res);
       })
       .catch((err) => {
         document.getElementById("noti").innerHTML =

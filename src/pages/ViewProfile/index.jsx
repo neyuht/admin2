@@ -9,7 +9,6 @@ function ViewProfile() {
       .get(`http://localhost:8080/api/v1/public/categories`)
       .then((response) => {
         const data = response.data;
-        console.log(data);
       });
   }, []);
   return (

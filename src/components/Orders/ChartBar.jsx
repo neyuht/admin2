@@ -190,7 +190,6 @@ function ChartBar({ data, data2, data3, datas }) {
       .get(`${process.env.REACT_APP_URL}/orders/recent-order`)
       .then((response) => {
         const data = response.data;
-        console.log(data);
         setRecentUsers(data.user);
       });
   }, []);
@@ -200,7 +199,6 @@ function ChartBar({ data, data2, data3, datas }) {
       .get(`${process.env.REACT_APP_URL}/comments?perPage=20`)
       .then((response) => {
         const data = response.data;
-        console.log(data);
         setComment(data.content);
       });
   }, []);

@@ -17,7 +17,7 @@ import PopUpProduct from "./product-overlay";
 import iconPlus from "../../assets/icons/icon-plus.svg";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import FlashMessage from "../FlashMessage/flashMessage";
+// import FlashMessage from "../FlashMessage/flashMessage";
 import { clearStyle } from "../../scripts/helpers/styles-change";
 import { Form } from "react-bootstrap";
 const size = 4;
@@ -74,7 +74,13 @@ function FormProducts({ fields }) {
     }));
   }, []);
 
+  /**
+   * nhận vào currentPage (page hiện tại)
+   * @param {*} currentPage
+   * @returns
+   */
   const nextPage = (currentPage) => {
+    // list là arr [a,b,c,d]
     const temps = lists.current.filter((item) => {
       return item.includes(currentPage);
     });
@@ -84,6 +90,10 @@ function FormProducts({ fields }) {
     return temps[0];
   };
 
+  /**
+   * nút next và prev bằng lấy page url -/+ step
+   * @param {*} step
+   */
   const changePage = (step) => {
     const currentPage = +searchParams.get("page") + step;
     let obj = {};
@@ -100,11 +110,16 @@ function FormProducts({ fields }) {
     });
   };
 
+  /**
+   * lấy page hiện tại trên url
+   * nếu ko truyền lên thì có default sẵn
+   */
   const computePagins = useMemo(() => {
     let currentPage = +searchParams.get("page");
-    setCurrentPages(currentPage);
+    // param url < 0 -> về page=1
     if (currentPage <= 0) {
       currentPage = 1;
+      // nếu param url > total page -> page cuối cùng
     } else if (
       currentPage > responsePagins.current[responsePagins.current.length - 1]
     ) {
@@ -123,6 +138,7 @@ function FormProducts({ fields }) {
       const category = form["category"].value;
       const status = form["status"].value;
       const images = Array.from(form["images"].files);
+      console.log("test", images);
       const description2 = form["description2"].value;
       const variantRq = Object.values(variant).map((obj) => ({
         ...obj,
@@ -162,13 +178,13 @@ function FormProducts({ fields }) {
         const { id } = response.data.data;
         const newProducts = [response.data.data, ...products];
         setProducts(newProducts);
-        console.log("123---------", response.data.data);
         const bodyFormData = new FormData();
         Object.values(images).forEach((images) => {
           bodyFormData.append("images", images);
         });
         bodyFormData.append("type", "3");
         bodyFormData.append("id", id + "");
+        console.log("1", bodyFormData);
         const response2 = await axiosClient.post(
           `${process.env.REACT_APP_URL}/images/upload-multiple/`,
           bodyFormData,
@@ -186,6 +202,11 @@ function FormProducts({ fields }) {
     }
   };
 
+  /**
+   * truyền vào obj (chứa key, value cần filter)
+   * for: duyệt qua param đã có trên url -> lưu vào 1 obj
+   * @param {*} value1
+   */
   const getDataSearch = (value1) => {
     let obj = {};
     for (const [key, value] of searchParams.entries()) {
@@ -193,10 +214,14 @@ function FormProducts({ fields }) {
         [key]: value,
       };
     }
+
+    // obj cũ và 1 param mới
     obj = {
       ...obj,
       ...value1,
     };
+
+    // loại bỏ các param rỗng
     let newObj = {};
     Object.entries(obj).forEach(([key, value]) => {
       if (value) {
@@ -206,6 +231,7 @@ function FormProducts({ fields }) {
         };
       }
     });
+
     setSearchparams({
       page: 1,
       ...newObj,
@@ -214,7 +240,16 @@ function FormProducts({ fields }) {
 
   const sendExcel = () => {
     const file = document.querySelector(".modal-import-excel input");
+    const bodyFormData = new FormData();
+    bodyFormData.append("file", file.files[0]);
     console.log(file.files);
+    axiosClient
+      .post(`${process.env.REACT_APP_URL}/products/import`, bodyFormData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(() => {});
   };
 
   /**
@@ -245,7 +280,6 @@ function FormProducts({ fields }) {
     axiosClient
       .get(`http://localhost:8080/api/v1/public/products/${id}`)
       .then((response) => {
-        console.log("overlay", response);
         setOverlay(response.data);
       });
   }, []);
@@ -272,10 +306,12 @@ function FormProducts({ fields }) {
       .then((response) => {
         const data = response.data.content;
         const _sizePagin = response.data.totalPage;
+        // tạo một arr lớn với length < total page
         responsePagins.current = new Array(_sizePagin)
           .fill(1)
           .map((item, index) => index + 1);
         lists.current = [];
+        // filter qua rồi add thêm các mảng nhỏ đã đc filter
         for (
           let index = 0;
           index < responsePagins.current.length;
@@ -571,7 +607,9 @@ function FormProducts({ fields }) {
             }}
           >
             <Form.Control
+              name="file"
               type="file"
+              enctype="multipart/form-data"
               accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
             />
             <Buttons
@@ -585,7 +623,7 @@ function FormProducts({ fields }) {
           </div>
         </Overlay>
       )}
-      {flash.action && (
+      {/* {flash.action && (
         <FlashMessage
           rules={flash.type}
           message={flash.message}
@@ -594,7 +632,7 @@ function FormProducts({ fields }) {
             showHide(false, "", "", setFlash);
           }, 3000)}
         />
-      )}
+      )} */}
     </main>
   );
 }
