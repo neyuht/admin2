@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faRemove } from "@fortawesome/free-solid-svg-icons";
 // To make rows collapsible
-import CategoryMd from "../../components/ModalPro/CategoryMd";
+
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllCategory } from "../../service/categoryService";

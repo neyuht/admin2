@@ -8,14 +8,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faRemove } from "@fortawesome/free-solid-svg-icons";
 // To make rows collapsible
-import CategoryMd from "../../components/ModalPro/CategoryMd";
+
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllCategory } from "../../service/categoryService";
 import "./style.css";
 import DashboardHeader from "../../components/DashboardHeader";
 import Overlay from "../../components/Overlay/overlay";
-import PopUpCategory from "./categories-overlay";
+
 import {
   validateDataForm,
   validate,
@@ -61,29 +61,7 @@ function CategoriesTab() {
         console.log(data);
         setCategories(data);
       });
-  }, [searchParams]);
-
-  const onSearch = async (e) => {
-    const text = e.target.value;
-    if (timer) clearTimeout(timer);
-    const _timer = setTimeout(() => {
-      const url = `http://localhost:8080/api/v1/public/categories?query=${text}`;
-      axiosClient
-        .get(url)
-        .then((response) => {
-          const datas = response.data;
-          setCategories(datas);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }, 600);
-    setTimer(_timer);
-    setFilter(text);
-    setSearch({
-      code: text,
-    });
-  };
+  }, []);
 
   const arrButton = useMemo(() => {
     const sizeButton =
@@ -95,18 +73,6 @@ function CategoriesTab() {
     return new Array(sizeButton).fill(1);
   }, [categories]);
 
-  const callAPI = async (callback) => {
-    const res = await getAllCategory();
-    callback(res.data.data);
-  };
-  const openSetting = async (e, id) => {
-    const category = categories.find((promo) => promo.id === id);
-    setOverlay(category);
-  };
-  const PopUpNewCategory = useCallback(() => {
-    setPopup((prev) => !prev);
-  }, []);
-
   return (
     <>
       <div className="dashboard-content">
@@ -114,7 +80,7 @@ function CategoriesTab() {
           <section className={"promo-wrapper"}>
             <section className={"container-main"}>
               {popup && (
-                <Overlay onClick={PopUpNewCategory}>
+                <Overlay>
                   <section
                     className={"section-form"}
                     onClick={(event) => {
@@ -154,7 +120,7 @@ function CategoriesTab() {
                     <table>
                       <thead>
                         <tr>
-                          <th>STT</th>
+                          <th>ID</th>
                           <th>NAME</th>
                           <th>CREATE AT</th>
                           <th>UPDATE AT</th>
@@ -204,11 +170,7 @@ function CategoriesTab() {
                 </section>
               </section>
             </section>
-            {overlay && (
-              <Overlay onClick={setOverlay}>
-                <PopUpCategory {...overlay} />
-              </Overlay>
-            )}
+            {overlay && <Overlay onClick={setOverlay}></Overlay>}
           </section>
         </div>
       </div>

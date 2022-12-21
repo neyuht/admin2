@@ -10,7 +10,7 @@ function CategoriesItem({ id, name, createAt, updateAt, deleteAt, onClick }) {
       }}
     >
       <td>
-        <p>{id}</p>
+        <p>#{id}</p>
       </td>
       <td>
         <p>{name}</p>

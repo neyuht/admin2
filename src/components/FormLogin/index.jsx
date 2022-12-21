@@ -14,16 +14,20 @@ export default function LoginForm() {
       password: password,
     };
     console.log(data);
-    adminLogin(data).then((res) => {
-      console.log(res);
-      localStorage.setItem("token", "Bearer " + res.data.data);
-      if (localStorage.getItem("token") == "") {
-        alert("Login fff");
-      } else {
-        alert("Login succsecfuly");
-      }
-      window.location.reload(false);
-    });
+    adminLogin(data)
+      .then((res) => {
+        localStorage.setItem("token", "Bearer " + res.data.data);
+        document.getElementById("noti").innerHTML =
+          "Successful login please wait!!";
+        document.getElementById("noti").style.backgroundColor = "#008545b0";
+        setTimeout(() => window.location.reload(), 3000);
+        console.log(res);
+      })
+      .catch((err) => {
+        document.getElementById("noti").innerHTML =
+          "Login Faild! Incorrect account or password!!";
+        document.getElementById("noti").style.backgroundColor = "#a4000087";
+      });
   };
 
   return (
@@ -41,6 +45,7 @@ export default function LoginForm() {
           type="text"
           placeholder="Email or Phone"
           id="username"
+          required
         />
 
         <label for="password"></label>
@@ -49,10 +54,12 @@ export default function LoginForm() {
           type="password"
           placeholder="Password"
           id="password"
+          required
         />
+        <div className="setnoti" id="noti"></div>
         <div className="khoang"></div>
         <button class="btn-login" type="button" onClick={click}>
-          Login
+          Login System
         </button>
       </form>
     </div>
