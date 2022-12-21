@@ -22,6 +22,8 @@ import { adminLogin } from "../../service/authService";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import showHide from "../../scripts/helpers/showHide";
+import FlashMessage from "../FlashMessage/flashMessage";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -60,6 +62,11 @@ function UsersTab() {
   const lists = useRef([]);
   const [currentPages, setCurrentPages] = useState([]);
   const timmerId = useRef(null);
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
 
   const nextPage = (currentPage) => {
     const temps = lists.current.filter((item) => {
@@ -180,6 +187,9 @@ function UsersTab() {
           ]);
         }
         setUsers(data);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, [searchParams]);
 
@@ -388,6 +398,16 @@ function UsersTab() {
         <Overlay onClick={setOverlay}>
           <UserOverlay {...overlay} />
         </Overlay>
+      )}
+      {flash.action && (
+        <FlashMessage
+          rules={flash.type}
+          message={flash.message}
+          state={flash}
+          onClick={setTimeout((event) => {
+            showHide(false, "", "", setFlash);
+          }, 3000)}
+        />
       )}
     </section>
   );

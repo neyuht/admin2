@@ -324,11 +324,8 @@
 }
 
 .form-product-variant {
-  min-width: 430px;
-  padding: 10px 0;
   height: 450px;
   overflow-y: auto;
-  margin-left: 20px;
 }
 
 .form-variant-wrapper .group {
@@ -357,10 +354,6 @@
   flex-direction: column;
   gap: 10px;
   width: 48%;
-}
-
-.form-product-update {
-  width: 350px;
 }
 
 .form-product-variant .details-box-two .form-group input {

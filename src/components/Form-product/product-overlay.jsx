@@ -6,7 +6,7 @@ import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Category from "./Category";
 import http from "../../utils/http";
-// import showHide from "../../scripts/scripts/helpers/flashMessage";
+import showHide from "../../scripts/helpers/showHide";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 
@@ -94,37 +94,37 @@ function PopUpProduct({ id, data }) {
   };
 
   const onSubmit = async (event) => {
-    try {
-      event.preventDefault();
-      const id = update.id;
-      const { category, ...rest } = update;
-      const url = `${process.env.REACT_APP_URL}/products/${id}`;
-      const temp = variant.map((item) => {
-        const tempDesc = [];
-        Object.entries(item.description).forEach(([key, value]) => {
-          tempDesc.push(`\"${key}\": \"${value}\"`);
-        });
-        return {
-          ...item,
-          description: `{${tempDesc.join(",")}}`,
-        };
+    event.preventDefault();
+    const id = update.id;
+    const { category, ...rest } = update;
+    const url = `${process.env.REACT_APP_URL}/products/${id}`;
+    const temp = variant.map((item) => {
+      const tempDesc = [];
+      Object.entries(item.description).forEach(([key, value]) => {
+        tempDesc.push(`\"${key}\": \"${value}\"`);
       });
-      const payload = {
-        ...rest,
-        categoryId: category.id,
-        productVariants: temp,
+      return {
+        ...item,
+        description: `{${tempDesc.join(",")}}`,
       };
-      const response = await http.put(url, payload);
-      if (response.status === 200) {
-        const { id } = response.data.data;
+    });
+    const payload = {
+      ...rest,
+      categoryId: category.id,
+      productVariants: temp,
+    };
+    const response = await http.put(url, payload);
+    if (response.status === 200) {
+      const { id } = response.data.data;
 
-        const bodyFormData = new FormData();
-        // Object.values(images).forEach((images) => {
-        //   bodyFormData.append("images", images);
-        // });
-        bodyFormData.append("type", "3");
-        bodyFormData.append("id", id + "");
-        const response2 = await axiosClient.post(
+      const bodyFormData = new FormData();
+      // Object.values(images).forEach((images) => {
+      //   bodyFormData.append("images", images);
+      // });
+      bodyFormData.append("type", "3");
+      bodyFormData.append("id", id + "");
+      const response2 = await axiosClient
+        .post(
           `${process.env.REACT_APP_URL}/images/upload-multiple/`,
           bodyFormData,
           {
@@ -132,13 +132,23 @@ function PopUpProduct({ id, data }) {
               "Content-Type": "multipart/form-data",
             },
           }
-        );
-        // setPopup(false);
-      }
-      window.location.reload();
-    } catch (error) {
-      // showHide(true, "errors", "Oops, something when wrong", setFlash);
+        )
+        .catch(() => {
+          showHide(true, "errors", "Oops, something when wrong", setFlash);
+        });
     }
+    window.location.reload();
+  };
+
+  const deleteVariant = (e) => {
+    axiosClient
+      .delete(`${process.env.REACT_APP_URL}/variants/${e.target.id}`)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something when wrong", setFlash);
+      });
   };
 
   const ImagesList = (image) => {
@@ -314,8 +324,8 @@ function PopUpProduct({ id, data }) {
                       return newName;
                     })()}
                   </label>
-                  <figure id={vitem.id}>
-                    <FontAwesomeIcon icon={faX} />
+                  <figure id={vitem.id} onClick={deleteVariant}>
+                    <FontAwesomeIcon icon={faX} id={vitem.id} />
                   </figure>
                 </div>
                 <section
@@ -349,7 +359,7 @@ function PopUpProduct({ id, data }) {
                 </section>
                 <form name={`variant-item-${indexParent}`}>
                   <label htmlFor="">Details</label>
-                  <div>
+                  <div style={{ display: "flex" }}>
                     <input
                       type="text"
                       placeholder="New key"
@@ -397,29 +407,42 @@ function PopUpProduct({ id, data }) {
                       }}
                     />
                   </div>
+                  {description[indexParent].map(
+                    ([key, value], indexChildren) => {
+                      return (
+                        <section
+                          key={indexChildren}
+                          style={{ display: "flex" }}
+                        >
+                          <input
+                            type="text"
+                            value={key}
+                            onChange={(event) => {
+                              const value = event.target.value;
+                              handleChangeKey(
+                                indexParent,
+                                indexChildren,
+                                value
+                              );
+                            }}
+                          />
+                          <input
+                            type="text"
+                            value={value}
+                            onChange={(event) => {
+                              const value = event.target.value;
+                              handleChangeValue(
+                                indexParent,
+                                indexChildren,
+                                value
+                              );
+                            }}
+                          />
+                        </section>
+                      );
+                    }
+                  )}
                 </form>
-                {description[indexParent].map(([key, value], indexChildren) => {
-                  return (
-                    <section key={indexChildren}>
-                      <input
-                        type="text"
-                        value={key}
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          handleChangeKey(indexParent, indexChildren, value);
-                        }}
-                      />
-                      <input
-                        type="text"
-                        value={value}
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          handleChangeValue(indexParent, indexChildren, value);
-                        }}
-                      />
-                    </section>
-                  );
-                })}
               </section>
             );
           })}

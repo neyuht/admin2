@@ -11,6 +11,8 @@ import axiosClient from "../../scripts/helpers/config";
 import User from "../../assets/icons/user.png";
 import Overlay from "../Overlay/overlay";
 import PopUpChart from "./order-users-overlay";
+import showHide from "../../scripts/helpers/showHide";
+import FlashMessage from "../FlashMessage/flashMessage";
 
 function ChartBar({ data, data2, data3, datas }) {
   const [datas1, setDatas1] = useState(datas);
@@ -19,6 +21,11 @@ function ChartBar({ data, data2, data3, datas }) {
   const [recentUsers, setRecentUsers] = useState([]);
   const [overlay, setOverlay] = useState();
   const [comment, setComment] = useState([]);
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
 
   const best = () => {
     const label = [];
@@ -191,6 +198,9 @@ function ChartBar({ data, data2, data3, datas }) {
       .then((response) => {
         const data = response.data;
         setRecentUsers(data.user);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, []);
 
@@ -200,6 +210,9 @@ function ChartBar({ data, data2, data3, datas }) {
       .then((response) => {
         const data = response.data;
         setComment(data.content);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, []);
 
@@ -274,6 +287,16 @@ function ChartBar({ data, data2, data3, datas }) {
         <Overlay onClick={setOverlay}>
           <PopUpChart {...overlay} />
         </Overlay>
+      )}
+      {flash.action && (
+        <FlashMessage
+          rules={flash.type}
+          message={flash.message}
+          state={flash}
+          onClick={setTimeout((event) => {
+            showHide(false, "", "", setFlash);
+          }, 3000)}
+        />
       )}
     </div>
   );

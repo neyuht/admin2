@@ -17,7 +17,7 @@ import PopUpProduct from "./product-overlay";
 import iconPlus from "../../assets/icons/icon-plus.svg";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import FlashMessage from "../FlashMessage/flashMessage";
+import FlashMessage from "../FlashMessage/flashMessage";
 import { clearStyle } from "../../scripts/helpers/styles-change";
 import { Form } from "react-bootstrap";
 const size = 4;
@@ -130,62 +130,62 @@ function FormProducts({ fields }) {
   }, [searchParams, products]);
 
   const createNewProduct = async (e) => {
-    try {
-      e.preventDefault();
-      e.stopPropagation();
-      const form = document.forms["formAddProduct"];
-      const name = form["name"].value;
-      const category = form["category"].value;
-      const status = form["status"].value;
-      const images = Array.from(form["images"].files);
-      console.log("test", images);
-      const description2 = form["description2"].value;
-      const variantRq = Object.values(variant).map((obj) => ({
-        ...obj,
-        description: convertArrayToString(obj.description),
-      }));
+    e.preventDefault();
+    e.stopPropagation();
+    const form = document.forms["formAddProduct"];
+    const name = form["name"].value;
+    const category = form["category"].value;
+    const status = form["status"].value;
+    const images = Array.from(form["images"].files);
+    console.log("test", images);
+    const description2 = form["description2"].value;
+    const variantRq = Object.values(variant).map((obj) => ({
+      ...obj,
+      description: convertArrayToString(obj.description),
+    }));
 
-      const data = {
-        name,
-        status,
-        description: description2,
-        categoryId: category,
-        productVariantList: variantRq,
-      };
-      const { productVariantList, description, ...obj } = data;
-      clearStyle({
-        name: obj.name,
-        description2: description,
-        images,
+    const data = {
+      name,
+      status,
+      description: description2,
+      categoryId: category,
+      productVariantList: variantRq,
+    };
+    const { productVariantList, description, ...obj } = data;
+    clearStyle({
+      name: obj.name,
+      description2: description,
+      images,
+    });
+    const result = validate({
+      ...obj,
+      description2: description,
+      images,
+    });
+    if (result.error) {
+      return;
+    }
+    if (!productVariantList.length) {
+      alert("Vui long nhap variant");
+      return;
+    }
+    const response = await http.post(
+      `${process.env.REACT_APP_URL}/products`,
+      data
+    );
+    if (response.status === 200) {
+      const { id } = response.data.data;
+      const newProducts = [response.data.data, ...products];
+      setProducts(newProducts);
+      const bodyFormData = new FormData();
+      Object.values(images).forEach((images) => {
+        bodyFormData.append("images", images);
       });
-      const result = validate({
-        ...obj,
-        description2: description,
-        images,
-      });
-      if (result.error) {
-        return;
-      }
-      if (!productVariantList.length) {
-        alert("Vui long nhap variant");
-        return;
-      }
-      const response = await http.post(
-        `${process.env.REACT_APP_URL}/products`,
-        data
-      );
-      if (response.status === 200) {
-        const { id } = response.data.data;
-        const newProducts = [response.data.data, ...products];
-        setProducts(newProducts);
-        const bodyFormData = new FormData();
-        Object.values(images).forEach((images) => {
-          bodyFormData.append("images", images);
-        });
-        bodyFormData.append("type", "3");
-        bodyFormData.append("id", id + "");
-        console.log("1", bodyFormData);
-        const response2 = await axiosClient.post(
+      bodyFormData.append("type", "3");
+      bodyFormData.append("id", id + "");
+      console.log("1", bodyFormData);
+      const response2 = await axiosClient
+        .post(
           `${process.env.REACT_APP_URL}/images/upload-multiple/`,
           bodyFormData,
           {
@@ -193,12 +193,11 @@ function FormProducts({ fields }) {
               "Content-Type": "multipart/form-data",
             },
           }
-        );
-        setPopup(false);
-      }
-      showHide(true, "success", "Add successfully", setFlash);
-    } catch (error) {
-      showHide(true, "errors", "Oops, something when wrong", setFlash);
+        )
+        .catch(() => {
+          showHide(true, "errors", "Oops, something when wrong", setFlash);
+        });
+      window.location.reload();
     }
   };
 
@@ -249,7 +248,12 @@ function FormProducts({ fields }) {
           "Content-Type": "multipart/form-data",
         },
       })
-      .then(() => {});
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        showHide(true, "errors", "Oops, something when wrong", setFlash);
+      });
   };
 
   /**
@@ -281,6 +285,9 @@ function FormProducts({ fields }) {
       .get(`http://localhost:8080/api/v1/public/products/${id}`)
       .then((response) => {
         setOverlay(response.data);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something when wrong", setFlash);
       });
   }, []);
 
@@ -326,6 +333,9 @@ function FormProducts({ fields }) {
         }
 
         setProducts(data);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something when wrong", setFlash);
       });
   }, [searchParams]);
 
@@ -623,7 +633,7 @@ function FormProducts({ fields }) {
           </div>
         </Overlay>
       )}
-      {/* {flash.action && (
+      {flash.action && (
         <FlashMessage
           rules={flash.type}
           message={flash.message}
@@ -632,7 +642,7 @@ function FormProducts({ fields }) {
             showHide(false, "", "", setFlash);
           }, 3000)}
         />
-      )} */}
+      )}
     </main>
   );
 }

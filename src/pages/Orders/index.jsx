@@ -21,6 +21,7 @@ import OrderItems from "../../scripts/components/I-orders-item";
 import Overlay from "../../components/Overlay/overlay";
 import OrderOverlay from "../../components/Orders/orders-overlay";
 import { useSearchParams } from "react-router-dom";
+import showHide from "../../scripts/helpers/showHide";
 
 function Orders() {
   const [searchParams, setSearchparams] = useSearchParams({
@@ -33,6 +34,11 @@ function Orders() {
     startDate: "",
     min: "",
     max: "",
+  });
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
   });
   const timmerId = useRef(null);
   const [data, setData] = useState([]);
@@ -82,6 +88,7 @@ function Orders() {
       ...prev,
       [key]: value,
     }));
+    console.log("filter", filter);
     // debounce: có đang gõ hay ko
     if (timmerId.current) clearTimeout(timmerId.current);
     // dừng lại rồi mới gửi request
@@ -162,6 +169,9 @@ function Orders() {
         setProductSold(data.productSold);
         setOrderSold(data.orderSold);
         setLowestSelling(data.lowestSelling);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, []);
 
@@ -192,6 +202,9 @@ function Orders() {
           ]);
         }
         setDataOrders(data);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, [searchParams]);
 

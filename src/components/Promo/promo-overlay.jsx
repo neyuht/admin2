@@ -12,6 +12,7 @@ import Select from "../../scripts/components/select";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
+import showHide from "../../scripts/helpers/showHide";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -34,6 +35,11 @@ function PopUpPromo({
   startDate,
   endDate,
 }) {
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
   const [codeUpdate, setCode] = useState(code);
   const [percentUpdate, setPercent] = useState(percent);
   const [amountUpdate, setAmount] = useState(amount);
@@ -104,7 +110,7 @@ function PopUpPromo({
         window.location.reload();
       })
       .catch((err) => {
-        console.log(err);
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   };
 
@@ -113,6 +119,9 @@ function PopUpPromo({
       .delete(`${process.env.REACT_APP_URL}/promotion/${id}`)
       .then((res) => {
         window.location.reload();
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, []);
 

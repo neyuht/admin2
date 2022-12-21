@@ -14,15 +14,25 @@ import React from "react";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import User from "../../assets/icons/user.png";
 import OrderItemsForm from "../../scripts/components/I-orderItems-form";
+import showHide from "../../scripts/helpers/showHide";
 
 function OrderOverlay({ data }) {
   const [update, setUpdate] = useState(data);
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
+
   const onSubmit = (e) => {
     e.preventDefault();
     axiosClient
       .put(`${process.env.REACT_APP_URL}/orders/${data.id}`, update)
       .then((res) => {
         window.location.reload();
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   };
 

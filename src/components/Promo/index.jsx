@@ -22,8 +22,8 @@ import { useSearchParams } from "react-router-dom";
 import { clearStyle } from "../../scripts/helpers/styles-change";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-// import showHide from "../../scripts/scripts/helpers/flashMessage";
-// import FlashMessage from "../FlashMessage/flashMessage";
+import showHide from "../../scripts/helpers/showHide";
+import FlashMessage from "../FlashMessage/flashMessage";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -216,10 +216,10 @@ function Promo() {
         setStartDate("");
         setStatus(true);
         setPopup(false);
-        // showHide(true, "success", "Add successfully", setFlash);
+        showHide(true, "success", "Add successfully", setFlash);
       })
       .catch((err) => {
-        // showHide(true, "errors", "Oops, something went wrong", setFlash);
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   };
 
@@ -302,6 +302,9 @@ function Promo() {
           ]);
         }
         setPromotions(data);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, [searchParams]);
 
@@ -557,7 +560,7 @@ function Promo() {
           <PopUpPromo {...overlay} />
         </Overlay>
       )}
-      {/* {flash.action && (
+      {flash.action && (
         <FlashMessage
           rules={flash.type}
           message={flash.message}
@@ -566,7 +569,7 @@ function Promo() {
             showHide(false, "", "", setFlash);
           }, 3000)}
         />
-      )} */}
+      )}
     </section>
   );
 }

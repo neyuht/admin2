@@ -13,6 +13,7 @@ import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import avaUser from "../../assets/icons/user.png";
+import showHide from "../../scripts/helpers/showHide";
 
 function UserOverlay({ cx, id, firstName, lastName, image, email, phone }) {
   const [iamge, setImage] = useState(image);
@@ -20,6 +21,11 @@ function UserOverlay({ cx, id, firstName, lastName, image, email, phone }) {
   const [lastNames, setLastName] = useState(lastName);
   const [emails, setEmail] = useState(email);
   const [phones, setPhone] = useState(phone);
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
 
   const onDelete = useCallback((id) => {
     const obj = {
@@ -30,6 +36,9 @@ function UserOverlay({ cx, id, firstName, lastName, image, email, phone }) {
       .put(`${process.env.REACT_APP_URL}/users/${id}`, obj)
       .then((res) => {
         window.location.reload();
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, []);
 
