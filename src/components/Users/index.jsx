@@ -46,7 +46,9 @@ function UsersTab() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState(true);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState({
+    query: "",
+  });
   const [search, setSearch] = useSearchParams({});
   const [indexPagin, setIndexPagin] = useState(1);
   const [users, setUsers] = useState([]);
@@ -57,6 +59,7 @@ function UsersTab() {
   const responsePagins = useRef([]);
   const lists = useRef([]);
   const [currentPages, setCurrentPages] = useState([]);
+  const timmerId = useRef(null);
 
   const nextPage = (currentPage) => {
     const temps = lists.current.filter((item) => {
@@ -69,9 +72,18 @@ function UsersTab() {
   };
 
   const changePage = (step) => {
-    let currentPage = +searchParams.get("page") + step;
+    const currentPage = +searchParams.get("page") + step;
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        ...obj,
+        [key]: value,
+      };
+    }
+    const { page, ...rest } = obj;
     setSearchparams({
       page: currentPage,
+      ...rest,
     });
   };
 
@@ -89,37 +101,48 @@ function UsersTab() {
     return data;
   }, [searchParams, users]);
 
-  const onSearch = async (e) => {
-    const text = e.target.value;
-    if (timer) clearTimeout(timer);
-    const _timer = setTimeout(() => {
-      const url = `${process.env.REACT_APP_URL}/users?query=${text}`;
-      axiosClient
-        .get(url)
-        .then((response) => {
-          const datas = response.data.content;
-          setUsers(datas);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }, 600);
-    setTimer(_timer);
-    setFilter(text);
-    setSearch({
-      code: text,
+  const getDataSearch = (value1) => {
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        [key]: value,
+      };
+    }
+    obj = {
+      ...obj,
+      ...value1,
+    };
+    let newObj = {};
+    Object.entries(obj).forEach(([key, value]) => {
+      if (value) {
+        newObj = {
+          ...newObj,
+          [key]: value,
+        };
+      }
+    });
+    setSearchparams({
+      page: 1,
+      ...newObj,
     });
   };
 
-  const arrButton = useMemo(() => {
-    const sizeButton =
-      users.length % size === 0
-        ? users.length / size === 0
-          ? 1
-          : users.length / size
-        : parseInt(users.length / size) + 1;
-    return new Array(sizeButton).fill(1);
-  }, [users]);
+  const onSearch = async (e) => {
+    const value = e.target.value;
+    setFilter((prev) => ({
+      ...prev,
+      query: value,
+    }));
+    if (timmerId.current) clearTimeout(timmerId.current);
+    timmerId.current = setTimeout(() => {
+      const { query, ...rest } = filter;
+      const params = {
+        query: value,
+        ...rest,
+      };
+      getDataSearch(params);
+    }, 600);
+  };
 
   const openSetting = async (e, id) => {
     const promo = users.find((promo) => promo.id === id);
@@ -143,6 +166,7 @@ function UsersTab() {
         responsePagins.current = new Array(_sizePagin)
           .fill(1)
           .map((item, index) => index + 1);
+        lists.current = [];
         for (
           let index = 0;
           index < responsePagins.current.length;
@@ -265,24 +289,11 @@ function UsersTab() {
                 <Input
                   type={"text"}
                   name="search"
-                  value={filter}
+                  value={filter.query}
                   placeholder="Enter name or email"
                   onChange={onSearch}
                 />
                 <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
-              </div>
-              <div className="filter-product-search">
-                <select name="" id="">
-                  <option className="option-filter" value="all">
-                    All
-                  </option>
-                  <option className="option-filter" value="done">
-                    Available
-                  </option>
-                  <option className="option-filter" value="notYet">
-                    Expire
-                  </option>
-                </select>
               </div>
             </section>
             <section className={"table-promo"}>
@@ -339,16 +350,18 @@ function UsersTab() {
                           : ""
                       }`}
                       onClick={() => {
-                        const currentFiller = searchParams.get("name");
-                        const pyaload = currentFiller
-                          ? {
-                              page: item,
-                              name: currentFiller,
-                            }
-                          : {
-                              page: item,
-                            };
-                        setSearchparams(pyaload);
+                        let obj = {};
+                        for (const [key, value] of searchParams.entries()) {
+                          obj = {
+                            ...obj,
+                            [key]: value,
+                          };
+                        }
+                        obj["page"] = item;
+
+                        setSearchparams({
+                          ...obj,
+                        });
                       }}
                     >
                       {item}

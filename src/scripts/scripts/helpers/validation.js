@@ -32,6 +32,8 @@ const validateNumber = (obj) => {
   return notANumber;
 };
 
+
+
 /**
  * Kiểm tra form add và update promotion
  * @param {Object} obj  { code, percent, status, expire, ...other }

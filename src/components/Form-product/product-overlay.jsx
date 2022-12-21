@@ -12,6 +12,7 @@ function PopUpProduct({ id, data }) {
   const [update, setUpdate] = useState(data);
   const [variant, setVariant] = useState(data.productVariants);
   const [image, setImage] = useState(0);
+  const [indexImage, setIndexImage] = useState(0);
   const [flash, setFlash] = useState({
     action: false,
     type: "",
@@ -118,12 +119,13 @@ function PopUpProduct({ id, data }) {
         className={`product-images-wrapper ${image.classes}`}
         onClick={image.onClick}
       >
-        <img src={image.image} alt="" />
+        <img src={image.image} alt="" data-id={image.index} />
       </figure>
     );
   };
 
   const changeImage = (e) => {
+    setIndexImage(e.target.getAttribute("data-id"));
     setImage(e.target.src);
   };
 
@@ -163,17 +165,20 @@ function PopUpProduct({ id, data }) {
               <img src={image ? image : update.imageList[0]} alt="" />
             </div>
             <div className="list-images">
+              {console.log(indexImage)}
               {update.imageList.map((item, index) =>
-                index === 0 ? (
+                index === indexImage ? (
                   <ImagesList
                     image={item}
                     classes={"product-images-wrapper-active"}
+                    index={index}
                     onClick={changeImage}
                   />
                 ) : (
                   <ImagesList
                     image={item}
                     classes={" "}
+                    index={index}
                     onClick={changeImage}
                   />
                 )
@@ -214,8 +219,8 @@ function PopUpProduct({ id, data }) {
                     handleChange("status", value);
                   }}
                 >
-                  <option value="0">Available</option>
-                  <option value="1">Sold Out</option>
+                  <option value="1">Available</option>
+                  <option value="0">Sold Out</option>
                 </select>
               </FormDataItem>
               <FormDataItem label="Category" id="category">

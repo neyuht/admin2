@@ -11,6 +11,7 @@ import {
   validateNumber,
   validateOperator,
   validateCode,
+  validateDate,
 } from "../../scripts/helpers/validation";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
@@ -18,7 +19,7 @@ import Buttons from "react-bootstrap/Button";
 import "./style.css";
 import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
+import { clearStyle } from "../../scripts/helpers/styles-change";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import showHide from "../../scripts/scripts/helpers/flashMessage";
@@ -30,8 +31,8 @@ const percents = new Array(101).fill(1).map((item, index) => ({
 }));
 
 const statuss = new Array(2).fill(1).map((item, index) => ({
-  title: `${Boolean(index)}`,
-  value: `${Boolean(index)}`,
+  title: `${Boolean(index) ? "Expired" : "Available"}`,
+  value: `${index}`,
 }));
 
 const size = 8;
@@ -78,9 +79,18 @@ function Promo() {
   };
 
   const changePage = (step) => {
-    let currentPage = +searchParams.get("page") + step;
+    const currentPage = +searchParams.get("page") + step;
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        ...obj,
+        [key]: value,
+      };
+    }
+    const { page, ...rest } = obj;
     setSearchparams({
       page: currentPage,
+      ...rest,
     });
   };
 
@@ -136,29 +146,25 @@ function Promo() {
       status,
     };
 
-    changeStyleElementByObject(obj, "boxShadow", "0 0 0 0.3mm");
-    let result = validate(obj);
-    if (result.error) {
-      return;
-    }
-
-    result = validateCode(code);
-    if (result.error) {
-      return;
-    }
-
-    result = validateNumber({
+    clearStyle(obj);
+    const isEmpty = validate(obj);
+    const isCode = validateCode(code);
+    const isNumber = validateNumber({
       amount,
       maxAmount,
     });
-    if (result.error) {
-      return;
-    }
-    result = validateOperator({
+    const isLT0 = validateOperator({
       amount,
       maxAmount,
     });
-    if (result.error) {
+    const isDate = validateDate(obj.startDate, obj.endDate);
+    if (
+      isCode.error ||
+      isDate.error ||
+      isEmpty.error ||
+      isNumber.error ||
+      isLT0.error
+    ) {
       return;
     }
     axiosClient
@@ -169,7 +175,6 @@ function Promo() {
       })
       .then((res) => {
         const _temps = [
-          ...promotions,
           {
             ...res.data,
             startDate: (() => {
@@ -193,6 +198,7 @@ function Promo() {
               }-${date.getFullYear()}`;
             })(),
           },
+          ...promotions,
         ];
 
         const sizePagin =
@@ -260,26 +266,6 @@ function Promo() {
     }, 600);
   };
 
-  const showButtonActive = () => {
-    const buttons = document.querySelectorAll(".buttons-pagination");
-    buttons.forEach((item) => {
-      item.classList.remove("buttons-pagination-active");
-      if (Number(item.innerHTML.trim()) === currentPages) {
-        item.classList.add("buttons-pagination-active");
-      }
-    });
-  };
-
-  const arrButton = useMemo(() => {
-    const sizeButton =
-      promotions.length % size === 0
-        ? promotions.length / size === 0
-          ? 1
-          : promotions.length / size
-        : parseInt(promotions.length / size) + 1;
-    return new Array(sizeButton).fill(1);
-  }, [promotions]);
-
   const openSetting = async (e, id) => {
     const promo = promotions.find((promo) => promo.id === id);
     setOverlay(promo);
@@ -303,6 +289,7 @@ function Promo() {
         responsePagins.current = new Array(_sizePagin)
           .fill(1)
           .map((item, index) => index + 1);
+        lists.current = [];
         for (
           let index = 0;
           index < responsePagins.current.length;
@@ -443,14 +430,26 @@ function Promo() {
                 <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
               </div>
               <div className="filter-product-search">
-                <select name="" id="">
-                  <option className="option-filter" value="all">
+                <select
+                  name=""
+                  id=""
+                  value={filter.status}
+                  onChange={(event) => {
+                    const params = {
+                      ...filter,
+                      status: event.target.value,
+                    };
+                    setFilter(params);
+                    getDataSearch(params);
+                  }}
+                >
+                  <option className="option-filter" value="">
                     All
                   </option>
-                  <option className="option-filter" value="done">
+                  <option className="option-filter" value="2">
                     Available
                   </option>
-                  <option className="option-filter" value="notYet">
+                  <option className="option-filter" value="1">
                     Expire
                   </option>
                 </select>
@@ -520,16 +519,18 @@ function Promo() {
                           : ""
                       }`}
                       onClick={() => {
-                        const currentFiller = searchParams.get("name");
-                        const pyaload = currentFiller
-                          ? {
-                              page: item,
-                              name: currentFiller,
-                            }
-                          : {
-                              page: item,
-                            };
-                        setSearchparams(pyaload);
+                        let obj = {};
+                        for (const [key, value] of searchParams.entries()) {
+                          obj = {
+                            ...obj,
+                            [key]: value,
+                          };
+                        }
+                        obj["page"] = item;
+
+                        setSearchparams({
+                          ...obj,
+                        });
                       }}
                     >
                       {item}
@@ -562,9 +563,9 @@ function Promo() {
           rules={flash.type}
           message={flash.message}
           state={flash}
-          onClick={(event) => {
+          onClick={setTimeout((event) => {
             showHide(false, "", "", setFlash);
-          }}
+          }, 3000)}
         />
       )}
     </section>

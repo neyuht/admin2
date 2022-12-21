@@ -9,8 +9,23 @@ const changeStyleElementByObject = (obj, style, styleChange) => {
   for (const [key, value] of Object.entries(obj)) {
     const element = document.querySelector(`[name=${key}]`);
     element.style[style] = styleChange;
+    const parentElement = element.parentElement
+    parentElement.setAttribute('data-error', value)
+   parentElement.classList.add('err')
+   console.log(parentElement);
+
   }
   
 };
 
-export { changeStyleElementByObject };
+const clearStyle = (obj) => {
+  for (const [key, value] of Object.entries(obj)) {
+    const element = document.querySelector(`[name=${key}]`);
+    element.style['boxShadow'] = "0 0 0 0.3mm";
+    const parentElement = element.parentElement
+    parentElement.setAttribute('data-error', '')
+   parentElement.classList.remove('err')
+  }
+}
+
+export { changeStyleElementByObject,clearStyle };

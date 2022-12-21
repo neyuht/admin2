@@ -13,9 +13,11 @@ const validate = (obj) => {
     }
   }
       changeStyleElementByObject(empty, "boxShadow", "0 0 0 0.3mm red");
+      const isError = Boolean(Object.keys(empty).length)
       return {
         field:empty,
-        error:Boolean(Object.keys(empty).length)
+        error:isError,
+        message: isError ? "Nhap day du thong tin" : ''
       }
 };
 
@@ -33,9 +35,11 @@ const validateNumber = (obj) => {
     }
   }
   changeStyleElementByObject(notANumber, "boxShadow", "0 0 0 0.3mm red");
+  const isError = Boolean(Object.keys(notANumber).length)
   return {
     field:notANumber,
-    error:Boolean(Object.keys(notANumber).length)
+    error:isError,
+        message: isError ? "Vui long nhap so" : ''
   }
 };
 
@@ -52,6 +56,7 @@ const validateOperator = (obj, a) => {
     }
   } 
   changeStyleElementByObject(notANumber, "boxShadow", "0 0 0 0.3mm red");
+  const isError = Boolean(Object.keys(notANumber).length)
   return {
     field:notANumber,
     error:Boolean(Object.keys(notANumber).length)
@@ -68,6 +73,30 @@ const validateCode = (code) => {
       field :obj,
       error : !error
     }
+}
+
+const validateDate = (startDate, endDate) => {
+  const error  = {}
+  const date = new Date()
+  const currentDate = [date.getDate(), date.getMonth() + 1, date.getFullYear()]
+  const startDates = startDate.split('-').map(item => item *1)
+  const endDates= endDate.split('-').map(item => item *1)
+  if(endDates[2] < currentDate[2]  || endDates[1] < currentDate[1] || endDates[0] < currentDate[0] ) {
+    error["endDate"] = 'Check end date'
+  }
+  if((startDate[2] < currentDate[2] || startDates[2] > endDates[2]) || ((startDates[1] < currentDate[1] || startDates[1] > endDates[1])) || ((startDates[0] < currentDate[0] || startDates[0] > endDates[0]))) {
+    error["startDate"] = 'Check start date'
+  }
+  console.log(error);
+  changeStyleElementByObject(error, "boxShadow", "0 0 0 0.3mm red");
+  const isError = Boolean(Object.keys(error).length)
+  return {
+    field: {
+     ...error
+    },
+    error:isError
+  }
+ 
 }
 
 /**
@@ -93,4 +122,4 @@ const validateDataForm = (obj) => {
   return true;
 };
 
-export { validate, validateNumber, validateDataForm,validateOperator,validateCode };
+export { validate, validateNumber, validateDataForm,validateOperator,validateCode, validateDate };

@@ -1,6 +1,13 @@
 import React from "react";
 
-function ProductItem({ id, productName, amount, category, status, onClick }) {
+function ProductItem({
+  id,
+  productName,
+  productsVariant,
+  description,
+  status,
+  onClick,
+}) {
   return (
     <tr
       className={"promo-table-item"}
@@ -10,14 +17,17 @@ function ProductItem({ id, productName, amount, category, status, onClick }) {
       }}
     >
       <td>
+        <p>#{id}</p>
+      </td>
+      <td>
         <p>{productName}</p>
       </td>
       <td>{status === 1 ? <p>Available</p> : <p>Sold Out</p>}</td>
       <td>
-        <p>{amount}</p>
+        <p style={{ paddingLeft: "50px  " }}>{productsVariant.length}</p>
       </td>
-      <td>
-        <p>{category}</p>
+      <td className="product-list-description">
+        <p>{description}</p>
       </td>
     </tr>
   );

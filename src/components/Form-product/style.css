@@ -150,6 +150,18 @@
   flex-direction: column;
 }
 
+.form-group {
+  position: relative;
+}
+
+.form-group.err::after {
+  position: absolute;
+  content: attr(data-error);
+  top: 100%;
+  left: 5px;
+  color: red;
+}
+
 .form-img .form-group .images {
   width: 250px;
   height: 250px;
@@ -405,4 +417,11 @@
   width: 100%;
   height: 100%;
   border-radius: 8px;
+}
+
+.product-list-description p {
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

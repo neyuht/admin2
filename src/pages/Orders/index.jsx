@@ -26,6 +26,11 @@ function Orders() {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
   });
+  const [filter, setFilter] = useState({
+    name: "",
+    status: "",
+  });
+  const timmerId = useRef(null);
   const [search, setSearch] = useState("");
   const [orders, setOrders] = useState(all_orders);
   const [page, setPage] = useState(1);
@@ -38,34 +43,83 @@ function Orders() {
   const responsePagins = useRef([]);
   const lists = useRef([]);
 
-  useEffect(() => {
-    setPagination(calculateRange(all_orders, 5));
-    setOrders(sliceData(all_orders, page, 5));
-  }, []);
+  // useEffect(() => {
+  //   setPagination(calculateRange(all_orders, 5));
+  //   setOrders(sliceData(all_orders, page, 5));
+  // }, []);
 
-  // Search
-  const __handleSearch = (event) => {
-    setSearch(event.target.value);
-    if (event.target.value !== "") {
-      let search_results = orders.filter(
-        (item) =>
-          item.first_name.toLowerCase().includes(search.toLowerCase()) ||
-          item.last_name.toLowerCase().includes(search.toLowerCase()) ||
-          item.product.toLowerCase().includes(search.toLowerCase())
-      );
-      setOrders(search_results);
-    } else {
-      __handleChangePage(1);
+  // // Search
+  // const __handleSearch = (event) => {
+  //   setSearch(event.target.value);
+  //   if (event.target.value !== "") {
+  //     let search_results = orders.filter(
+  //       (item) =>
+  //         item.first_name.toLowerCase().includes(search.toLowerCase()) ||
+  //         item.last_name.toLowerCase().includes(search.toLowerCase()) ||
+  //         item.product.toLowerCase().includes(search.toLowerCase())
+  //     );
+  //     setOrders(search_results);
+  //   } else {
+  //     __handleChangePage(1);
+  //   }
+  // };
+
+  // // Change Page
+  // const __handleChangePage = (new_page) => {
+  //   setPage(new_page);
+  //   setOrders(sliceData(all_orders, new_page, 5));
+  // };
+
+  /**
+   * Get data when searching
+   * @param {*} value1
+   */
+  const getDataSearch = (value1) => {
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        [key]: value,
+      };
     }
+    obj = {
+      ...obj,
+      ...value1,
+    };
+    let newObj = {};
+    Object.entries(obj).forEach(([key, value]) => {
+      if (value) {
+        newObj = {
+          ...newObj,
+          [key]: value,
+        };
+      }
+    });
+    setSearchparams({
+      page: 1,
+      ...newObj,
+    });
   };
 
-  // Change Page
-  const __handleChangePage = (new_page) => {
-    setPage(new_page);
-    setOrders(sliceData(all_orders, new_page, 5));
+  /**
+   * Event search
+   * @param {*} event
+   */
+  const onSearch = (event) => {
+    const value = event.target.value;
+    setFilter((prev) => ({
+      ...prev,
+      name: value,
+    }));
+    if (timmerId.current) clearTimeout(timmerId.current);
+    timmerId.current = setTimeout(() => {
+      const { name, ...rest } = filter;
+      const params = {
+        name: value,
+        ...rest,
+      };
+      getDataSearch(params);
+    }, 600);
   };
-
-  const onSearch = () => {};
 
   const changePage = (step) => {
     let currentPage = +searchParams.get("page") + step;
@@ -131,6 +185,7 @@ function Orders() {
 
   useEffect(() => {
     let param = "?";
+    let sum = 0;
     for (const [key, value] of searchParams.entries()) {
       param += `${key}=${value}&`;
     }
@@ -138,7 +193,7 @@ function Orders() {
       .get(`${process.env.REACT_APP_URL}/orders${param}`)
       .then((response) => {
         const data = response.data.content;
-        const _sizePagin = response.data.totalPage;
+        const _sizePagin = response.data.totalPages;
         responsePagins.current = new Array(_sizePagin)
           .fill(1)
           .map((item, index) => index + 1);
@@ -154,7 +209,17 @@ function Orders() {
             responsePagins.current[index + 3],
           ]);
         }
-        setDataOrders(data);
+        const newData = data.map((item) => {
+          const total = item.orderItems.reduce((result, i) => {
+            return result + i.quantity * i.unitPrice;
+          }, 0);
+          return {
+            ...item,
+            total,
+          };
+        });
+        console.log(response.data);
+        setDataOrders(newData);
       });
   }, [searchParams]);
 
@@ -203,15 +268,32 @@ function Orders() {
                 <Input
                   type={"text"}
                   name="search"
-                  // value={filter}
+                  value={filter.status}
                   placeholder="Enter user or Email"
-                  // onChange={onSearch}
+                  onChange={onSearch}
                 />
-                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
+                <FontAwesomeIcon
+                  icon={faMagnifyingGlass}
+                  onClick={() => {
+                    getDataSearch(filter);
+                  }}
+                />
               </div>
               <div className="filter-product-search">
-                <select name="" id="">
-                  <option className="option-filter" value="all">
+                <select
+                  name=""
+                  id=""
+                  value={filter.status}
+                  onChange={(event) => {
+                    const params = {
+                      ...filter,
+                      status: event.target.value,
+                    };
+                    setFilter(params);
+                    getDataSearch(params);
+                  }}
+                >
+                  <option className="option-filter" value="">
                     All
                   </option>
                   <option className="option-filter" value="1">
@@ -248,6 +330,7 @@ function Orders() {
                       image={order.user.image}
                       firstName={order.user.firstName}
                       lastName={order.user.lastName}
+                      total={order.total}
                       onClick={openSetting}
                     />
                   ))}
