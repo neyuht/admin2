@@ -1,16 +1,6 @@
 import React from "react";
 import RecentItems from "../../scripts/components/I-popup-list";
 
-const percents = new Array(101).fill(1).map((item, index) => ({
-  title: index,
-  value: index,
-}));
-
-const statuss = new Array(2).fill(1).map((item, index) => ({
-  title: `${Boolean(index)}`,
-  value: `${Boolean(index)}`,
-}));
-
 function PopUpChart({ title, data }) {
   return (
     <form
@@ -33,23 +23,36 @@ function PopUpChart({ title, data }) {
           ) : (
             <thead>
               <th>ID</th>
-              <th>DATE</th>
-              <th>STATUS</th>
-              <th>COSTUMER</th>
-              <th>REVENUE</th>
+              <th>Image</th>
+              <th>Date</th>
+              <th>UserName</th>
+              <th>Description</th>
             </thead>
           )}
           <tbody>
-            {data.map((item, index) => (
-              <RecentItems
-                image={item.image}
-                firstName={item.firstName}
-                lastNam={item.firstName}
-                email={item.email}
-                phone={item.phone}
-                index={index}
-              />
-            ))}
+            {title === "Recent Users"
+              ? data.map((item, index) => (
+                  <RecentItems
+                    image={item.image}
+                    firstName={item.firstName}
+                    lastName={item.firstName}
+                    email={item.email}
+                    phone={item.phone}
+                    index={index}
+                  />
+                ))
+              : data.map((item, index) => (
+                  <RecentItems
+                    image={item.image}
+                    firstName={item.firstName}
+                    lastNam={item.firstName}
+                    username={item.username}
+                    date={item.cratedAt}
+                    description={item.content}
+                    id={item.id}
+                    index={index}
+                  />
+                ))}
           </tbody>
         </table>
       </section>

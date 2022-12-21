@@ -58,7 +58,6 @@ function PopUpCategory({ cx, id, nameCategory }) {
       return;
     }
     result = validateDataForm(nameCategory);
-    console.log(result);
     if (result.error) {
       return;
     }

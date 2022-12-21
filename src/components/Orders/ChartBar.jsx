@@ -18,6 +18,7 @@ function ChartBar({ data, data2, data3, datas }) {
   const [datas3, setDatas3] = useState(datas);
   const [recentUsers, setRecentUsers] = useState([]);
   const [overlay, setOverlay] = useState();
+  const [comment, setComment] = useState([]);
 
   const best = () => {
     const label = [];
@@ -139,7 +140,12 @@ function ChartBar({ data, data2, data3, datas }) {
         </figure>
         <div className="board-description">
           <p className="board-title">{props.title}</p>
-          <p className="board-title">{props.description}</p>
+          <p
+            className="board-title"
+            style={{ overflow: "hidden", textOverflow: "wrap" }}
+          >
+            {props.description}
+          </p>
         </div>
       </div>
     );
@@ -147,6 +153,10 @@ function ChartBar({ data, data2, data3, datas }) {
 
   const openSetting = () => {
     setOverlay({ title: "Recent Users", data: recentUsers });
+  };
+
+  const openSetting2 = () => {
+    setOverlay({ title: "Recent Comments", data: comment });
   };
 
   const changeDataChart = (e) => {
@@ -187,10 +197,11 @@ function ChartBar({ data, data2, data3, datas }) {
 
   useEffect(() => {
     axiosClient
-      .get(`${process.env.REACT_APP_URL}/comments`)
+      .get(`${process.env.REACT_APP_URL}/comments?perPage=20`)
       .then((response) => {
         const data = response.data;
         console.log(data);
+        setComment(data.content);
       });
   }, []);
 
@@ -221,8 +232,8 @@ function ChartBar({ data, data2, data3, datas }) {
           <div className="board-wrapper">
             <div className="title-chart">
               <h3>Recent Users</h3>
-              <div className="board-details">
-                <span onClick={openSetting}>More</span>
+              <div className="board-details" onClick={openSetting}>
+                <span>More</span>
                 <FontAwesomeIcon icon={faArrowRight} />
               </div>
             </div>
@@ -242,21 +253,21 @@ function ChartBar({ data, data2, data3, datas }) {
           <div className="board-wrapper">
             <div className="title-chart">
               <h3>Recent Comments</h3>
-              <div className="board-details">
+              <div className="board-details" onClick={openSetting2}>
                 <span>More</span>
                 <FontAwesomeIcon icon={faArrowRight} />
               </div>
             </div>
             <div className="board-content">
-              <div className="item-wrapper">
-                <figure className="image-wrapper">
-                  <img src="" alt="" />
-                </figure>
-                <div className="board-description">
-                  <p className="board-title">adasdadasdasd</p>
-                  <p className="board-title">adasdadasdasd</p>
-                </div>
-              </div>
+              {comment.slice(0, 10).map((cmt, index) => {
+                return (
+                  <CommonBoard
+                    img={cmt.userImg}
+                    title={cmt.username}
+                    description={cmt.content}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>

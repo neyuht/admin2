@@ -160,7 +160,6 @@ function PopUpPromo({
             />
           </FormDataItem>
           <FormDataItem label="status" id="status">
-            {console.log(statuss)}
             <Select
               datas={statuss}
               name="status"

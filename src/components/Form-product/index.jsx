@@ -19,6 +19,7 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FlashMessage from "../FlashMessage/flashMessage";
 import { clearStyle } from "../../scripts/helpers/styles-change";
+import { Form } from "react-bootstrap";
 const size = 4;
 
 function FormProducts({ fields }) {
@@ -56,6 +57,7 @@ function FormProducts({ fields }) {
     type: "",
     message: "",
   });
+  const [popupImport, setPopupImport] = useState(false);
 
   /**
    *  Code của detail
@@ -156,11 +158,11 @@ function FormProducts({ fields }) {
         `${process.env.REACT_APP_URL}/products`,
         data
       );
-      console.log(response);
       if (response.status === 200) {
         const { id } = response.data.data;
         const newProducts = [response.data.data, ...products];
         setProducts(newProducts);
+        console.log("123---------", response.data.data);
         const bodyFormData = new FormData();
         Object.values(images).forEach((images) => {
           bodyFormData.append("images", images);
@@ -210,6 +212,11 @@ function FormProducts({ fields }) {
     });
   };
 
+  const sendExcel = () => {
+    const file = document.querySelector(".modal-import-excel input");
+    console.log(file.files);
+  };
+
   /**
    * Event search products
    * @param {e} event
@@ -238,7 +245,7 @@ function FormProducts({ fields }) {
     axiosClient
       .get(`http://localhost:8080/api/v1/public/products/${id}`)
       .then((response) => {
-        console.log(response.data);
+        console.log("overlay", response);
         setOverlay(response.data);
       });
   }, []);
@@ -263,7 +270,6 @@ function FormProducts({ fields }) {
     axiosClient
       .get(`${process.env.REACT_APP_URL}/products${param}`)
       .then((response) => {
-        console.log(response.data);
         const data = response.data.content;
         const _sizePagin = response.data.totalPage;
         responsePagins.current = new Array(_sizePagin)
@@ -330,8 +336,8 @@ function FormProducts({ fields }) {
                           id=""
                           className={"products-status"}
                         >
-                          <option value="0">Available</option>
-                          <option value="1">Sold Out</option>
+                          <option value="1">Available</option>
+                          <option value="0">Sold Out</option>
                         </select>
                       </div>
 
@@ -400,16 +406,28 @@ function FormProducts({ fields }) {
         <section className={"section-list"}>
           <div className="dashboard-content-header">
             <h2>Products List</h2>
-            <Buttons
-              type="button"
-              title="submit"
-              variant="primary"
-              onClick={() => {
-                setPopup(true);
-              }}
-            >
-              Add New Product
-            </Buttons>
+            <div className="dashboard-content-btn">
+              <Buttons
+                type="button"
+                title="submit"
+                variant="primary"
+                onClick={() => {
+                  setPopup(true);
+                }}
+              >
+                Add New Product
+              </Buttons>
+              <Buttons
+                type="button"
+                title="submit"
+                variant="primary"
+                onClick={() => {
+                  setPopupImport(true);
+                }}
+              >
+                Import Excel
+              </Buttons>
+            </div>
           </div>
           <section className={"list-promo"}>
             <section className={"filter-product"}>
@@ -538,6 +556,33 @@ function FormProducts({ fields }) {
       {overlay && (
         <Overlay onClick={setOverlay}>
           <PopUpProduct data={overlay} />
+        </Overlay>
+      )}
+      {popupImport && (
+        <Overlay
+          onClick={(e) => {
+            setPopupImport(false);
+          }}
+        >
+          <div
+            className="modal-import-excel"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <Form.Control
+              type="file"
+              accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+            />
+            <Buttons
+              type="button"
+              title="submit"
+              variant="primary"
+              onClick={sendExcel}
+            >
+              Import
+            </Buttons>
+          </div>
         </Overlay>
       )}
       {flash.action && (

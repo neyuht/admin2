@@ -125,7 +125,11 @@ function PopUpProduct({ id, data }) {
   };
 
   const changeImage = (e) => {
-    setIndexImage(e.target.getAttribute("data-id"));
+    const list = document.querySelectorAll(".product-images-wrapper");
+    list.forEach((item) => {
+      item.classList.remove("product-images-wrapper-active");
+    });
+    e.target.parentNode.classList.add("product-images-wrapper-active");
     setImage(e.target.src);
   };
 
@@ -159,15 +163,17 @@ function PopUpProduct({ id, data }) {
     >
       <h2 className="heading">Products</h2>
       <div className="product-form-wrapper">
-        <div className={"form-img"}>
-          <div className={"form-group"}>
+        <div className={"form-img"} style={{ width: "250px" }}>
+          <div
+            className={"form-group"}
+            style={{ width: "250px", margin: "0px" }}
+          >
             <div className={"images"}>
               <img src={image ? image : update.imageList[0]} alt="" />
             </div>
             <div className="list-images">
-              {console.log(indexImage)}
               {update.imageList.map((item, index) =>
-                index === indexImage ? (
+                index === 0 ? (
                   <ImagesList
                     image={item}
                     classes={"product-images-wrapper-active"}
@@ -177,7 +183,7 @@ function PopUpProduct({ id, data }) {
                 ) : (
                   <ImagesList
                     image={item}
-                    classes={" "}
+                    classes={""}
                     index={index}
                     onClick={changeImage}
                   />
@@ -270,6 +276,15 @@ function PopUpProduct({ id, data }) {
                 style={{ margin: "15px 20px" }}
                 className="variant-wrapper"
               >
+                <label htmlFor="" style={{ fontSize: "18px" }}>
+                  {(() => {
+                    const name = update.name;
+                    const nameVariant = vitem.displayName;
+                    const newName =
+                      "Version:   " + nameVariant.replace(name, "");
+                    return newName;
+                  })()}
+                </label>
                 <section
                   style={{ display: "flex" }}
                   className="form-variant-wrapper"

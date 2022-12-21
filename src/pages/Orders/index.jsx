@@ -43,33 +43,6 @@ function Orders() {
   const responsePagins = useRef([]);
   const lists = useRef([]);
 
-  // useEffect(() => {
-  //   setPagination(calculateRange(all_orders, 5));
-  //   setOrders(sliceData(all_orders, page, 5));
-  // }, []);
-
-  // // Search
-  // const __handleSearch = (event) => {
-  //   setSearch(event.target.value);
-  //   if (event.target.value !== "") {
-  //     let search_results = orders.filter(
-  //       (item) =>
-  //         item.first_name.toLowerCase().includes(search.toLowerCase()) ||
-  //         item.last_name.toLowerCase().includes(search.toLowerCase()) ||
-  //         item.product.toLowerCase().includes(search.toLowerCase())
-  //     );
-  //     setOrders(search_results);
-  //   } else {
-  //     __handleChangePage(1);
-  //   }
-  // };
-
-  // // Change Page
-  // const __handleChangePage = (new_page) => {
-  //   setPage(new_page);
-  //   setOrders(sliceData(all_orders, new_page, 5));
-  // };
-
   /**
    * Get data when searching
    * @param {*} value1
@@ -268,7 +241,7 @@ function Orders() {
                 <Input
                   type={"text"}
                   name="search"
-                  value={filter.status}
+                  // value={filter.status}
                   placeholder="Enter user or Email"
                   onChange={onSearch}
                 />
