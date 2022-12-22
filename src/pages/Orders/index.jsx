@@ -179,8 +179,16 @@ function Orders() {
     let param = "?";
     let sum = 0;
     for (const [key, value] of searchParams.entries()) {
-      param += `${key}=${value}&`;
+      console.log(key, "", value);
+      if (key === "endDate" || key === "startDate") {
+        const date = new Date(value);
+        const timestamp = Math.floor(date.getTime() / 1000);
+        param += `${key}=${timestamp}&`;
+      } else {
+        param += `${key}=${value}&`;
+      }
     }
+    console.log(param);
     axiosClient
       .get(`${process.env.REACT_APP_URL}/orders${param}`)
       .then((response) => {
@@ -324,7 +332,7 @@ function Orders() {
                     type={"text"}
                     name="name"
                     value={filter.name}
-                    placeholder="Enter user or Email"
+                    placeholder="Enter username"
                     onChange={onSearch}
                   />
                   <FontAwesomeIcon

@@ -32,7 +32,7 @@ const percents = new Array(101).fill(1).map((item, index) => ({
 
 const statuss = new Array(2).fill(1).map((item, index) => ({
   title: `${Boolean(index) ? "Expired" : "Available"}`,
-  value: `${index}`,
+  value: index + 1,
 }));
 
 const size = 8;
@@ -52,7 +52,7 @@ function Promo() {
   const [maxAmount, setMaxAmount] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState(true);
+  const [status, setStatus] = useState(1);
   const [filter, setFilter] = useState({
     code: "",
     status: "",
@@ -143,8 +143,10 @@ function Promo() {
         }
         return "";
       })(),
-      status,
+      status: Number(status),
     };
+
+    console.log("Post", obj);
 
     clearStyle(obj);
     const isEmpty = validate(obj);
@@ -216,7 +218,7 @@ function Promo() {
         setStartDate("");
         setStatus(true);
         setPopup(false);
-        showHide(true, "success", "Add successfully", setFlash);
+        window.location.reload();
       })
       .catch((err) => {
         showHide(true, "errors", "Oops, something went wrong", setFlash);
@@ -230,10 +232,14 @@ function Promo() {
         [key]: value,
       };
     }
+
+    // obj cũ và 1 param mới
     obj = {
       ...obj,
       ...value1,
     };
+
+    // loại bỏ các param rỗng
     let newObj = {};
     Object.entries(obj).forEach(([key, value]) => {
       if (value) {
@@ -243,6 +249,7 @@ function Promo() {
         };
       }
     });
+
     setSearchparams({
       page: 1,
       ...newObj,
@@ -267,8 +274,11 @@ function Promo() {
   };
 
   const openSetting = async (e, id) => {
-    const promo = promotions.find((promo) => promo.id === id);
-    setOverlay(promo);
+    const promo = await axiosClient.get(
+      `${process.env.REACT_APP_URL}/promotion/${id}`
+    );
+    console.log("api", promo.data);
+    setOverlay(promo.data);
   };
 
   const popupAddPromo = useCallback(() => {
@@ -557,7 +567,7 @@ function Promo() {
       </section>
       {overlay && (
         <Overlay onClick={setOverlay}>
-          <PopUpPromo {...overlay} />
+          <PopUpPromo obj={overlay} />
         </Overlay>
       )}
       {flash.action && (

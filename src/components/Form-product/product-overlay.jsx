@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 
 function PopUpProduct({ id, data }) {
+  console.log(data);
   const [update, setUpdate] = useState(data);
   const [variant, setVariant] = useState(data.productVariants);
   const [image, setImage] = useState(0);
@@ -113,9 +114,11 @@ function PopUpProduct({ id, data }) {
       categoryId: category.id,
       productVariants: temp,
     };
+    console.log("payload", payload);
     const response = await http.put(url, payload);
     if (response.status === 200) {
       const { id } = response.data.data;
+      const img = document.querySelector(".image-main-selected img").src;
 
       const bodyFormData = new FormData();
       // Object.values(images).forEach((images) => {
@@ -206,7 +209,7 @@ function PopUpProduct({ id, data }) {
             className={"form-group"}
             style={{ width: "250px", margin: "0px" }}
           >
-            <div className={"images"}>
+            <div className={"images image-main-selected"}>
               <img src={image ? image : update.imageList[0]} alt="" />
             </div>
             <div className="list-images">
@@ -363,9 +366,8 @@ function PopUpProduct({ id, data }) {
                     <input
                       type="text"
                       placeholder="New key"
-                      onKeyDown={(event) => {
+                      onChange={(event) => {
                         const value = event.target.value;
-                        const key = event.code;
                         const obj = {
                           ...variantItem,
                           [indexParent]: {
@@ -373,20 +375,20 @@ function PopUpProduct({ id, data }) {
                             key: value,
                           },
                         };
+                        console.log(obj);
                         setVariantItem(obj);
-                        if (key === "Enter" && value) {
-                          obj[indexParent] = {
-                            ...obj[indexParent],
-                            key: value,
-                          };
-                          handleAddNewVariAntItem(indexParent, obj);
+                      }}
+                      onKeyDown={(event) => {
+                        const key = event.code;
+                        if (key === "Enter") {
+                          handleAddNewVariAntItem(indexParent, variantItem);
                         }
                       }}
                     />
                     <input
                       type="text"
                       placeholder="New value"
-                      onKeyDown={(event) => {
+                      onChange={(event) => {
                         const value = event.target.value;
                         const key = event.code;
                         const obj = {
@@ -397,12 +399,11 @@ function PopUpProduct({ id, data }) {
                           },
                         };
                         setVariantItem(obj);
-                        if (key === "Enter" && value) {
-                          obj[indexParent] = {
-                            ...obj[indexParent],
-                            value,
-                          };
-                          handleAddNewVariAntItem(indexParent, obj);
+                      }}
+                      onKeyDown={(event) => {
+                        const key = event.code;
+                        if (key === "Enter") {
+                          handleAddNewVariAntItem(indexParent, variantItem);
                         }
                       }}
                     />

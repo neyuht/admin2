@@ -6,6 +6,7 @@ import { changeStyleElementByObject } from "./styles-change";
  * @returns {Object}
  */
 const validate = (obj) => {
+  console.log(obj);
   const empty = {};
   for (const [key, value] of Object.entries(obj)) {
     if ((typeof value === 'object' && !Boolean(Object.values(value).length) )|| !Boolean(value) ) {

@@ -33,9 +33,10 @@ function PopUpChart({ title, data }) {
             {title === "Recent Users"
               ? data.map((item, index) => (
                   <RecentItems
+                    roles="user"
                     image={item.image}
                     firstName={item.firstName}
-                    lastName={item.firstName}
+                    lastName={item.lastName}
                     email={item.email}
                     phone={item.phone}
                     index={index}
@@ -45,7 +46,7 @@ function PopUpChart({ title, data }) {
                   <RecentItems
                     image={item.image}
                     firstName={item.firstName}
-                    lastNam={item.firstName}
+                    lastName={item.lastName}
                     username={item.username}
                     date={item.cratedAt}
                     description={item.content}

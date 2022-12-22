@@ -5,13 +5,17 @@ import { useCallback, useEffect, useState } from "react";
 import {
   validate,
   validateCode,
+  validateDate,
   validateNumber,
   validateOperator,
 } from "../../scripts/helpers/validation";
 import Select from "../../scripts/components/select";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
-import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
+import {
+  changeStyleElementByObject,
+  clearStyle,
+} from "../../scripts/helpers/styles-change";
 import showHide from "../../scripts/helpers/showHide";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
@@ -24,17 +28,19 @@ const statuss = new Array(2).fill(1).map((item, index) => ({
   value: `${index}`,
 }));
 
-function PopUpPromo({
-  cx,
-  id,
-  code,
-  amount,
-  percent,
-  maxAmount,
-  status,
-  startDate,
-  endDate,
-}) {
+function PopUpPromo({ obj }) {
+  const {
+    cx,
+    id,
+    code,
+    amount,
+    percent,
+    maxAmount,
+    status,
+    startDate,
+    endDate,
+  } = obj;
+  console.log("123", obj);
   const [flash, setFlash] = useState({
     action: false,
     type: "",
@@ -46,13 +52,16 @@ function PopUpPromo({
   const [maxAmountUpdate, setMaxAmount] = useState(maxAmount);
   const [expireUpdate, setExpires] = useState(() => {
     const date = new Date(endDate);
+
     const day = date.getDate() >= 10 ? date.getDate() : "0" + date.getDate();
     const month =
       date.getMonth() + 1 >= 10
         ? date.getMonth() + 1
         : "0" + (date.getMonth() + 1);
     const year = date.getFullYear();
-    return `${year}-${month}-${day}`;
+    const convert = `${year}-${month}-${day}`;
+    console.log("date", convert);
+    return convert;
   });
 
   const [startDateUpdate, setStartDate] = useState(() => {
@@ -74,44 +83,31 @@ function PopUpPromo({
       percent: parseInt(percentUpdate),
       amount: amountUpdate,
       maxAmount: maxAmountUpdate,
+      status: `${statusUpdate}`,
       startDate: startDateUpdate,
       endDate: expireUpdate,
     };
 
-    changeStyleElementByObject(obj, "boxShadow", "0 0 0 0.3mm");
-    let result = validate(obj);
-    if (result.error) {
-      return;
-    }
-
-    result = validateCode(codeUpdate);
-    if (result.error) {
-      return;
-    }
-
-    result = validateNumber({
+    clearStyle(obj);
+    const isEmpty = validate(obj);
+    const isCode = validateCode(code);
+    const isNumber = validateNumber({
       amount,
       maxAmount,
     });
-    if (result.error) {
-      return;
-    }
-    result = validateOperator({
+    const isLT0 = validateOperator({
       amount,
       maxAmount,
     });
-    if (result.error) {
-      return;
-    }
-
-    axiosClient
-      .put(`${process.env.REACT_APP_URL}/promotion/${id}`, obj)
-      .then((res) => {
-        window.location.reload();
-      })
-      .catch((err) => {
-        showHide(true, "errors", "Oops, something went wrong", setFlash);
-      });
+    const isDate = validateDate(obj.startDate, obj.endDate);
+    // axiosClient
+    //   .put(`${process.env.REACT_APP_URL}/promotion/${id}`, obj)
+    //   .then((res) => {
+    //     window.location.reload();
+    //   })
+    //   .catch((err) => {
+    //     showHide(true, "errors", "Oops, something went wrong", setFlash);
+    //   });
   };
 
   const onDelete = useCallback((id) => {

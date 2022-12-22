@@ -71,7 +71,7 @@ function RecentItems({
           />
         )}
       </td>
-      <td>{date}</td>
+      <td>{new Date(date).toLocaleDateString("en-GB")}</td>
       <td style={{ width: "200px" }}>
         <p>{username}</p>
       </td>
