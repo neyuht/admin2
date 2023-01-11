@@ -115,9 +115,9 @@ function OrderOverlay({ data }) {
           <div className="table-order-items">
             {data.orderItems.map((order, index) => (
               <OrderItemsForm
-                name={order.productVariant.displayName}
-                quantity={order.quantity}
-                unitPrice={order.productVariant.unitPrice}
+                name={order.product.name}
+                quantity={order.product.quantity}
+                unitPrice={order.product.unitPrice}
                 index={index}
               />
             ))}

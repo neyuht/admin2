@@ -3,8 +3,9 @@ import React from "react";
 function ProductItem({
   id,
   productName,
-  productsVariant,
   description,
+  price,
+  quantity,
   status,
   onClick,
 }) {
@@ -22,9 +23,12 @@ function ProductItem({
       <td>
         <p>{productName}</p>
       </td>
-      <td>{status === 1 ? <p>Available</p> : <p>Sold Out</p>}</td>
+      <td>{status === true ? <p>Available</p> : <p>Sold Out</p>}</td>
       <td>
-        <p style={{ paddingLeft: "50px  " }}>{productsVariant.length}</p>
+        <p>{price}</p>
+      </td>
+      <td>
+        <p>{quantity}</p>
       </td>
       <td className="product-list-description">
         <p>{description}</p>

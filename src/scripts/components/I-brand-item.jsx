@@ -1,6 +1,6 @@
 import React from "react";
 
-function CategoriesItem({ id, name, createAt, updateAt, onClick }) {
+function BrandItem({ id, name, createAt, onClick }) {
   return (
     <tr
       className={"promo-table-item"}
@@ -18,11 +18,8 @@ function CategoriesItem({ id, name, createAt, updateAt, onClick }) {
       <td>
         <p>{createAt}</p>
       </td>
-      <td>
-        <p>{updateAt}</p>
-      </td>
     </tr>
   );
 }
 
-export default CategoriesItem;
+export default BrandItem;

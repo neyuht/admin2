@@ -14,6 +14,7 @@ import ChangePass from "./pages/ChangePass";
 import Login from "./pages/Login";
 import Pesudo from "./pages/Promotion/promotion";
 import Promo from "./components/Promo";
+import Brand from "./components/Brands";
 import LoginForm from "./components/FormLogin";
 import { isAdmin } from "./service/authService";
 import {
@@ -87,6 +88,16 @@ function App() {
                 <Categories>
                   <CategoriesTab />
                 </Categories>
+              }
+            />
+            <Route
+              exact
+              path="/admin/brands"
+              element={
+                <Pesudo>
+                  {" "}
+                  <Brand />{" "}
+                </Pesudo>
               }
             />
             <Route

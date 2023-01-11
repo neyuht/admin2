@@ -3,16 +3,10 @@ import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import Select from "../../scripts/components/select";
 import Overlay from "../Overlay/overlay";
-import PromoItem from "../../scripts/components/l-promo-item";
-import PopUpPromo from "./promo-overlay";
+import BrandItem from "../../scripts/components/I-brand-item";
+import PopUpBrand from "./brand-overlay";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  validate,
-  validateNumber,
-  validateOperator,
-  validateCode,
-  validateDate,
-} from "../../scripts/helpers/validation";
+import { validate } from "../../scripts/helpers/validation";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Buttons from "react-bootstrap/Button";
@@ -25,19 +19,9 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import showHide from "../../scripts/helpers/showHide";
 import FlashMessage from "../FlashMessage/flashMessage";
 
-const percents = new Array(101).fill(1).map((item, index) => ({
-  title: index,
-  value: index,
-}));
-
-const statuss = new Array(2).fill(1).map((item, index) => ({
-  title: `${Boolean(index) ? "Expired" : "Available"}`,
-  value: index + 1,
-}));
-
 const size = 8;
 
-function Promo() {
+function Brand() {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
   });
@@ -46,19 +30,13 @@ function Promo() {
     type: "",
     message: "",
   });
-  const [code, setCode] = useState("");
-  const [percent, setPercent] = useState(0);
-  const [amount, setAmount] = useState("");
-  const [maxAmount, setMaxAmount] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState(1);
+  const [name, setName] = useState("");
   const [filter, setFilter] = useState({
     code: "",
     status: "",
   });
   const [indexPagin, setIndexPagin] = useState(1);
-  const [promotions, setPromotions] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [pagins, setPagins] = useState([1]);
   const [timer, setTimer] = useState("");
   const [overlay, setOverlay] = useState();
@@ -106,101 +84,32 @@ function Promo() {
     }
     const data = nextPage(currentPage) || [];
     return data;
-  }, [searchParams, promotions]);
+  }, [searchParams, brands]);
 
   const onSubmit = (event) => {
     event.preventDefault();
     const obj = {
-      code,
-      percent: parseInt(percent),
-      amount,
-      maxAmount,
-      startDate: (() => {
-        if (startDate) {
-          const date = new Date(startDate);
-
-          return `${
-            date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-          }-${
-            date.getMonth() + 1 >= 10
-              ? date.getMonth() + 1
-              : `0${date.getMonth()}`
-          }-${date.getFullYear()}`;
-        }
-        return "";
-      })(),
-      endDate: (() => {
-        if (endDate) {
-          const date = new Date(endDate);
-
-          return `${
-            date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-          }-${
-            date.getMonth() + 1 >= 10
-              ? date.getMonth() + 1
-              : `0${date.getMonth()}`
-          }-${date.getFullYear()}`;
-        }
-        return "";
-      })(),
-      status: Number(status),
+      name,
     };
-
-    console.log("Post", obj);
 
     clearStyle(obj);
     const isEmpty = validate(obj);
-    const isCode = validateCode(code);
-    const isNumber = validateNumber({
-      amount,
-      maxAmount,
-    });
-    const isLT0 = validateOperator({
-      amount,
-      maxAmount,
-    });
-    const isDate = validateDate(obj.startDate, obj.endDate);
-    if (
-      isCode.error ||
-      isDate.error ||
-      isEmpty.error ||
-      isNumber.error ||
-      isLT0.error
-    ) {
+
+    if (isEmpty.error) {
       return;
     }
     axiosClient
-      .post(`${process.env.REACT_APP_URL}/promotion`, {
+      .post(`${process.env.REACT_APP_URL}/brands`, {
         id: 0,
         type: 0,
         ...obj,
       })
       .then((res) => {
         const _temps = [
+          ...brands,
           {
             ...res.data,
-            startDate: (() => {
-              const date = new Date(startDate);
-              return `${
-                date.getMonth() + 1 >= 10
-                  ? date.getMonth() + 1
-                  : `0${date.getMonth()}`
-              }-${
-                date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-              }-${date.getFullYear()}`;
-            })(),
-            endDate: (() => {
-              const date = new Date(endDate);
-              return `${
-                date.getMonth() + 1 >= 10
-                  ? date.getMonth() + 1
-                  : `0${date.getMonth()}`
-              }-${
-                date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-              }-${date.getFullYear()}`;
-            })(),
           },
-          ...promotions,
         ];
 
         const sizePagin =
@@ -209,14 +118,8 @@ function Promo() {
             : parseInt(_temps.length / size) + 1;
         const _tempsPagin = new Array(sizePagin).fill(1);
         setPagins(_tempsPagin);
-        setPromotions(_temps);
-        setCode("");
-        setPercent(0);
-        setAmount("");
-        setMaxAmount("");
-        setEndDate("");
-        setStartDate("");
-        setStatus(true);
+        setBrands(_temps);
+        setName("");
         setPopup(false);
         window.location.reload();
       })
@@ -260,13 +163,13 @@ function Promo() {
     const value = e.target.value;
     setFilter((prev) => ({
       ...prev,
-      code: value,
+      name: value,
     }));
     if (timmerId.current) clearTimeout(timmerId.current);
     timmerId.current = setTimeout(() => {
-      const { code, ...rest } = filter;
+      const { name, ...rest } = filter;
       const params = {
-        code: value,
+        name: value,
         ...rest,
       };
       getDataSearch(params);
@@ -275,7 +178,7 @@ function Promo() {
 
   const openSetting = async (e, id) => {
     const promo = await axiosClient.get(
-      `${process.env.REACT_APP_URL}/promotion/${id}`
+      `${process.env.REACT_APP_URL}/brands/${id}`
     );
     console.log("api", promo.data);
     setOverlay(promo.data);
@@ -291,7 +194,7 @@ function Promo() {
       param += `${key}=${value}&`;
     }
     axiosClient
-      .get(`${process.env.REACT_APP_URL}/promotion${param}`)
+      .get(`${process.env.REACT_APP_URL}/brands${param}`)
       .then((response) => {
         const data = response.data.content;
         const _sizePagin = response.data.totalPage;
@@ -311,7 +214,7 @@ function Promo() {
             responsePagins.current[index + 3],
           ]);
         }
-        setPromotions(data);
+        setBrands(data);
       })
       .catch(() => {
         showHide(true, "errors", "Oops, something went wrong", setFlash);
@@ -330,77 +233,19 @@ function Promo() {
               }}
             >
               <form action="#" className={"form-wrapper"} onSubmit={onSubmit}>
-                <h2 className={"heading"}>add promotion</h2>
+                <h2 className={"heading"}>Add brand</h2>
                 <section className={"form-data"}>
-                  <FormDataItem label="code" id="code">
+                  <FormDataItem label="Brand's Name" id="code">
                     <Input
                       type="text"
-                      name="code"
-                      value={code}
-                      placeholder="Enter code.."
+                      name="name"
+                      value={name}
+                      placeholder="Enter brand's name.."
                       onChange={(event) => {
-                        setCode(event.target.value);
+                        setName(event.target.value);
                       }}
                     />
                   </FormDataItem>
-                  <div className={"form-group"}>
-                    <FormDataItem label="percent" id="percent">
-                      <Select
-                        datas={percents}
-                        name="percent"
-                        value={percent}
-                        onChange={(event) => {
-                          setPercent(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                  </div>
-                  <div className={"form-group"}>
-                    <FormDataItem label="amount" id="amount">
-                      <Input
-                        type="text"
-                        name="amount"
-                        value={amount}
-                        placeholder="Enter amount.."
-                        onChange={(event) => {
-                          setAmount(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                    <FormDataItem label="max amount" id="maxAmount">
-                      <Input
-                        type="text"
-                        name="maxAmount"
-                        value={maxAmount}
-                        placeholder="Enter max amount.."
-                        onChange={(event) => {
-                          setMaxAmount(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                  </div>
-                  <div className={"form-group"}>
-                    <FormDataItem label="startDate" id="startDate">
-                      <Input
-                        type="date"
-                        name="startDate"
-                        value={startDate}
-                        onChange={(event) => {
-                          setStartDate(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                    <FormDataItem label="endDate" id="endDate">
-                      <Input
-                        type="date"
-                        name="endDate"
-                        value={endDate}
-                        onChange={(event) => {
-                          setEndDate(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                  </div>
                 </section>
                 <Button type="submit" title="submit" onClick={onSubmit} />
               </form>
@@ -408,14 +253,14 @@ function Promo() {
           </Overlay>
         )}
         <div className="dashboard-content-header">
-          <h2>Promotion List</h2>
+          <h2>Brands List</h2>
           <Buttons
             type="button"
             title="submit"
             variant="primary"
             onClick={popupAddPromo}
           >
-            Add New Promotion
+            Add New Brand
           </Buttons>
         </div>
         <section className={"section-list"}>
@@ -425,73 +270,35 @@ function Promo() {
                 <Input
                   type={"text"}
                   name="search"
-                  value={filter.code}
-                  placeholder="Enter promotion"
+                  value={filter.name}
+                  placeholder="Enter brand"
                   onChange={onSearch}
                 />
                 <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
-              </div>
-              <div className="filter-product-search">
-                <select
-                  name=""
-                  id=""
-                  value={filter.status}
-                  onChange={(event) => {
-                    const params = {
-                      ...filter,
-                      status: event.target.value,
-                    };
-                    setFilter(params);
-                    getDataSearch(params);
-                  }}
-                >
-                  <option className="option-filter" value="">
-                    All
-                  </option>
-                  <option className="option-filter" value="1">
-                    Available
-                  </option>
-                  <option className="option-filter" value="0">
-                    Expire
-                  </option>
-                </select>
               </div>
             </section>
             <section className={"table-promo"}>
               <table>
                 <thead>
                   <tr>
-                    <th>code</th>
-                    <th>percent</th>
-                    <th>amount</th>
-                    <th>max amount</th>
-                    <th>start Date</th>
-                    <th>expires</th>
-                    <th>status</th>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>create at</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {promotions.map((promotion, index) => {
+                  {brands.map((brand, index) => {
                     if (
                       indexPagin * size - size <= index &&
                       index < size * indexPagin
                     ) {
                       return (
-                        <PromoItem
-                          id={promotion.id}
-                          code={promotion.code}
-                          percent={promotion.percent}
-                          amount={promotion.amount}
-                          maxAmount={promotion.maxAmount}
-                          startDate={new Date(
-                            promotion.startDate
+                        <BrandItem
+                          id={brand.id}
+                          name={brand.name}
+                          createAt={new Date(
+                            brand.createdAt
                           ).toLocaleDateString("en-GB")}
-                          expire={new Date(
-                            promotion.endDate
-                          ).toLocaleDateString("en-GB")}
-                          status={
-                            promotion.status === false ? "Expired" : "Available"
-                          }
                           onClick={openSetting}
                         />
                       );
@@ -557,7 +364,7 @@ function Promo() {
       </section>
       {overlay && (
         <Overlay onClick={setOverlay}>
-          <PopUpPromo obj={overlay} />
+          <PopUpBrand obj={overlay} />
         </Overlay>
       )}
       {flash.action && (
@@ -574,4 +381,4 @@ function Promo() {
   );
 }
 
-export default Promo;
+export default Brand;

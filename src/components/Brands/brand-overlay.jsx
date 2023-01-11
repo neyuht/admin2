@@ -1,33 +1,42 @@
-import React, { useCallback } from "react";
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-
-import { validateDataForm, validate } from "../../scripts/helpers/validation";
-import axiosClient from "../../scripts/helpers/config";
-import Button from "../../scripts/components/button";
 import Input from "../../scripts/components/input";
+import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
+import { useCallback, useEffect, useState } from "react";
+import axiosClient from "../../scripts/helpers/config";
+import React from "react";
+import showHide from "../../scripts/helpers/showHide";
 
-function PopUpCategory({ obj }) {
-  const [nameCategory, setNameCategory] = useState(obj.name);
+function PopUpBrand({ obj }) {
+  const { id, name } = obj;
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
+  const [nameUpdate, setName] = useState(name);
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    const objs = {
-      name: nameCategory,
+    const obj = {
+      name: nameUpdate,
     };
 
     await axiosClient
-      .put(`${process.env.REACT_APP_URL}/categories/${obj.id}`, objs)
-      .catch(() => {});
+      .put(`${process.env.REACT_APP_URL}/brands/${id}`, obj)
+      .catch(() => {
+        showHide(true, "errors", "Oops, something when wrong", setFlash);
+      });
     window.location.reload();
   };
 
   const onDelete = useCallback((id) => {
     axiosClient
-      .delete(`${process.env.REACT_APP_URL}/categories/${obj.id}`)
+      .delete(`${process.env.REACT_APP_URL}/brands/${id}`)
       .then((res) => {
         window.location.reload();
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, []);
 
@@ -40,16 +49,16 @@ function PopUpCategory({ obj }) {
         event.stopPropagation();
       }}
     >
-      <h2 className="heading">Category</h2>
+      <h2 className="heading">Brand</h2>
       <section className="form-data">
-        <FormDataItem label="Category's Name" id="code">
+        <FormDataItem label="Brand's Name" id="code">
           <Input
             type="text"
             name="code"
-            value={nameCategory}
+            value={nameUpdate}
             placeholder="Enter name.."
             onChange={(event) => {
-              setNameCategory(event.target.value);
+              setName(event.target.value);
             }}
           />
         </FormDataItem>
@@ -60,11 +69,12 @@ function PopUpCategory({ obj }) {
           type="button"
           title="delete"
           onClick={(e) => {
-            onDelete(obj.id);
+            onDelete(id);
           }}
         />
       </div>
     </form>
   );
 }
-export default PopUpCategory;
+
+export default PopUpBrand;

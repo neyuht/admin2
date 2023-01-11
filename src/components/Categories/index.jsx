@@ -1,76 +1,167 @@
 import React, { Component, useCallback } from "react";
-
-// Table from react-bootstrap
-import { Table } from "react-bootstrap";
-import { calculateRange, sliceData } from "../../utils/table-pagination";
-// Bootstrap CSS
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faRemove } from "@fortawesome/free-solid-svg-icons";
-// To make rows collapsible
-
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getAllCategory } from "../../service/categoryService";
 import "./style.css";
-import DashboardHeader from "../../components/DashboardHeader";
 import Overlay from "../../components/Overlay/overlay";
-
-import {
-  validateDataForm,
-  validate,
-  validateNumber,
-  validateOperator,
-  validateCode,
-} from "../../scripts/helpers/validation";
 import axiosClient from "../../scripts/helpers/config";
 import Button from "../../scripts/components/button";
 import CategoriesItem from "../../scripts/components/I-categories-item";
 import Input from "../../scripts/components/input";
-import Buttons from "react-bootstrap/Button";
 import FormDataItem from "../../scripts/components/form-data-item";
-import Select from "../../scripts/components/select";
-import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
+import showHide from "../../scripts/helpers/showHide";
+import PopUpCategory from "./categories-overlay";
+
 function CategoriesTab() {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
   });
+  const [flash, setFlash] = useState({
+    action: false,
+    type: "",
+    message: "",
+  });
   const lists = useRef([]);
-  const [stt, setStt] = useState("");
-  const [nameCategory, setNameCategory] = useState("");
-  const [createAt, setCreateAt] = useState("");
-  const [updateAt, setUpdateAt] = useState("");
-  const [data, setData] = useState([]);
   const [overlay, setOverlay] = useState();
   const [indexPagin, setIndexPagin] = useState(1);
   const [categories, setCategories] = useState([]);
-  const [timer, setTimer] = useState("");
   const [filter, setFilter] = useState("");
-  const [search, setSearch] = useSearchParams({});
-  const [pagins, setPagins] = useState([1]);
-  const [status, setStatus] = useState(true);
   const [popup, setPopup] = useState(false);
   const responsePagins = useRef([]);
   const size = 8;
+  const timmerId = useRef(null);
+  const [currentPages, setCurrentPages] = useState([]);
+
+  const getDataSearch = (value1) => {
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        [key]: value,
+      };
+    }
+
+    // obj cũ và 1 param mới
+    obj = {
+      ...obj,
+      ...value1,
+    };
+
+    // loại bỏ các param rỗng
+    let newObj = {};
+    Object.entries(obj).forEach(([key, value]) => {
+      if (value) {
+        newObj = {
+          ...newObj,
+          [key]: value,
+        };
+      }
+    });
+
+    setSearchparams({
+      page: 1,
+      ...newObj,
+    });
+  };
+
+  const openSetting = async (e, id) => {
+    const category = await axiosClient.get(
+      `${process.env.REACT_APP_URL}/categories/${id}`
+    );
+    console.log(category);
+    setOverlay(category.data);
+  };
+
+  const nextPage = (currentPage) => {
+    const temps = lists.current.filter((item) => {
+      return item.includes(currentPage);
+    });
+    if (temps.length != 1) {
+      return temps[1];
+    }
+    return temps[0];
+  };
+
+  const computePagins = useMemo(() => {
+    let currentPage = +searchParams.get("page");
+    setCurrentPages(currentPage);
+    if (currentPage <= 0) {
+      currentPage = 1;
+    } else if (
+      currentPage > responsePagins.current[responsePagins.current.length - 1]
+    ) {
+      currentPage = responsePagins.current[responsePagins.current.length - 1];
+    }
+    const data = nextPage(currentPage) || [];
+    return data;
+  }, [searchParams, categories]);
+
+  const changePage = (step) => {
+    const currentPage = +searchParams.get("page") + step;
+    let obj = {};
+    for (const [key, value] of searchParams.entries()) {
+      obj = {
+        ...obj,
+        [key]: value,
+      };
+    }
+    const { page, ...rest } = obj;
+    setSearchparams({
+      page: currentPage,
+      ...rest,
+    });
+  };
+
+  const onSearch = async (e) => {
+    const value = e.target.value;
+    setFilter((prev) => ({
+      ...prev,
+      name: value,
+    }));
+    if (timmerId.current) clearTimeout(timmerId.current);
+    timmerId.current = setTimeout(() => {
+      const { name, ...rest } = filter;
+      const params = {
+        name: value,
+        ...rest,
+      };
+      getDataSearch(params);
+    }, 600);
+  };
 
   useEffect(() => {
+    let param = "?";
+    for (const [key, value] of searchParams.entries()) {
+      param += `${key}=${value}&`;
+    }
     axiosClient
-      .get(`http://localhost:8080/api/v1/public/categories`)
+      .get(`http://localhost:8080/api/v1/admin/categories${param}`)
       .then((response) => {
-        const data = response.data;
+        const data = response.data.content;
+        const _sizePagin = response.data.totalPage;
+        responsePagins.current = new Array(_sizePagin)
+          .fill(1)
+          .map((item, index) => index + 1);
+        lists.current = [];
+        for (
+          let index = 0;
+          index < responsePagins.current.length;
+          index += 4 - 1
+        ) {
+          lists.current.push([
+            responsePagins.current[index],
+            responsePagins.current[index + 1],
+            responsePagins.current[index + 2],
+            responsePagins.current[index + 3],
+          ]);
+        }
         setCategories(data);
+      })
+      .catch(() => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
-  }, []);
-
-  const arrButton = useMemo(() => {
-    const sizeButton =
-      categories.length % size === 0
-        ? categories.length / size === 0
-          ? 1
-          : categories.length / size
-        : parseInt(categories.length / size) + 1;
-    return new Array(sizeButton).fill(1);
-  }, [categories]);
+  }, [searchParams]);
 
   return (
     <>
@@ -95,9 +186,6 @@ function CategoriesTab() {
                             name="categories"
                             value={categories}
                             placeholder="Category Name"
-                            onChange={(event) => {
-                              setNameCategory(event.target.value);
-                            }}
                           />
                         </FormDataItem>
                       </section>
@@ -111,9 +199,21 @@ function CategoriesTab() {
               </div>
               <section className={"section-list"}>
                 <section className={"list-promo"}>
-                  {/* <Buttons variant="primary" onClick={popupAddPromo}>
-              Add New Product
-            </Buttons> */}
+                  <section className={"filter-product"}>
+                    <div className="filter-product-search">
+                      <Input
+                        type={"text"}
+                        name="search"
+                        value={filter.code}
+                        placeholder="Enter category"
+                        onChange={onSearch}
+                      />
+                      <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        onClick={onSearch}
+                      />
+                    </div>
+                  </section>
 
                   <section className={"table-promo"}>
                     <table>
@@ -141,6 +241,7 @@ function CategoriesTab() {
                                 updateAt={new Date(
                                   category.updatedAt
                                 ).toLocaleDateString("en-GB")}
+                                onClick={openSetting}
                               />
                             );
                           }
@@ -150,26 +251,69 @@ function CategoriesTab() {
                     </table>
                   </section>
                   <ul className={"paginations"}>
-                    {arrButton.map((item, index) => (
-                      <li
-                        className={`${"pagin-item"} ${`${
-                          indexPagin === index + 1 ? "active" : ""
-                        }`}`}
-                      >
-                        <Button
-                          type={"text"}
-                          title={index + 1}
-                          onClick={() => {
-                            setIndexPagin(index + 1);
-                          }}
-                        />
-                      </li>
-                    ))}
+                    <button
+                      className="btn-pages button-pagination-move"
+                      onClick={() => {
+                        changePage(-1);
+                      }}
+                      disabled={searchParams.get("page") * 1 === 1}
+                    >
+                      prev
+                    </button>
+                    {computePagins.map(
+                      (item, index) =>
+                        item && (
+                          <button
+                            className={`buttons-pagination ${
+                              +searchParams.get("page") === item
+                                ? "buttons-pagination-active"
+                                : ""
+                            }`}
+                            onClick={() => {
+                              let obj = {};
+                              for (const [
+                                key,
+                                value,
+                              ] of searchParams.entries()) {
+                                obj = {
+                                  ...obj,
+                                  [key]: value,
+                                };
+                              }
+                              obj["page"] = item;
+
+                              setSearchparams({
+                                ...obj,
+                              });
+                            }}
+                          >
+                            {item}
+                          </button>
+                        )
+                    )}
+                    <button
+                      className="btn-pages button-pagination-move"
+                      onClick={() => {
+                        changePage(1);
+                      }}
+                      disabled={
+                        searchParams.get("page") * 1 ===
+                        responsePagins.current[
+                          responsePagins.current.length - 1
+                        ]
+                      }
+                    >
+                      next
+                    </button>
                   </ul>
                 </section>
               </section>
             </section>
-            {overlay && <Overlay onClick={setOverlay}></Overlay>}
+            {overlay && (
+              <Overlay onClick={setOverlay}>
+                <PopUpCategory obj={overlay} />
+              </Overlay>
+            )}
           </section>
         </div>
       </div>

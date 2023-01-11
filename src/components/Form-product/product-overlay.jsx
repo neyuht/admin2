@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 
 function PopUpProduct({ id, data }) {
-  console.log(data);
+  console.log("data", data);
   const [update, setUpdate] = useState(data);
   const [variant, setVariant] = useState(data.productVariants);
   const [image, setImage] = useState(0);

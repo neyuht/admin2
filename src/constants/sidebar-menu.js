@@ -3,6 +3,7 @@ import IconChart from "../assets/icons/icon-chart.svg";
 import ShippingIcon from "../assets/icons/shipping.svg";
 import ProductIcon from "../assets/icons/product.svg";
 import UserIcon from "../assets/icons/user.svg";
+import IconLabel from '../assets/icons/icon-label.svg'
 
 const sidebar_menu = [
   {
@@ -19,18 +20,24 @@ const sidebar_menu = [
   },
   {
     id: 3,
+    icon: IconLabel,
+    path: "/admin/brands",
+    title: "Brands",
+  },
+  {
+    id: 4,
     icon: ProductIcon,
     path: "/admin/products",
     title: "Products",
   },
   {
-    id: 4,
+    id: 5,
     icon: UserIcon,
     path: "/admin/users",
     title: "Users",
   },
   {
-    id: 5,
+    id: 6,
     icon: ShippingIcon,
     path: "/admin/promotion",
     title: "Promo",

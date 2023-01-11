@@ -179,7 +179,6 @@ function Orders() {
     let param = "?";
     let sum = 0;
     for (const [key, value] of searchParams.entries()) {
-      console.log(key, "", value);
       if (key === "endDate" || key === "startDate") {
         const date = new Date(value);
         const timestamp = Math.floor(date.getTime() / 1000);
@@ -188,7 +187,6 @@ function Orders() {
         param += `${key}=${value}&`;
       }
     }
-    console.log(param);
     axiosClient
       .get(`${process.env.REACT_APP_URL}/orders${param}`)
       .then((response) => {

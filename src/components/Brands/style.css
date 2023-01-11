@@ -1,0 +1,217 @@
+.promo-wrapper {
+  padding: 0px 0 70px 0;
+  margin: 0 20px;
+}
+
+.promo-wrapper > .title {
+  padding: 20px 0;
+  font-size: 35px;
+  box-shadow: 0 0.05mm 0;
+}
+
+.container-main {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.form-wrapper {
+  width: max-content;
+  /* margin: auto; */
+  padding: 20px 30px;
+}
+
+.form-wrapper,
+.list-promo {
+  box-shadow: 0 0 0 0.05mm;
+  border-radius: 5px;
+  padding: 20px 30px;
+  background-color: white;
+  margin-bottom: 50px;
+}
+
+.heading {
+  font-size: 25px;
+  font-weight: bold;
+  padding: 10px 5px;
+  box-shadow: 0 0.05mm;
+  text-transform: capitalize;
+}
+
+.form-data {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0 30px 0;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  gap: 20px;
+}
+
+.form-group .form-data-item {
+  width: 450%;
+}
+
+.form-data-item {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+  height: 100px;
+}
+
+.form-data-item label {
+  text-transform: capitalize;
+}
+
+.form-data-item input,
+.form-data-item select {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  box-shadow: 0 0 0 0.07mm;
+  outline: none;
+  border-radius: 3px;
+}
+
+.form-data-item.err::after {
+  position: absolute;
+  content: attr(data-error);
+  top: 100%;
+  left: 5px;
+  color: red;
+}
+
+.form-data-item select {
+  text-transform: uppercase;
+}
+
+.form-wrapper button {
+  width: 100%;
+  padding: 10px;
+  text-transform: uppercase;
+}
+
+.list-promo .filter-promo {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 2fr 1fr;
+  box-shadow: 0 0.05mm 0;
+}
+
+.list-promo .filter-promo .heading {
+  box-shadow: unset;
+}
+
+.list-promo .filter-promo input {
+  width: 100%;
+  padding: 8px;
+  outline: none;
+  border: none;
+  box-shadow: 0 0 0 0.05mm;
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+
+.table-promo {
+  padding: 20px 0;
+}
+
+.table-promo table {
+  width: 100%;
+  border-spacing: 0;
+}
+
+table td,
+table th {
+  padding: 10px;
+  text-align: left;
+}
+
+table th {
+  background-color: rgba(122, 182, 255, 0.664);
+  text-transform: capitalize;
+}
+
+.promo-table-item:hover {
+  cursor: pointer;
+  background-color: rgb(233, 233, 233);
+}
+
+.promo-table-item:last-child {
+  box-shadow: unset;
+}
+
+.promo-table-item,
+.promo-table-item:first-child {
+  box-shadow: 0 0.05mm 0;
+}
+
+.paginations {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 -0.05mm 0;
+  padding: 20px 0 10px;
+  gap: 10px;
+}
+
+.paginations .pagin-item {
+  list-style: none;
+}
+
+.pagin-item button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+}
+
+.form-wrapper button {
+  background-color: #3fb159;
+  color: white;
+  padding: 8px 20px;
+  border: 1px solid #28a745;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.236);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.form-cta {
+  display: flex;
+  gap: 15px;
+}
+
+.form-cta button:nth-child(2) {
+  background-color: #e75463;
+  border: 1px solid #e75463;
+}
+
+.form-cta-users {
+  display: flex;
+  justify-content: end;
+  padding-right: 70px;
+}
+
+.form-cta-users button {
+  width: 200px;
+  background-color: #e75463;
+  border: 1px solid #e75463;
+}
+
+.list-promotion thead {
+  background-color: #e75463;
+  width: 100%;
+}

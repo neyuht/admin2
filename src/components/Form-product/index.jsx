@@ -15,7 +15,7 @@ import axiosClient from "../../scripts/helpers/config";
 import convertArrayToString from "../../scripts/helpers/convert";
 import PopUpProduct from "./product-overlay";
 import iconPlus from "../../assets/icons/icon-plus.svg";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FlashMessage from "../FlashMessage/flashMessage";
 import { clearStyle } from "../../scripts/helpers/styles-change";
@@ -361,7 +361,7 @@ function FormProducts({ fields }) {
                   e.stopPropagation();
                 }}
               >
-                <div className={"form-information"}>
+                <div className={"form-information"} style={{ width: "855px" }}>
                   <div className={"form-content"}>
                     <div className={"form-data-item"}>
                       <label htmlFor="">Name</label>
@@ -373,7 +373,19 @@ function FormProducts({ fields }) {
                         placeholder="Name"
                       />
                     </div>
-                    <div className={"form-group-two"}>
+                    <div
+                      className={"form-group-two"}
+                      style={{ width: "515px" }}
+                    >
+                      <div className={"form-category"} id="productCategory">
+                        <label htmlFor="">Brand</label>
+                        {<Category />}
+                      </div>
+                    </div>
+                    <div
+                      className={"form-group-two"}
+                      style={{ width: "515px" }}
+                    >
                       <div className={"form-status"} id="productStatus">
                         <label htmlFor="">Status</label>
                         <select
@@ -392,6 +404,28 @@ function FormProducts({ fields }) {
                         {<Category />}
                       </div>
                     </div>
+                    <div className="details-box-two" style={{ height: "95px" }}>
+                      <div className={"form-group"} style={{ width: "50%" }}>
+                        <label htmlFor="">Price</label>
+                        <input
+                          type="number"
+                          min={0}
+                          name="unitPrice"
+                          placeholder="unitPrice"
+                          className="products-input"
+                        />
+                      </div>
+                      <div className={"form-group"} style={{ width: "50%" }}>
+                        <label htmlFor="">Quantity</label>
+                        <input
+                          type="number"
+                          min={0}
+                          name="quantity"
+                          placeholder="quantity"
+                          className="products-input"
+                        />
+                      </div>
+                    </div>
 
                     <div className={"form-group"}>
                       <label htmlFor="">Description</label>
@@ -403,22 +437,6 @@ function FormProducts({ fields }) {
                         placeholder="Product's Description"
                       />
                     </div>
-
-                    <div className={"form-group form-group-details"}>
-                      <label htmlFor="">Details</label>
-                      <figure
-                        className="icon-plus-cover"
-                        onClick={() => {
-                          setCountForm((prev) => prev + 1);
-                        }}
-                      >
-                        <img src={iconPlus} alt="icon plus" />
-                      </figure>
-                    </div>
-
-                    {renderForm.map((form, index) => (
-                      <Details countForm={index + 1} handle={handleAddDetail} />
-                    ))}
                   </div>
 
                   <div className={"form-img"}>
@@ -476,7 +494,32 @@ function FormProducts({ fields }) {
             </div>
           </div>
           <section className={"list-promo"}>
-            <section className={"filter-product"}>
+            <section className={"filter-button"}>
+              <Buttons
+                type="button"
+                title="submit"
+                variant="secondary"
+                onClick={() => {
+                  setPopup(true);
+                }}
+                style={{ color: "#fff", fontWeight: "bold" }}
+              >
+                <FontAwesomeIcon
+                  icon={faFilter}
+                  style={{ paddingRight: "10px" }}
+                />
+                Filter
+              </Buttons>
+            </section>
+            <section
+              className={"filter-product"}
+              style={{
+                margin: "20px 0",
+                padding: "20px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+              }}
+            >
               <div className="filter-product-search">
                 <Input
                   type={"text"}
@@ -525,8 +568,9 @@ function FormProducts({ fields }) {
                     <th>ID</th>
                     <th>Product's Name</th>
                     <th>Status</th>
-                    <th>Products's Variant</th>
-                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Brand</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -535,8 +579,9 @@ function FormProducts({ fields }) {
                       <ProductItem
                         id={product.id}
                         productName={product.name}
-                        productsVariant={product.productVariants}
                         description={product.description}
+                        price={product.price}
+                        quantity={product.quantity}
                         status={product.status}
                         onClick={openSetting}
                       />

@@ -40,7 +40,6 @@ function PopUpPromo({ obj }) {
     startDate,
     endDate,
   } = obj;
-  console.log("123", obj);
   const [flash, setFlash] = useState({
     action: false,
     type: "",
