@@ -2,7 +2,7 @@ import React from "react";
 import axiosClient from "../../scripts/helpers/config";
 import { useEffect } from "react";
 import "../styles.css";
-import DashboardHeader from "../../components/DashboardHeader";
+
 function ViewProfile() {
   useEffect(() => {
     axiosClient

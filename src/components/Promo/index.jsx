@@ -1,18 +1,10 @@
 import FormDataItem from "../../scripts/components/form-data-item";
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
-import Select from "../../scripts/components/select";
 import Overlay from "../Overlay/overlay";
 import PromoItem from "../../scripts/components/l-promo-item";
 import PopUpPromo from "./promo-overlay";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  validate,
-  validateNumber,
-  validateOperator,
-  validateCode,
-  validateDate,
-} from "../../scripts/helpers/validation";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Buttons from "react-bootstrap/Button";
@@ -21,9 +13,16 @@ import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { clearStyle } from "../../scripts/helpers/styles-change";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faFilter } from "@fortawesome/free-solid-svg-icons";
 import showHide from "../../scripts/helpers/showHide";
 import FlashMessage from "../FlashMessage/flashMessage";
+import {
+  validationDate,
+  checkDate,
+  validation,
+} from "../../scripts/helpers/validation2";
+import { regex } from "../../scripts/helpers/constants";
+import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -47,9 +46,7 @@ function Promo() {
     message: "",
   });
   const [code, setCode] = useState("");
-  const [percent, setPercent] = useState(0);
   const [amount, setAmount] = useState("");
-  const [maxAmount, setMaxAmount] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState(1);
@@ -60,6 +57,7 @@ function Promo() {
   const [indexPagin, setIndexPagin] = useState(1);
   const [promotions, setPromotions] = useState([]);
   const [pagins, setPagins] = useState([1]);
+  const [isFilter, setIsFilter] = useState(false);
   const [timer, setTimer] = useState("");
   const [overlay, setOverlay] = useState();
   const [popup, setPopup] = useState(false);
@@ -112,63 +110,81 @@ function Promo() {
     event.preventDefault();
     const obj = {
       code,
-      percent: parseInt(percent),
       amount,
-      maxAmount,
-      startDate: (() => {
-        if (startDate) {
-          const date = new Date(startDate);
-
-          return `${
-            date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-          }-${
-            date.getMonth() + 1 >= 10
-              ? date.getMonth() + 1
-              : `0${date.getMonth()}`
-          }-${date.getFullYear()}`;
-        }
-        return "";
-      })(),
-      endDate: (() => {
-        if (endDate) {
-          const date = new Date(endDate);
-
-          return `${
-            date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
-          }-${
-            date.getMonth() + 1 >= 10
-              ? date.getMonth() + 1
-              : `0${date.getMonth()}`
-          }-${date.getFullYear()}`;
-        }
-        return "";
-      })(),
-      status: Number(status),
+      startDate,
+      endDate,
     };
-
-    console.log("Post", obj);
-
     clearStyle(obj);
-    const isEmpty = validate(obj);
-    const isCode = validateCode(code);
-    const isNumber = validateNumber({
-      amount,
-      maxAmount,
-    });
-    const isLT0 = validateOperator({
-      amount,
-      maxAmount,
-    });
-    const isDate = validateDate(obj.startDate, obj.endDate);
-    if (
-      isCode.error ||
-      isDate.error ||
-      isEmpty.error ||
-      isNumber.error ||
-      isLT0.error
-    ) {
+    const regexT = {
+      code: [
+        {
+          type: regex.regexCheckMaxLength,
+          message: "At least 6 characters",
+        },
+        {
+          type: regex.regexFirstCharacter,
+          message: "First capital letter",
+        },
+      ],
+      amount: [
+        {
+          type: regex.regexGreaterThan0,
+          message: "More than 0",
+        },
+      ],
+    };
+    const empty = validation(obj, regexT);
+    const sDate = {
+      field: "startDate",
+      value: startDate,
+    };
+    const eDate = {
+      field: "endDate",
+      value: endDate,
+    };
+    const { error: sErr, ...sRest } = validationDate(sDate);
+    const { error: eErr, ...eRest } = validationDate(eDate);
+    const { error: exErr, ...exRest } = checkDate(sDate, eDate);
+    let errField = { error: false };
+
+    if (empty.error) {
+      errField = {
+        ...errField,
+        error: true,
+        ...empty.field,
+      };
+    }
+
+    if (eErr) {
+      errField = {
+        ...errField,
+        error: true,
+        ...eRest,
+      };
+    }
+
+    if (sErr) {
+      errField = {
+        ...errField,
+        error: true,
+        ...sRest,
+      };
+    }
+
+    if (exErr) {
+      errField = {
+        ...errField,
+        error: true,
+        ...exRest,
+      };
+    }
+
+    const { error, ...rest } = errField;
+    if (errField.error) {
+      changeStyleElementByObject({ ...rest }, "boxShadow", "0 0 0 0.3mm red");
       return;
     }
+
     axiosClient
       .post(`${process.env.REACT_APP_URL}/promotion`, {
         id: 0,
@@ -211,9 +227,7 @@ function Promo() {
         setPagins(_tempsPagin);
         setPromotions(_temps);
         setCode("");
-        setPercent(0);
         setAmount("");
-        setMaxAmount("");
         setEndDate("");
         setStartDate("");
         setStatus(true);
@@ -344,18 +358,6 @@ function Promo() {
                     />
                   </FormDataItem>
                   <div className={"form-group"}>
-                    <FormDataItem label="percent" id="percent">
-                      <Select
-                        datas={percents}
-                        name="percent"
-                        value={percent}
-                        onChange={(event) => {
-                          setPercent(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                  </div>
-                  <div className={"form-group"}>
                     <FormDataItem label="amount" id="amount">
                       <Input
                         type="text"
@@ -364,17 +366,6 @@ function Promo() {
                         placeholder="Enter amount.."
                         onChange={(event) => {
                           setAmount(event.target.value);
-                        }}
-                      />
-                    </FormDataItem>
-                    <FormDataItem label="max amount" id="maxAmount">
-                      <Input
-                        type="text"
-                        name="maxAmount"
-                        value={maxAmount}
-                        placeholder="Enter max amount.."
-                        onChange={(event) => {
-                          setMaxAmount(event.target.value);
                         }}
                       />
                     </FormDataItem>
@@ -420,51 +411,86 @@ function Promo() {
         </div>
         <section className={"section-list"}>
           <section className={"list-promo"}>
-            <section className={"filter-product"}>
-              <div className="filter-product-search">
-                <Input
-                  type={"text"}
-                  name="search"
-                  value={filter.code}
-                  placeholder="Enter promotion"
-                  onChange={onSearch}
+            <section className={"filter-button"}>
+              <Buttons
+                type="button"
+                title="submit"
+                variant="secondary"
+                onClick={() => {
+                  setIsFilter((prev) => !prev);
+                }}
+                style={{ color: "#fff", fontWeight: "bold" }}
+              >
+                <FontAwesomeIcon
+                  icon={faFilter}
+                  style={{ paddingRight: "10px" }}
                 />
-                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
-              </div>
-              <div className="filter-product-search">
-                <select
-                  name=""
-                  id=""
-                  value={filter.status}
-                  onChange={(event) => {
-                    const params = {
-                      ...filter,
-                      status: event.target.value,
-                    };
-                    setFilter(params);
-                    getDataSearch(params);
-                  }}
-                >
-                  <option className="option-filter" value="">
-                    All
-                  </option>
-                  <option className="option-filter" value="1">
-                    Available
-                  </option>
-                  <option className="option-filter" value="0">
-                    Expire
-                  </option>
-                </select>
-              </div>
+                Filter
+              </Buttons>
             </section>
+            {isFilter && (
+              <section
+                className={"filter-product"}
+                style={{
+                  margin: "20px 0",
+                  padding: "20px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                }}
+              >
+                <div>
+                  <label htmlFor="">Search by promotion's name</label>
+                  <div className="filter-product-search">
+                    <Input
+                      type={"text"}
+                      name="search"
+                      value={filter.code}
+                      placeholder="Enter promotion"
+                      onChange={onSearch}
+                    />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={onSearch}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="">Search by status of promotions</label>
+                  <div className="filter-product-search">
+                    <select
+                      name=""
+                      id=""
+                      value={filter.status}
+                      onChange={(event) => {
+                        const params = {
+                          ...filter,
+                          status: event.target.value,
+                        };
+                        setFilter(params);
+                        getDataSearch(params);
+                      }}
+                    >
+                      <option className="option-filter" value="">
+                        All
+                      </option>
+                      <option className="option-filter" value="1">
+                        Available
+                      </option>
+                      <option className="option-filter" value="0">
+                        Expire
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+            )}
+
             <section className={"table-promo"}>
               <table>
                 <thead>
                   <tr>
                     <th>code</th>
-                    <th>percent</th>
                     <th>amount</th>
-                    <th>max amount</th>
                     <th>start Date</th>
                     <th>expires</th>
                     <th>status</th>
@@ -480,18 +506,14 @@ function Promo() {
                         <PromoItem
                           id={promotion.id}
                           code={promotion.code}
-                          percent={promotion.percent}
                           amount={promotion.amount}
-                          maxAmount={promotion.maxAmount}
                           startDate={new Date(
                             promotion.startDate
                           ).toLocaleDateString("en-GB")}
                           expire={new Date(
                             promotion.endDate
                           ).toLocaleDateString("en-GB")}
-                          status={
-                            promotion.status === false ? "Expired" : "Available"
-                          }
+                          status={!promotion.status ? "Expired" : "Available"}
                           onClick={openSetting}
                         />
                       );
@@ -500,6 +522,13 @@ function Promo() {
                   })}
                 </tbody>
               </table>
+              {promotions.length === 0 ? (
+                <div className="dashboard-content-footer">
+                  <span className="empty-table" style={{ paddingTop: "10px" }}>
+                    No data
+                  </span>
+                </div>
+              ) : null}
             </section>
             <ul className={"paginations"}>
               <button

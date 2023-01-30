@@ -1,8 +1,5 @@
 import React, { useCallback } from "react";
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-
-import { validateDataForm, validate } from "../../scripts/helpers/validation";
 import axiosClient from "../../scripts/helpers/config";
 import Button from "../../scripts/components/button";
 import Input from "../../scripts/components/input";

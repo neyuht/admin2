@@ -7,7 +7,6 @@ export default function LoginForm() {
     event.preventDefault();
     var username = document.getElementById("username").value;
     var password = document.getElementById("password").value;
-
     //Prevent page reload
     const data = {
       email: username,

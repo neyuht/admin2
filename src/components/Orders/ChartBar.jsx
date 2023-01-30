@@ -5,7 +5,6 @@ import "./style.css";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { useRef } from "react";
 import { useEffect } from "react";
 import axiosClient from "../../scripts/helpers/config";
 import User from "../../assets/icons/user.png";

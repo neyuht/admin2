@@ -1,19 +1,17 @@
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Category from "./Category";
 import http from "../../utils/http";
 import showHide from "../../scripts/helpers/showHide";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faX } from "@fortawesome/free-solid-svg-icons";
+import Brand from "./Brand";
 
 function PopUpProduct({ id, data }) {
   console.log("data", data);
   const [update, setUpdate] = useState(data);
-  const [variant, setVariant] = useState(data.productVariants);
   const [image, setImage] = useState(0);
   const [indexImage, setIndexImage] = useState(0);
   const [flash, setFlash] = useState({
@@ -21,98 +19,16 @@ function PopUpProduct({ id, data }) {
     type: "",
     message: "",
   });
-  const [description, setDescription] = React.useState(
-    (() => {
-      // tách variant trong description -> variant[]
-      const temps = variant.map((item) => {
-        const arr = [];
-        Object.entries(item.description).forEach((data) => {
-          arr.push(data);
-        });
-        return arr;
-      });
-      return temps;
-    })()
-  );
-
-  const [variantItem, setVariantItem] = useState({});
-  // key and value of variant
-  useMemo(() => {
-    const temps = [];
-    description.forEach((item) => {
-      const obj = {};
-      item.forEach(([key, value]) => {
-        obj[key] = value;
-      });
-      temps.push(obj);
-    });
-
-    // callback -> trạng thái trước đó của state
-    // nhận lại một arr[obj] -> list variant
-    setVariant((prev) => {
-      // trạng thái trước
-      return prev.map((item, index) => {
-        // variant[]
-        return {
-          ...item,
-          description: temps[index],
-        };
-      });
-    });
-  }, [description]);
-
-  const handleAddNewVariAntItem = (indexParent, object) => {
-    const temps = description[indexParent];
-    temps.push([object[indexParent].key, object[indexParent].value]);
-    setDescription((prev) => [...prev]);
-  };
-
-  const handleChangeKey = (indexParent, indexChildren, value) => {
-    const newVariant = description;
-    const newVariantParent = description[indexParent];
-    const newVariantItemChildren = newVariantParent[indexChildren];
-    newVariantItemChildren[0] = value;
-    newVariantParent[indexChildren] = newVariantItemChildren;
-    newVariant[indexParent] = newVariantParent;
-    setDescription([...newVariant]);
-  };
-
-  const handleChangeValue = (indexParent, indexChildren, value) => {
-    const newVariant = description;
-    const newVariantParent = description[indexParent];
-    const newVariantItemChildren = newVariantParent[indexChildren];
-    newVariantItemChildren[1] = value;
-    newVariantParent[indexChildren] = newVariantItemChildren;
-    newVariant[indexParent] = newVariantParent;
-    setDescription([...newVariant]);
-  };
-
-  const handlechangePrice = (indexParent, key, value) => {
-    const variantTemps = variant;
-    const variantItem = variantTemps[indexParent];
-    variantItem[key] = value;
-    setVariant([...variantTemps]);
-  };
 
   const onSubmit = async (event) => {
     event.preventDefault();
     const id = update.id;
     const { category, ...rest } = update;
     const url = `${process.env.REACT_APP_URL}/products/${id}`;
-    const temp = variant.map((item) => {
-      const tempDesc = [];
-      Object.entries(item.description).forEach(([key, value]) => {
-        tempDesc.push(`\"${key}\": \"${value}\"`);
-      });
-      return {
-        ...item,
-        description: `{${tempDesc.join(",")}}`,
-      };
-    });
+
     const payload = {
       ...rest,
       categoryId: category.id,
-      productVariants: temp,
     };
     console.log("payload", payload);
     const response = await http.put(url, payload);
@@ -210,9 +126,9 @@ function PopUpProduct({ id, data }) {
             style={{ width: "250px", margin: "0px" }}
           >
             <div className={"images image-main-selected"}>
-              <img src={image ? image : update.imageList[0]} alt="" />
+              {/* <img src={image ? image : update.imageList[0]} alt="" /> */}
             </div>
-            <div className="list-images">
+            {/* <div className="list-images">
               {update.imageList.map((item, index) =>
                 index === 0 ? (
                   <ImagesList
@@ -230,7 +146,7 @@ function PopUpProduct({ id, data }) {
                   />
                 )
               )}
-            </div>
+            </div> */}
           </div>
           <input
             name="images"
@@ -254,6 +170,47 @@ function PopUpProduct({ id, data }) {
                 }}
               />
             </FormDataItem>
+            <div className={"form-group"}>
+              <FormDataItem label="Brand" id="brand">
+                <Brand
+                  value={update.brand.id}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    const brand = {
+                      ...update.category,
+                      id,
+                    };
+                    handleChange("brand", brand);
+                  }}
+                />
+              </FormDataItem>
+            </div>
+            <div className={"form-group"}>
+              <FormDataItem label="Price" id="price">
+                <Input
+                  type="text"
+                  name="price"
+                  placeholder="Enter product's price.."
+                  value={update.unitPrice}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    handleChange("unitPrice", value);
+                  }}
+                />
+              </FormDataItem>
+              <FormDataItem label="Quantity" id="quantity">
+                <Input
+                  type="text"
+                  name="quantity"
+                  placeholder="Enter product's Quantity.."
+                  value={update.quantity}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    handleChange("quantity", value);
+                  }}
+                />
+              </FormDataItem>
+            </div>
             <div className={"form-group"}>
               <FormDataItem label="Status" id="status">
                 <select
@@ -309,144 +266,6 @@ function PopUpProduct({ id, data }) {
               }}
             />
           </div>
-        </div>
-        <div className="form-product-variant">
-          {variant.map((vitem, indexParent) => {
-            return (
-              <section
-                style={{ margin: "15px 20px" }}
-                className="variant-wrapper"
-              >
-                <div className="variant-icon-label">
-                  <label htmlFor="" style={{ fontSize: "18px" }}>
-                    {(() => {
-                      const name = update.name;
-                      const nameVariant = vitem.displayName;
-                      const newName =
-                        "Version:   " + nameVariant.replace(name, "");
-                      return newName;
-                    })()}
-                  </label>
-                  <figure id={vitem.id} onClick={deleteVariant}>
-                    <FontAwesomeIcon icon={faX} id={vitem.id} />
-                  </figure>
-                </div>
-                <section
-                  style={{ display: "flex" }}
-                  className="form-variant-wrapper"
-                >
-                  <div className="group">
-                    <label htmlFor="">Price</label>
-                    <input
-                      name="unitPrice"
-                      type="text"
-                      value={vitem.unitPrice}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        handlechangePrice(indexParent, "unitPrice", value);
-                      }}
-                    />
-                  </div>
-                  <div className="group">
-                    <label htmlFor="">Quantity</label>
-                    <input
-                      type="text"
-                      name="quantity"
-                      value={vitem.quantity}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        handlechangePrice(indexParent, "quantity", value);
-                      }}
-                    />
-                  </div>
-                </section>
-                <form name={`variant-item-${indexParent}`}>
-                  <label htmlFor="">Details</label>
-                  <div style={{ display: "flex" }}>
-                    <input
-                      type="text"
-                      placeholder="New key"
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        const obj = {
-                          ...variantItem,
-                          [indexParent]: {
-                            ...variantItem[indexParent],
-                            key: value,
-                          },
-                        };
-                        console.log(obj);
-                        setVariantItem(obj);
-                      }}
-                      onKeyDown={(event) => {
-                        const key = event.code;
-                        if (key === "Enter") {
-                          handleAddNewVariAntItem(indexParent, variantItem);
-                        }
-                      }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="New value"
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        const key = event.code;
-                        const obj = {
-                          ...variantItem,
-                          [indexParent]: {
-                            ...variantItem[indexParent],
-                            value,
-                          },
-                        };
-                        setVariantItem(obj);
-                      }}
-                      onKeyDown={(event) => {
-                        const key = event.code;
-                        if (key === "Enter") {
-                          handleAddNewVariAntItem(indexParent, variantItem);
-                        }
-                      }}
-                    />
-                  </div>
-                  {description[indexParent].map(
-                    ([key, value], indexChildren) => {
-                      return (
-                        <section
-                          key={indexChildren}
-                          style={{ display: "flex" }}
-                        >
-                          <input
-                            type="text"
-                            value={key}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              handleChangeKey(
-                                indexParent,
-                                indexChildren,
-                                value
-                              );
-                            }}
-                          />
-                          <input
-                            type="text"
-                            value={value}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              handleChangeValue(
-                                indexParent,
-                                indexChildren,
-                                value
-                              );
-                            }}
-                          />
-                        </section>
-                      );
-                    }
-                  )}
-                </form>
-              </section>
-            );
-          })}
         </div>
       </div>
     </section>

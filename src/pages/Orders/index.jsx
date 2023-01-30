@@ -5,18 +5,17 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import all_orders from "../../constants/orders";
-import { calculateRange, sliceData } from "../../utils/table-pagination";
 import ChartBar from "../../components/Orders/ChartBar";
 import iconCustomers from "../../assets/icons/icon-customers.svg";
 import iconBoxest from "../../assets/icons/icon-boxest.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Buttons from "react-bootstrap/Button";
 import iconDollar from "../../assets/icons/icon-dollar.svg";
 import iconOrders from "../../assets/icons/icon-orders.svg";
 import Total from "../../components/Orders/Total";
 import axiosClient from "../../scripts/helpers/config";
 import Input from "../../scripts/components/input";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faFilter } from "@fortawesome/free-solid-svg-icons";
 import OrderItems from "../../scripts/components/I-orders-item";
 import Overlay from "../../components/Overlay/overlay";
 import OrderOverlay from "../../components/Orders/orders-overlay";
@@ -34,12 +33,16 @@ function Orders() {
     startDate: "",
     min: "",
     max: "",
+    phone: "",
+    email: "",
+    id: "",
   });
   const [flash, setFlash] = useState({
     action: false,
     type: "",
     message: "",
   });
+  const [isFilter, setIsFilter] = useState(false);
   const timmerId = useRef(null);
   const [data, setData] = useState([]);
   const [dataOrders, setDataOrders] = useState([]);
@@ -254,127 +257,225 @@ function Orders() {
         <div className="list-orders">
           <div className="dashboard-content-header">
             <h2>Orders List</h2>
-            <section className={"filter-product"}>
-              <div className="filter-total">
-                <div className="filter-total-left">
-                  <label htmlFor="">Enter end date and start date</label>
-                  <div className="filter-product-search filter-input-date">
-                    <Input
-                      type="date"
-                      name="startDate"
-                      value={filter.startDate}
-                      onChange={onSearch}
-                    />
-                  </div>
-                  <div
-                    className="filter-product-search filter-input-date"
-                    style={{ marginTop: "8px" }}
-                  >
-                    <Input
-                      type="date"
-                      name="endDate"
-                      value={filter.endDate}
-                      onChange={onSearch}
-                    />
-                  </div>
-                </div>
-                <div className="filter-total-right">
-                  <FontAwesomeIcon
-                    icon={faMagnifyingGlass}
-                    onClick={() => {
-                      getDataSearch(filter);
-                    }}
-                  />
-                </div>
-              </div>
-              <span className="line"></span>
-              <div className="filter-total">
-                <div className="filter-total-left">
-                  <label htmlFor="">Enter min and max price</label>
-                  <div className="filter-product-search filter-input-date">
-                    <Input
-                      type={"number"}
-                      name="min"
-                      value={filter.min}
-                      placeholder="Enter min price"
-                      onChange={onSearch}
-                    />
-                  </div>
-                  <div
-                    className="filter-product-search filter-input-date"
-                    style={{ marginTop: "8px" }}
-                  >
-                    <Input
-                      type={"number"}
-                      name="max"
-                      value={filter.max}
-                      placeholder="Enter max price"
-                      onChange={onSearch}
-                    />
-                  </div>
-                </div>
-                <div className="filter-total-right">
-                  <FontAwesomeIcon
-                    icon={faMagnifyingGlass}
-                    onClick={() => {
-                      getDataSearch(filter);
-                    }}
-                  />
-                </div>
-              </div>
-              <span className="line"></span>
-              <div>
-                <label htmlFor="">Search by username</label>
-                <div className="filter-product-search">
-                  <Input
-                    type={"text"}
-                    name="name"
-                    value={filter.name}
-                    placeholder="Enter username"
-                    onChange={onSearch}
-                  />
-                  <FontAwesomeIcon
-                    icon={faMagnifyingGlass}
-                    onClick={() => {
-                      getDataSearch(filter);
-                    }}
-                  />
-                </div>
-              </div>
-              <span className="line"></span>
-              <div>
-                <label htmlFor="">Sort by status</label>
-                <div className="filter-product-search">
-                  <select
-                    name=""
-                    id=""
-                    value={filter.status}
-                    onChange={(event) => {
-                      const params = {
-                        ...filter,
-                        status: event.target.value,
-                      };
-                      setFilter(params);
-                      getDataSearch(params);
-                    }}
-                  >
-                    <option className="option-filter" value="">
-                      All
-                    </option>
-                    <option className="option-filter" value="1">
-                      Success
-                    </option>
-                    <option className="option-filter" value="0">
-                      Pending
-                    </option>
-                    <option className="option-filter" value="2">
-                      Canceled
-                    </option>
-                  </select>
-                </div>
-              </div>
+            <section className={"filter-button"}>
+              <Buttons
+                type="button"
+                title="submit"
+                variant="secondary"
+                onClick={() => {
+                  setIsFilter((prev) => !prev);
+                }}
+                style={{ color: "#fff", fontWeight: "bold" }}
+              >
+                <FontAwesomeIcon
+                  icon={faFilter}
+                  style={{ paddingRight: "10px" }}
+                />
+                Filter
+              </Buttons>
             </section>
           </div>
+          {isFilter && (
+            <section
+              className={"filter-product filter-product-p"}
+              style={{
+                margin: "20px 0",
+                padding: "20px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+              }}
+            >
+              <div className={"filter-products-search"}>
+                <div className="filter-total">
+                  <div className="filter-total-left">
+                    <label htmlFor="">Search by end date and start date</label>
+                    <div className="filter-product-search filter-input-date">
+                      <Input
+                        type="date"
+                        name="startDate"
+                        value={filter.startDate}
+                        onChange={onSearch}
+                      />
+                    </div>
+                    <div
+                      className="filter-product-search filter-input-date"
+                      style={{ marginTop: "8px" }}
+                    >
+                      <Input
+                        type="date"
+                        name="endDate"
+                        value={filter.endDate}
+                        onChange={onSearch}
+                      />
+                    </div>
+                  </div>
+                  <div className="filter-total-right">
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={() => {
+                        getDataSearch(filter);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="filter-total">
+                  <div className="filter-total-left">
+                    <label htmlFor="">Search by min and max total price</label>
+                    <div className="filter-product-search filter-input-date">
+                      <Input
+                        type={"number"}
+                        name="min"
+                        value={filter.min}
+                        placeholder="Enter min price"
+                        onChange={onSearch}
+                      />
+                    </div>
+                    <div
+                      className="filter-product-search filter-input-date"
+                      style={{ marginTop: "8px" }}
+                    >
+                      <Input
+                        type={"number"}
+                        name="max"
+                        value={filter.max}
+                        placeholder="Enter max price"
+                        onChange={onSearch}
+                      />
+                    </div>
+                  </div>
+                  <div className="filter-total-right">
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={() => {
+                        getDataSearch(filter);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="">Search by username</label>
+                  <div className="filter-product-search">
+                    <Input
+                      type={"text"}
+                      name="name"
+                      value={filter.name}
+                      placeholder="Enter username"
+                      onChange={onSearch}
+                    />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={() => {
+                        getDataSearch(filter);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="">Search by id of orders</label>
+                  <div className="filter-product-search">
+                    <Input
+                      type={"text"}
+                      name="id"
+                      value={filter.id}
+                      placeholder="Enter order's id"
+                      onChange={onSearch}
+                    />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={() => {
+                        getDataSearch(filter);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="">Search by phone</label>
+                  <div className="filter-product-search">
+                    <Input
+                      type={"text"}
+                      name="name"
+                      value={filter.phone}
+                      placeholder="Enter phone"
+                      onChange={onSearch}
+                    />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={() => {
+                        getDataSearch(filter);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="">Search by email</label>
+                  <div className="filter-product-search">
+                    <Input
+                      type={"email"}
+                      name="name"
+                      value={filter.email}
+                      placeholder="Enter email"
+                      onChange={onSearch}
+                    />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={() => {
+                        getDataSearch(filter);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="">Sort by status of orders</label>
+                  <div className="filter-product-search">
+                    <select
+                      name=""
+                      id=""
+                      value={filter.status}
+                      onChange={(event) => {
+                        const params = {
+                          ...filter,
+                          status: event.target.value,
+                        };
+                        setFilter(params);
+                        getDataSearch(params);
+                      }}
+                    >
+                      <option className="option-filter" value="">
+                        All
+                      </option>
+                      <option className="option-filter" value="1">
+                        Success
+                      </option>
+                      <option className="option-filter" value="0">
+                        Pending
+                      </option>
+                      <option className="option-filter" value="2">
+                        Canceled
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <span className="line"></span>
+              <div className={"filter-products-cta"}>
+                <Buttons
+                  type="button"
+                  title="submit"
+                  variant="info"
+                  onClick={() => {}}
+                  style={{ color: "#fff" }}
+                >
+                  Clear search
+                </Buttons>
+              </div>
+            </section>
+          )}
 
           <section className="table-promo">
             <table>
@@ -403,6 +504,13 @@ function Orders() {
                 </tbody>
               ) : null}
             </table>
+            {dataOrders.length === 0 ? (
+              <div className="dashboard-content-footer">
+                <span className="empty-table" style={{ paddingTop: "10px" }}>
+                  No data
+                </span>
+              </div>
+            ) : null}
           </section>
           <ul className={"paginations"}>
             <button
@@ -453,11 +561,6 @@ function Orders() {
               next
             </button>
           </ul>
-          {dataOrders.length === 0 ? (
-            <div className="dashboard-content-footer">
-              <span className="empty-table">No data</span>
-            </div>
-          ) : null}
         </div>
       </div>
       {overlay && (

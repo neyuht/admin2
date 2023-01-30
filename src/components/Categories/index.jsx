@@ -1,10 +1,11 @@
-import React, { Component, useCallback } from "react";
+import React, { useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./style.css";
+import Buttons from "react-bootstrap/Button";
 import Overlay from "../../components/Overlay/overlay";
 import axiosClient from "../../scripts/helpers/config";
 import Button from "../../scripts/components/button";
@@ -13,6 +14,8 @@ import Input from "../../scripts/components/input";
 import FormDataItem from "../../scripts/components/form-data-item";
 import showHide from "../../scripts/helpers/showHide";
 import PopUpCategory from "./categories-overlay";
+import { clearStyle } from "../../scripts/helpers/styles-change";
+import { validate } from "../../scripts/helpers/validation";
 
 function CategoriesTab() {
   const [searchParams, setSearchparams] = useSearchParams({
@@ -23,8 +26,10 @@ function CategoriesTab() {
     type: "",
     message: "",
   });
+  const [name, setName] = useState("");
   const lists = useRef([]);
   const [overlay, setOverlay] = useState();
+  const [pagins, setPagins] = useState([1]);
   const [indexPagin, setIndexPagin] = useState(1);
   const [categories, setCategories] = useState([]);
   const [filter, setFilter] = useState("");
@@ -33,6 +38,7 @@ function CategoriesTab() {
   const size = 8;
   const timmerId = useRef(null);
   const [currentPages, setCurrentPages] = useState([]);
+  const [isFilter, setIsFilter] = useState(false);
 
   const getDataSearch = (value1) => {
     let obj = {};
@@ -64,6 +70,51 @@ function CategoriesTab() {
       ...newObj,
     });
   };
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+    const obj = {
+      name,
+    };
+
+    clearStyle(obj);
+    const isEmpty = validate(obj);
+
+    if (isEmpty.error) {
+      return;
+    }
+    axiosClient
+      .post(`${process.env.REACT_APP_URL}/categories`, {
+        id: 0,
+        ...obj,
+      })
+      .then((res) => {
+        const _temps = [
+          ...categories,
+          {
+            ...res.data,
+          },
+        ];
+
+        const sizePagin =
+          _temps.length % size === 0
+            ? _temps.length / size
+            : parseInt(_temps.length / size) + 1;
+        const _tempsPagin = new Array(sizePagin).fill(1);
+        setPagins(_tempsPagin);
+        setCategories(_temps);
+        setName("");
+        setPopup(false);
+        window.location.reload();
+      })
+      .catch((err) => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
+      });
+  };
+
+  const popupAddPromo = useCallback(() => {
+    setPopup((prev) => !prev);
+  }, []);
 
   const openSetting = async (e, id) => {
     const category = await axiosClient.get(
@@ -170,51 +221,95 @@ function CategoriesTab() {
           <section className={"promo-wrapper"}>
             <section className={"container-main"}>
               {popup && (
-                <Overlay>
+                <Overlay onClick={popupAddPromo}>
                   <section
                     className={"section-form"}
                     onClick={(event) => {
                       event.stopPropagation();
                     }}
                   >
-                    <form action="#" className={"form-wrapper"}>
-                      <h2 className={"heading"}>Add New Categories</h2>
+                    <form
+                      action="#"
+                      className={"form-wrapper"}
+                      onSubmit={onSubmit}
+                    >
+                      <h2 className={"heading"}>Add category</h2>
                       <section className={"form-data"}>
-                        <FormDataItem id="categories">
+                        <FormDataItem label="Category's Name" id="code">
                           <Input
                             type="text"
-                            name="categories"
-                            value={categories}
-                            placeholder="Category Name"
+                            name="name"
+                            value={name}
+                            placeholder="Enter brand's name.."
+                            onChange={(event) => {
+                              setName(event.target.value);
+                            }}
                           />
                         </FormDataItem>
                       </section>
-                      <Button type="submit" title="submit" />
+                      <Button type="submit" title="submit" onClick={onSubmit} />
                     </form>
                   </section>
                 </Overlay>
               )}
               <div className="dashboard-content-header">
                 <h2>Categories List</h2>
+                <Buttons
+                  type="button"
+                  title="submit"
+                  variant="primary"
+                  onClick={popupAddPromo}
+                >
+                  Add New Category
+                </Buttons>
               </div>
               <section className={"section-list"}>
                 <section className={"list-promo"}>
-                  <section className={"filter-product"}>
-                    <div className="filter-product-search">
-                      <Input
-                        type={"text"}
-                        name="search"
-                        value={filter.code}
-                        placeholder="Enter category"
-                        onChange={onSearch}
-                      />
+                  <section className={"filter-button"}>
+                    <Buttons
+                      type="button"
+                      title="submit"
+                      variant="secondary"
+                      onClick={() => {
+                        setIsFilter((prev) => !prev);
+                      }}
+                      style={{ color: "#fff", fontWeight: "bold" }}
+                    >
                       <FontAwesomeIcon
-                        icon={faMagnifyingGlass}
-                        onClick={onSearch}
+                        icon={faFilter}
+                        style={{ paddingRight: "10px" }}
                       />
-                    </div>
+                      Filter
+                    </Buttons>
                   </section>
-
+                  {isFilter && (
+                    <section
+                      className={"filter-product"}
+                      style={{
+                        margin: "20px 0",
+                        padding: "20px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      <div>
+                        <label>Search by category's name</label>
+                        <div className="filter-product-search">
+                          <Input
+                            type={"text"}
+                            name="search"
+                            value={filter.code}
+                            placeholder="Enter category"
+                            onChange={onSearch}
+                          />
+                          <FontAwesomeIcon
+                            icon={faMagnifyingGlass}
+                            onClick={onSearch}
+                          />
+                        </div>
+                      </div>
+                    </section>
+                  )}
                   <section className={"table-promo"}>
                     <table>
                       <thead>

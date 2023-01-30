@@ -1,29 +1,20 @@
 import FormDataItem from "../../scripts/components/form-data-item";
 import Input from "../../scripts/components/input";
-import Button from "../../scripts/components/button";
 import Select from "../../scripts/components/select";
 import Overlay from "../Overlay/overlay";
 import UserItems from "../../scripts/components/I-users-item";
 import UserOverlay from "./users-overlay";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  validate,
-  validateNumber,
-  validateOperator,
-  validateCode,
-} from "../../scripts/helpers/validation";
-import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Buttons from "react-bootstrap/Button";
 import "./style.css";
 import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { adminLogin } from "../../service/authService";
-import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faFilter } from "@fortawesome/free-solid-svg-icons";
 import showHide from "../../scripts/helpers/showHide";
 import FlashMessage from "../FlashMessage/flashMessage";
+import axiosClient from "../../scripts/helpers/config";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -41,6 +32,7 @@ function UsersTab() {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
   });
+  const [isFilter, setIsFilter] = useState(false);
   const [code, setCode] = useState("");
   const [percent, setPercent] = useState(0);
   const [amount, setAmount] = useState("");
@@ -294,18 +286,52 @@ function UsersTab() {
         </div>
         <section className={"section-list"}>
           <section className={"list-promo"}>
-            <section className={"filter-product"}>
-              <div className="filter-product-search">
-                <Input
-                  type={"text"}
-                  name="search"
-                  value={filter.query}
-                  placeholder="Enter name or email"
-                  onChange={onSearch}
+            <section className={"filter-button"}>
+              <Buttons
+                type="button"
+                title="submit"
+                variant="secondary"
+                onClick={() => {
+                  setIsFilter((prev) => !prev);
+                }}
+                style={{ color: "#fff", fontWeight: "bold" }}
+              >
+                <FontAwesomeIcon
+                  icon={faFilter}
+                  style={{ paddingRight: "10px" }}
                 />
-                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
-              </div>
+                Filter
+              </Buttons>
             </section>
+            {isFilter && (
+              <section
+                className={"filter-product"}
+                style={{
+                  margin: "20px 0",
+                  padding: "20px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                }}
+              >
+                <div>
+                  <label htmlFor="">Search by username</label>
+                  <div className="filter-product-search">
+                    <Input
+                      type={"text"}
+                      name="search"
+                      value={filter.query}
+                      placeholder="Enter name or email"
+                      onChange={onSearch}
+                    />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={onSearch}
+                    />
+                  </div>
+                </div>
+              </section>
+            )}
+
             <section className={"table-promo"}>
               <table>
                 <thead>
@@ -339,6 +365,13 @@ function UsersTab() {
                   })}
                 </tbody>
               </table>
+              {users.length === 0 ? (
+                <div className="dashboard-content-footer">
+                  <span className="empty-table" style={{ paddingTop: "10px" }}>
+                    No data
+                  </span>
+                </div>
+              ) : null}
             </section>
             <ul className={"paginations"}>
               <button

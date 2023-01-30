@@ -225,7 +225,30 @@
 
 .filter-product {
   display: flex;
-  gap: 10px;
+  gap: 30px;
+}
+
+.filter-product-p {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.filter-products-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.filter-total-left {
+  width: 100%;
+}
+
+.filter-products-search {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 70px;
+  row-gap: 10px;
 }
 
 .filter-product .heading {
@@ -258,6 +281,7 @@
   border: none;
   margin-top: 8px;
   height: 35px;
+  width: 100%;
 }
 
 .list-orders
@@ -266,6 +290,10 @@
   .filter-input-date
   input {
   width: 200px;
+}
+
+.filter-input-date {
+  padding-top: 7px;
 }
 
 .filter-product-search select .option-filter {
@@ -443,7 +471,6 @@
 }
 
 .product-list-description p {
-  width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

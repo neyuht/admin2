@@ -1,7 +1,6 @@
 import FormDataItem from "../../scripts/components/form-data-item";
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
-import Select from "../../scripts/components/select";
 import Overlay from "../Overlay/overlay";
 import BrandItem from "../../scripts/components/I-brand-item";
 import PopUpBrand from "./brand-overlay";
@@ -15,7 +14,7 @@ import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { clearStyle } from "../../scripts/helpers/styles-change";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faFilter } from "@fortawesome/free-solid-svg-icons";
 import showHide from "../../scripts/helpers/showHide";
 import FlashMessage from "../FlashMessage/flashMessage";
 
@@ -45,6 +44,7 @@ function Brand() {
   const lists = useRef([]);
   const [currentPages, setCurrentPages] = useState([]);
   const timmerId = useRef(null);
+  const [isFilter, setIsFilter] = useState(false);
 
   const nextPage = (currentPage) => {
     const temps = lists.current.filter((item) => {
@@ -265,18 +265,52 @@ function Brand() {
         </div>
         <section className={"section-list"}>
           <section className={"list-promo"}>
-            <section className={"filter-product"}>
-              <div className="filter-product-search">
-                <Input
-                  type={"text"}
-                  name="search"
-                  value={filter.name}
-                  placeholder="Enter brand"
-                  onChange={onSearch}
+            <section className={"filter-button"}>
+              <Buttons
+                type="button"
+                title="submit"
+                variant="secondary"
+                onClick={() => {
+                  setIsFilter((prev) => !prev);
+                }}
+                style={{ color: "#fff", fontWeight: "bold" }}
+              >
+                <FontAwesomeIcon
+                  icon={faFilter}
+                  style={{ paddingRight: "10px" }}
                 />
-                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={onSearch} />
-              </div>
+                Filter
+              </Buttons>
             </section>
+            {isFilter && (
+              <section
+                className={"filter-product"}
+                style={{
+                  margin: "20px 0",
+                  padding: "20px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                }}
+              >
+                <div>
+                  <label htmlFor="">Search by brand's name</label>
+                  <div className="filter-product-search">
+                    <Input
+                      type={"text"}
+                      name="search"
+                      value={filter.name}
+                      placeholder="Enter brand"
+                      onChange={onSearch}
+                    />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={onSearch}
+                    />
+                  </div>
+                </div>
+              </section>
+            )}
+
             <section className={"table-promo"}>
               <table>
                 <thead>
@@ -308,6 +342,13 @@ function Brand() {
                 </tbody>
               </table>
             </section>
+            {brands.length === 0 ? (
+              <div className="dashboard-content-footer">
+                <span className="empty-table" style={{ paddingTop: "10px" }}>
+                  No data
+                </span>
+              </div>
+            ) : null}
             <ul className={"paginations"}>
               <button
                 className="btn-pages button-pagination-move"

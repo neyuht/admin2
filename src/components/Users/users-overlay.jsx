@@ -2,20 +2,12 @@ import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
 import { useCallback, useState } from "react";
-import {
-  validate,
-  validateCode,
-  validateNumber,
-  validateOperator,
-} from "../../scripts/helpers/validation";
-import Select from "../../scripts/components/select";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
-import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 import avaUser from "../../assets/icons/user.png";
 import showHide from "../../scripts/helpers/showHide";
 
-function UserOverlay({ cx, id, firstName, lastName, image, email, phone }) {
+function UserOverlay({ id, firstName, lastName, image, email, phone }) {
   const [iamge, setImage] = useState(image);
   const [firstNames, setFirstName] = useState(firstName);
   const [lastNames, setLastName] = useState(lastName);

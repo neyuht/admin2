@@ -61,7 +61,6 @@
   flex-direction: column;
   gap: 15px;
   position: relative;
-  height: 100px;
 }
 
 .form-data-item label {

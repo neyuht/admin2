@@ -6,9 +6,9 @@ function Category(props) {
   const [categories, setCategories] = useState([]);
   useEffect(() => {
     request
-      .get("public/categories")
+      .get("admin/categories")
       .then((response) => {
-        setCategories(response.data);
+        setCategories(response.data.content);
       })
       .catch((error) => {
         console.log(error);

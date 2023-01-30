@@ -1,7 +1,7 @@
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import showHide from "../../scripts/helpers/showHide";

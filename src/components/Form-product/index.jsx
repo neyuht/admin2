@@ -1,25 +1,27 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Category from "./Category";
-import Details from "./Details/details";
 import http, * as request from "../../utils/http";
 import Input from "../../scripts/components/input";
-import Button from "../../scripts/components/button";
-import { validate } from "../../scripts/helpers/validation";
 import Buttons from "react-bootstrap/Button";
 import ProductItem from "../../scripts/components/l-product-item";
 import "./style.css";
 import { useMemo } from "react";
 import Overlay from "../Overlay/overlay";
 import axiosClient from "../../scripts/helpers/config";
-import convertArrayToString from "../../scripts/helpers/convert";
 import PopUpProduct from "./product-overlay";
-import iconPlus from "../../assets/icons/icon-plus.svg";
 import { faMagnifyingGlass, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FlashMessage from "../FlashMessage/flashMessage";
-import { clearStyle } from "../../scripts/helpers/styles-change";
+import {
+  changeStyleElementByObject,
+  clearStyle,
+} from "../../scripts/helpers/styles-change";
 import { Form } from "react-bootstrap";
+import Brand from "./Brand";
+import { validation } from "../../scripts/helpers/validation2";
+import { regex } from "../../scripts/helpers/constants";
+
 const size = 4;
 
 function FormProducts({ fields }) {
@@ -30,27 +32,22 @@ function FormProducts({ fields }) {
     name: "",
     status: "",
   });
-  const [statePagin, setStatePagin] = useState({
-    size: 4,
-    step: 1,
-    currentIndex: +searchParams.get("page"),
-    start: 0,
-    end: 3,
-  });
+  // const [statePagin, setStatePagin] = useState({
+  //   size: 4,
+  //   step: 1,
+  //   currentIndex: +searchParams.get("page"),
+  //   start: 0,
+  //   end: 3,
+  // });
   const [products, setProducts] = useState([]);
   const name = useRef("");
   const status = useRef("");
-  const category = useRef("");
-  const quantity = useRef("");
   const description = useRef("");
   const image = useRef("");
-  const unitPrice = useRef("");
-  const [detailsInfo, setDetailsInfo] = useState([]);
   const [popup, setPopup] = useState(false);
   const [overlay, setOverlay] = useState();
   const responsePagins = useRef([]);
   const lists = useRef([]);
-  const [currentPages, setCurrentPages] = useState([]);
   const timmerId = useRef(null);
   const [flash, setFlash] = useState({
     action: false,
@@ -58,21 +55,12 @@ function FormProducts({ fields }) {
     message: "",
   });
   const [popupImport, setPopupImport] = useState(false);
+  const [isFilter, setIsFilter] = useState(false);
 
   /**
    *  Code của detail
    */
-  const [countForm, setCountForm] = useState(1);
-  const [variant, setVariant] = useState({});
-  const renderForm = useMemo(() => {
-    return new Array(countForm).fill(1);
-  }, [countForm]);
-  const handleAddDetail = useCallback((obj) => {
-    setVariant((prev) => ({
-      ...prev,
-      ...obj,
-    }));
-  }, []);
+  // const [countForm, setCountForm] = useState(1);
 
   /**
    * nhận vào currentPage (page hiện tại)
@@ -137,38 +125,60 @@ function FormProducts({ fields }) {
     const category = form["category"].value;
     const status = form["status"].value;
     const images = Array.from(form["images"].files);
-    console.log("test", images);
     const description2 = form["description2"].value;
-    const variantRq = Object.values(variant).map((obj) => ({
-      ...obj,
-      description: convertArrayToString(obj.description),
-    }));
-
+    const brand = form["brand"].value;
+    const unitPrice = form["unitPrice"].value;
+    const quantity = form["quantity"].value;
     const data = {
       name,
-      status,
+      status: true,
       description: description2,
       categoryId: category,
-      productVariantList: variantRq,
+      brandId: brand,
+      id: 0,
+      unitPrice,
+      quantity,
     };
-    const { productVariantList, description, ...obj } = data;
-    clearStyle({
-      name: obj.name,
-      description2: description,
-      images,
-    });
-    const result = validate({
-      ...obj,
-      description2: description,
-      images,
-    });
-    if (result.error) {
+
+    const regexT = {
+      unitPrice: [
+        {
+          type: regex.regexGreaterThan0,
+          message: "More than 0",
+        },
+      ],
+      quantity: [
+        {
+          type: regex.regexGreaterThan0,
+          message: "More than 0",
+        },
+      ],
+    };
+
+    const { brandId, categoryId, id, ...rest } = data;
+    const check = {
+      ...rest,
+      images: images.length,
+      description2,
+      category,
+      brand,
+    };
+    clearStyle(check);
+
+    const empty = validation(check, regexT);
+
+    console.log(empty);
+    if (empty.error) {
+      changeStyleElementByObject(
+        { ...empty.field },
+        "boxShadow",
+        "0 0 0 0.3mm red"
+      );
       return;
     }
-    if (!productVariantList.length) {
-      alert("Vui long nhap variant");
-      return;
-    }
+
+    console.log("data send: ", data);
+
     const response = await http.post(
       `${process.env.REACT_APP_URL}/products`,
       data
@@ -181,7 +191,7 @@ function FormProducts({ fields }) {
       Object.values(images).forEach((images) => {
         bodyFormData.append("images", images);
       });
-      bodyFormData.append("type", "3");
+      bodyFormData.append("type", "2");
       bodyFormData.append("id", id + "");
       console.log("1", bodyFormData);
       const response2 = await axiosClient
@@ -373,13 +383,10 @@ function FormProducts({ fields }) {
                         placeholder="Name"
                       />
                     </div>
-                    <div
-                      className={"form-group-two"}
-                      style={{ width: "515px" }}
-                    >
-                      <div className={"form-category"} id="productCategory">
+                    <div className={"form-data-item"}>
+                      <div id="productCategory">
                         <label htmlFor="">Brand</label>
-                        {<Category />}
+                        {<Brand />}
                       </div>
                     </div>
                     <div
@@ -500,7 +507,7 @@ function FormProducts({ fields }) {
                 title="submit"
                 variant="secondary"
                 onClick={() => {
-                  setPopup(true);
+                  setIsFilter((prev) => !prev);
                 }}
                 style={{ color: "#fff", fontWeight: "bold" }}
               >
@@ -511,56 +518,64 @@ function FormProducts({ fields }) {
                 Filter
               </Buttons>
             </section>
-            <section
-              className={"filter-product"}
-              style={{
-                margin: "20px 0",
-                padding: "20px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-              }}
-            >
-              <div className="filter-product-search">
-                <Input
-                  type={"text"}
-                  name="search"
-                  value={filter.name}
-                  placeholder="Enter product's name"
-                  onChange={onSearch}
-                />
-                <FontAwesomeIcon
-                  icon={faMagnifyingGlass}
-                  onClick={() => {
-                    getDataSearch(filter);
-                  }}
-                />
-              </div>
-              <div className="filter-product-search">
-                <select
-                  name=""
-                  id=""
-                  value={filter.status}
-                  onChange={(event) => {
-                    const params = {
-                      ...filter,
-                      status: event.target.value,
-                    };
-                    setFilter(params);
-                    getDataSearch(params);
-                  }}
-                >
-                  <option className="option-filter" value="">
-                    All
-                  </option>
-                  <option className="option-filter" value="1">
-                    Available
-                  </option>
-                  <option className="option-filter" value="0">
-                    Sold Out
-                  </option>
-                </select>
-              </div>
-            </section>
+            {isFilter && (
+              <section
+                className={"filter-product"}
+                style={{
+                  margin: "20px 0",
+                  padding: "20px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                }}
+              >
+                <div>
+                  <label>Search by product's name</label>
+                  <div className="filter-product-search">
+                    <Input
+                      type={"text"}
+                      name="search"
+                      value={filter.name}
+                      placeholder="Enter product's name"
+                      onChange={onSearch}
+                    />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      onClick={() => {
+                        getDataSearch(filter);
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label>Sort by status of products</label>
+                  <div className="filter-product-search">
+                    <select
+                      name=""
+                      id=""
+                      value={filter.status}
+                      onChange={(event) => {
+                        const params = {
+                          ...filter,
+                          status: event.target.value,
+                        };
+                        setFilter(params);
+                        getDataSearch(params);
+                      }}
+                    >
+                      <option className="option-filter" value="">
+                        All
+                      </option>
+                      <option className="option-filter" value="1">
+                        Available
+                      </option>
+                      <option className="option-filter" value="0">
+                        Sold Out
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+            )}
             <section className={"table-promo"}>
               <table>
                 <thead>
@@ -580,7 +595,7 @@ function FormProducts({ fields }) {
                         id={product.id}
                         productName={product.name}
                         description={product.description}
-                        price={product.price}
+                        price={product.unitPrice}
                         quantity={product.quantity}
                         status={product.status}
                         onClick={openSetting}
@@ -589,6 +604,13 @@ function FormProducts({ fields }) {
                   })}
                 </tbody>
               </table>
+              {products.length === 0 ? (
+                <div className="dashboard-content-footer">
+                  <span className="empty-table" style={{ paddingTop: "10px" }}>
+                    No data
+                  </span>
+                </div>
+              ) : null}
             </section>
             <ul className={"paginations"}>
               <button

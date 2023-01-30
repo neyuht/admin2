@@ -3,9 +3,7 @@ import React from "react";
 function CategoryItem({
   id,
   code,
-  percent,
   amount,
-  maxAmount,
   startDate,
   expire,
   status,
@@ -23,13 +21,7 @@ function CategoryItem({
         <p>{code}</p>
       </td>
       <td>
-        <p>{percent}</p>
-      </td>
-      <td>
         <p>{amount}</p>
-      </td>
-      <td>
-        <p>{maxAmount}</p>
       </td>
       <td>
         <p>{startDate}</p>

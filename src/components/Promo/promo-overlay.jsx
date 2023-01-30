@@ -1,14 +1,7 @@
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
-import { useCallback, useEffect, useState } from "react";
-import {
-  validate,
-  validateCode,
-  validateDate,
-  validateNumber,
-  validateOperator,
-} from "../../scripts/helpers/validation";
+import { useCallback, useState } from "react";
 import Select from "../../scripts/components/select";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
@@ -17,6 +10,13 @@ import {
   clearStyle,
 } from "../../scripts/helpers/styles-change";
 import showHide from "../../scripts/helpers/showHide";
+import { convertDate } from "../../scripts/helpers/convert";
+import {
+  validation,
+  validationDate,
+  checkDate,
+} from "../../scripts/helpers/validation2";
+import { regex } from "../../scripts/helpers/constants";
 
 const percents = new Array(101).fill(1).map((item, index) => ({
   title: index,
@@ -29,84 +29,116 @@ const statuss = new Array(2).fill(1).map((item, index) => ({
 }));
 
 function PopUpPromo({ obj }) {
-  const {
-    cx,
-    id,
-    code,
-    amount,
-    percent,
-    maxAmount,
-    status,
-    startDate,
-    endDate,
-  } = obj;
+  const { id, code, amount, status, startDate, endDate } = obj;
+  const startConvert = convertDate(startDate);
+  const endConvert = convertDate(endDate);
+
   const [flash, setFlash] = useState({
     action: false,
     type: "",
     message: "",
   });
   const [codeUpdate, setCode] = useState(code);
-  const [percentUpdate, setPercent] = useState(percent);
   const [amountUpdate, setAmount] = useState(amount);
-  const [maxAmountUpdate, setMaxAmount] = useState(maxAmount);
-  const [expireUpdate, setExpires] = useState(() => {
-    const date = new Date(endDate);
+  const [expireUpdate, setExpires] = useState(endConvert);
 
-    const day = date.getDate() >= 10 ? date.getDate() : "0" + date.getDate();
-    const month =
-      date.getMonth() + 1 >= 10
-        ? date.getMonth() + 1
-        : "0" + (date.getMonth() + 1);
-    const year = date.getFullYear();
-    const convert = `${year}-${month}-${day}`;
-    console.log("date", convert);
-    return convert;
-  });
-
-  const [startDateUpdate, setStartDate] = useState(() => {
-    const date = new Date(startDate);
-    const day = date.getDate() >= 10 ? date.getDate() : "0" + date.getDate();
-    const month =
-      date.getMonth() + 1 >= 10
-        ? date.getMonth() + 1
-        : "0" + (date.getMonth() + 1);
-    const year = date.getFullYear();
-    return `${year}-${month}-${day}`;
-  });
+  const [startDateUpdate, setStartDate] = useState(startConvert);
   const [statusUpdate, setStatus] = useState(status);
-
   const onSubmit = (event) => {
     event.preventDefault();
     const obj = {
       code: codeUpdate,
-      percent: parseInt(percentUpdate),
       amount: amountUpdate,
-      maxAmount: maxAmountUpdate,
       status: `${statusUpdate}`,
       startDate: startDateUpdate,
       endDate: expireUpdate,
     };
 
     clearStyle(obj);
-    const isEmpty = validate(obj);
-    const isCode = validateCode(code);
-    const isNumber = validateNumber({
-      amount,
-      maxAmount,
-    });
-    const isLT0 = validateOperator({
-      amount,
-      maxAmount,
-    });
-    const isDate = validateDate(obj.startDate, obj.endDate);
-    // axiosClient
-    //   .put(`${process.env.REACT_APP_URL}/promotion/${id}`, obj)
-    //   .then((res) => {
-    //     window.location.reload();
-    //   })
-    //   .catch((err) => {
-    //     showHide(true, "errors", "Oops, something went wrong", setFlash);
-    //   });
+    const regexT = {
+      code: [
+        {
+          type: regex.regexCheckMaxLength,
+          message: "At least 6 characters",
+        },
+        {
+          type: regex.regexFirstCharacter,
+          message: "First capital letter",
+        },
+      ],
+      amount: [
+        {
+          type: regex.regexGreaterThan0,
+          message: "More than 0",
+        },
+      ],
+    };
+    const empty = validation(obj, regexT);
+    let errField = { error: false };
+
+    if (empty.error) {
+      errField = {
+        ...errField,
+        error: true,
+        ...empty.field,
+      };
+    }
+
+    if (startConvert !== startDateUpdate || endConvert !== expireUpdate) {
+      const sDate = {
+        field: "startDate",
+        value: startDateUpdate,
+      };
+      const eDate = {
+        field: "endDate",
+        value: expireUpdate,
+      };
+      const { error: sErr, ...sRest } = validationDate(sDate);
+      const { error: eErr, ...eRest } = validationDate(eDate);
+      const { error: exErr, ...exRest } = checkDate(sDate, eDate);
+      if (eErr) {
+        errField = {
+          ...errField,
+          error: true,
+          ...eRest,
+        };
+      }
+
+      if (sErr) {
+        errField = {
+          ...errField,
+          error: true,
+          ...sRest,
+        };
+      }
+
+      if (exErr) {
+        errField = {
+          ...errField,
+          error: true,
+          ...exRest,
+        };
+      }
+    }
+
+    const { error, ...rest } = errField;
+    if (errField.error) {
+      changeStyleElementByObject({ ...rest }, "boxShadow", "0 0 0 0.3mm red");
+      return;
+    }
+    console.log("Update");
+
+    axiosClient
+      .put(`${process.env.REACT_APP_URL}/promotion/${id}`, {
+        ...obj,
+        status: statusUpdate,
+      })
+      .then((res) => {
+        window.location.reload();
+      })
+      .catch((err) => {
+        showHide(true, "errors", "Oops, something went wrong", setFlash);
+      });
   };
 
   const onDelete = useCallback((id) => {
@@ -143,23 +175,14 @@ function PopUpPromo({ obj }) {
           />
         </FormDataItem>
         <div className={"form-group"}>
-          <FormDataItem label="percent" id="percent">
-            <Select
-              datas={percents}
-              name="percent"
-              value={percentUpdate}
-              onChange={(event) => {
-                setPercent(event.target.value);
-              }}
-            />
-          </FormDataItem>
           <FormDataItem label="status" id="status">
             <Select
               datas={statuss}
               name="status"
-              value={statusUpdate}
+              value={statusUpdate ? "1" : "0"}
               onChange={(event) => {
-                setStatus(event.target.value);
+                const parInt = parseInt(event.target.value);
+                setStatus(Boolean(parInt));
               }}
             />
           </FormDataItem>
@@ -173,17 +196,6 @@ function PopUpPromo({ obj }) {
               placeholder="Enter amount.."
               onChange={(event) => {
                 setAmount(event.target.value);
-              }}
-            />
-          </FormDataItem>
-          <FormDataItem label="max amount" id="maxAmount">
-            <Input
-              type="text"
-              name="maxAmount"
-              value={maxAmountUpdate}
-              placeholder="Enter max amount.."
-              onChange={(event) => {
-                setMaxAmount(event.target.value);
               }}
             />
           </FormDataItem>
