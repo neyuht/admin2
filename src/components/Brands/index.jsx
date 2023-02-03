@@ -284,7 +284,7 @@ function Brand() {
             </section>
             {isFilter && (
               <section
-                className={"filter-product"}
+                className={"filter-product filter-product-p"}
                 style={{
                   margin: "20px 0",
                   padding: "20px",
@@ -292,21 +292,35 @@ function Brand() {
                   borderRadius: "4px",
                 }}
               >
-                <div>
-                  <label htmlFor="">Search by brand's name</label>
-                  <div className="filter-product-search">
-                    <Input
-                      type={"text"}
-                      name="search"
-                      value={filter.name}
-                      placeholder="Enter brand"
-                      onChange={onSearch}
-                    />
-                    <FontAwesomeIcon
-                      icon={faMagnifyingGlass}
-                      onClick={onSearch}
-                    />
+                <div className={"filter-products-search"}>
+                  <div>
+                    <label htmlFor="">Search by brand's name</label>
+                    <div className="filter-product-search">
+                      <Input
+                        type={"text"}
+                        name="search"
+                        value={filter.name}
+                        placeholder="Enter brand"
+                        onChange={onSearch}
+                      />
+                      <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        onClick={onSearch}
+                      />
+                    </div>
                   </div>
+                </div>
+                <span className="line"></span>
+                <div className={"filter-products-cta"}>
+                  <Buttons
+                    type="button"
+                    title="submit"
+                    variant="info"
+                    onClick={() => {}}
+                    style={{ color: "#fff" }}
+                  >
+                    Clear search
+                  </Buttons>
                 </div>
               </section>
             )}
@@ -341,14 +355,14 @@ function Brand() {
                   })}
                 </tbody>
               </table>
+              {brands.length === 0 ? (
+                <div className="dashboard-content-footer">
+                  <span className="empty-table" style={{ paddingTop: "10px" }}>
+                    No data
+                  </span>
+                </div>
+              ) : null}
             </section>
-            {brands.length === 0 ? (
-              <div className="dashboard-content-footer">
-                <span className="empty-table" style={{ paddingTop: "10px" }}>
-                  No data
-                </span>
-              </div>
-            ) : null}
             <ul className={"paginations"}>
               <button
                 className="btn-pages button-pagination-move"

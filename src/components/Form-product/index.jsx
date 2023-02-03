@@ -520,7 +520,7 @@ function FormProducts({ fields }) {
             </section>
             {isFilter && (
               <section
-                className={"filter-product"}
+                className={"filter-product filter-product-p"}
                 style={{
                   margin: "20px 0",
                   padding: "20px",
@@ -528,51 +528,65 @@ function FormProducts({ fields }) {
                   borderRadius: "4px",
                 }}
               >
-                <div>
-                  <label>Search by product's name</label>
-                  <div className="filter-product-search">
-                    <Input
-                      type={"text"}
-                      name="search"
-                      value={filter.name}
-                      placeholder="Enter product's name"
-                      onChange={onSearch}
-                    />
-                    <FontAwesomeIcon
-                      icon={faMagnifyingGlass}
-                      onClick={() => {
-                        getDataSearch(filter);
-                      }}
-                    />
+                <div className={"filter-products-search"}>
+                  <div>
+                    <label>Search by product's name</label>
+                    <div className="filter-product-search">
+                      <Input
+                        type={"text"}
+                        name="search"
+                        value={filter.name}
+                        placeholder="Enter product's name"
+                        onChange={onSearch}
+                      />
+                      <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        onClick={() => {
+                          getDataSearch(filter);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label>Sort by status of products</label>
+                    <div className="filter-product-search">
+                      <select
+                        name=""
+                        id=""
+                        value={filter.status}
+                        onChange={(event) => {
+                          const params = {
+                            ...filter,
+                            status: event.target.value,
+                          };
+                          setFilter(params);
+                          getDataSearch(params);
+                        }}
+                      >
+                        <option className="option-filter" value="">
+                          All
+                        </option>
+                        <option className="option-filter" value="1">
+                          Available
+                        </option>
+                        <option className="option-filter" value="0">
+                          Sold Out
+                        </option>
+                      </select>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label>Sort by status of products</label>
-                  <div className="filter-product-search">
-                    <select
-                      name=""
-                      id=""
-                      value={filter.status}
-                      onChange={(event) => {
-                        const params = {
-                          ...filter,
-                          status: event.target.value,
-                        };
-                        setFilter(params);
-                        getDataSearch(params);
-                      }}
-                    >
-                      <option className="option-filter" value="">
-                        All
-                      </option>
-                      <option className="option-filter" value="1">
-                        Available
-                      </option>
-                      <option className="option-filter" value="0">
-                        Sold Out
-                      </option>
-                    </select>
-                  </div>
+                <span className="line"></span>
+                <div className={"filter-products-cta"}>
+                  <Buttons
+                    type="button"
+                    title="submit"
+                    variant="info"
+                    onClick={() => {}}
+                    style={{ color: "#fff" }}
+                  >
+                    Clear search
+                  </Buttons>
                 </div>
               </section>
             )}

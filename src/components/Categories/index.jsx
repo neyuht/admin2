@@ -284,7 +284,7 @@ function CategoriesTab() {
                   </section>
                   {isFilter && (
                     <section
-                      className={"filter-product"}
+                      className={"filter-product filter-product-p"}
                       style={{
                         margin: "20px 0",
                         padding: "20px",
@@ -292,21 +292,35 @@ function CategoriesTab() {
                         borderRadius: "4px",
                       }}
                     >
-                      <div>
-                        <label>Search by category's name</label>
-                        <div className="filter-product-search">
-                          <Input
-                            type={"text"}
-                            name="search"
-                            value={filter.code}
-                            placeholder="Enter category"
-                            onChange={onSearch}
-                          />
-                          <FontAwesomeIcon
-                            icon={faMagnifyingGlass}
-                            onClick={onSearch}
-                          />
+                      <div className={"filter-products-search"}>
+                        <div>
+                          <label>Search by category's name</label>
+                          <div className="filter-product-search">
+                            <Input
+                              type={"text"}
+                              name="search"
+                              value={filter.code}
+                              placeholder="Enter category"
+                              onChange={onSearch}
+                            />
+                            <FontAwesomeIcon
+                              icon={faMagnifyingGlass}
+                              onClick={onSearch}
+                            />
+                          </div>
                         </div>
+                      </div>
+                      <span className="line"></span>
+                      <div className={"filter-products-cta"}>
+                        <Buttons
+                          type="button"
+                          title="submit"
+                          variant="info"
+                          onClick={() => {}}
+                          style={{ color: "#fff" }}
+                        >
+                          Clear search
+                        </Buttons>
                       </div>
                     </section>
                   )}
@@ -344,6 +358,16 @@ function CategoriesTab() {
                         })}
                       </tbody>
                     </table>
+                    {categories.length === 0 ? (
+                      <div className="dashboard-content-footer">
+                        <span
+                          className="empty-table"
+                          style={{ paddingTop: "10px" }}
+                        >
+                          No data
+                        </span>
+                      </div>
+                    ) : null}
                   </section>
                   <ul className={"paginations"}>
                     <button

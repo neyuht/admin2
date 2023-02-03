@@ -225,13 +225,13 @@
 
 .filter-product {
   display: flex;
-  gap: 30px;
+  gap: 15px;
 }
 
 .filter-product-p {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 15px;
 }
 
 .filter-products-cta {

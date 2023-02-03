@@ -210,6 +210,7 @@ function Orders() {
             responsePagins.current[index + 3],
           ]);
         }
+        console.log(data);
         setDataOrders(data);
       })
       .catch(() => {
@@ -397,7 +398,7 @@ function Orders() {
                   <div className="filter-product-search">
                     <Input
                       type={"text"}
-                      name="name"
+                      name="phone"
                       value={filter.phone}
                       placeholder="Enter phone"
                       onChange={onSearch}
@@ -416,7 +417,7 @@ function Orders() {
                   <div className="filter-product-search">
                     <Input
                       type={"email"}
-                      name="name"
+                      name="email"
                       value={filter.email}
                       placeholder="Enter email"
                       onChange={onSearch}
@@ -486,7 +487,6 @@ function Orders() {
                 <th>COSTUMER</th>
                 <th>REVENUE</th>
               </thead>
-
               {dataOrders.length !== 0 ? (
                 <tbody>
                   {dataOrders.map((order, index) => (
