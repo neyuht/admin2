@@ -91,7 +91,7 @@ function OrderItems({
           </span>
         </div>
       </td>
-      <td>{total}</td>
+      <td>{Math.round((total + Number.EPSILON) * 100) / 100}</td>
       <td>
         {payment === 0
           ? "COD"

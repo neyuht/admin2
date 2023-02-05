@@ -16,12 +16,6 @@
   margin-bottom: 50px;
 }
 
-.form-wrapper {
-  width: max-content;
-  /* margin: auto; */
-  padding: 20px 30px;
-}
-
 .form-wrapper,
 .list-promo {
   box-shadow: 0 0 0 0.05mm;

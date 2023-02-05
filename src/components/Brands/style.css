@@ -18,6 +18,7 @@
 
 .form-wrapper {
   width: max-content;
+  margin-top: 50px;
   /* margin: auto; */
   padding: 20px 30px;
 }

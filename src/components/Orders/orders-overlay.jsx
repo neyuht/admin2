@@ -71,9 +71,9 @@ function OrderOverlay({ data }) {
                 <option value="1">Success</option>
               </select>
             </FormDataItem>
-            <div>
+            <div style={{width: "40%"}}>
               <label htmlFor="">Date</label>
-              <p>{data.createdAt}</p>
+              <p>{new Date(data.createdAt).toLocaleDateString("en-GB")}</p>
             </div>
           </div>
           <div className={"form-group description-update"}>
@@ -92,7 +92,8 @@ function OrderOverlay({ data }) {
             <span>
               <strong>Total: </strong>
             </span>
-            <span>{data.total}</span>
+            <span>{Math.round((data.total + Number.EPSILON) * 100) / 100}</span>
+            <span style={{color: "green", fontWeight: "bold"}}> VND</span>
           </div>
         </div>
         <div className="list-order-items">
