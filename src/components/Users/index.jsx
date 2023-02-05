@@ -40,9 +40,7 @@ function UsersTab() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState(true);
-  const [filter, setFilter] = useState({
-    query: "",
-  });
+  const [filter, setFilter] = useState("");
   const [search, setSearch] = useSearchParams({});
   const [indexPagin, setIndexPagin] = useState(1);
   const [users, setUsers] = useState([]);
@@ -128,17 +126,14 @@ function UsersTab() {
 
   const onSearch = async (e) => {
     const value = e.target.value;
-    setFilter((prev) => ({
-      ...prev,
-      query: value,
-    }));
+    setFilter(value);
+
     if (timmerId.current) clearTimeout(timmerId.current);
     timmerId.current = setTimeout(() => {
-      const { query, ...rest } = filter;
       const params = {
         query: value,
-        ...rest,
       };
+
       getDataSearch(params);
     }, 600);
   };
@@ -320,7 +315,7 @@ function UsersTab() {
                       <Input
                         type={"text"}
                         name="search"
-                        value={filter.query}
+                        value={filter}
                         placeholder="Enter name or email"
                         onChange={onSearch}
                       />
@@ -337,7 +332,10 @@ function UsersTab() {
                     type="button"
                     title="submit"
                     variant="info"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setFilter("");
+                      setSearchparams({});
+                    }}
                     style={{ color: "#fff" }}
                   >
                     Clear search

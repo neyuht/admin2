@@ -1,18 +1,26 @@
 import Input from "../../scripts/components/input";
 import Button from "../../scripts/components/button";
 import FormDataItem from "../../scripts/components/form-data-item";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import axiosClient from "../../scripts/helpers/config";
 import React from "react";
 import Category from "./Category";
-import http from "../../utils/http";
+import { validation } from "../../scripts/helpers/validation2";
+
+import {
+  changeStyleElementByObject,
+  clearStyle,
+} from "../../scripts/helpers/styles-change";
 import showHide from "../../scripts/helpers/showHide";
 import Brand from "./Brand";
+import { regex } from "../../scripts/helpers/constants";
+import http from "../../utils/http";
 
 function PopUpProduct({ id, data }) {
   console.log("data", data);
   const [update, setUpdate] = useState(data);
   const [image, setImage] = useState(0);
+  const imageRef = useRef();
   const [indexImage, setIndexImage] = useState(0);
   const [flash, setFlash] = useState({
     action: false,
@@ -20,27 +28,94 @@ function PopUpProduct({ id, data }) {
     message: "",
   });
 
+  console.log(update);
+
   const onSubmit = async (event) => {
     event.preventDefault();
     const id = update.id;
-    const { category, ...rest } = update;
+    const {
+      category,
+      brand,
+      quantity,
+      unitPrice,
+      name,
+      status,
+      description,
+      ...rest
+    } = update;
+
     const url = `${process.env.REACT_APP_URL}/products/${id}`;
 
     const payload = {
-      ...rest,
-      categoryId: category.id,
+      quantity: Number(quantity),
+      unitPrice: Number(unitPrice),
+      category: Number(category.id),
+      brand: Number(brand.id),
+      description2: description,
+      name,
+      status,
+      images: imageRef.current.files.length,
     };
-    console.log("payload", payload);
-    const response = await http.put(url, payload);
+
+    const regexT = {
+      unitPrice: [
+        {
+          type: regex.regexGreaterThan0,
+          message: "More than 0",
+        },
+      ],
+      quantity: [
+        {
+          type: regex.regexGreaterThan0,
+          message: "More than 0",
+        },
+      ],
+    };
+
+    console.log(payload);
+
+    clearStyle(payload);
+
+    const empty = validation(payload, regexT);
+
+    console.log(empty);
+    if (empty.error) {
+      changeStyleElementByObject(
+        { ...empty.field },
+        "boxShadow",
+        "0 0 0 0.3mm red"
+      );
+      return;
+    }
+
+    const {
+      brand: brandId,
+      category: categoryId,
+      description2,
+      ...rest2
+    } = payload;
+
+    console.log("data send: ", {
+      ...rest2,
+      brandId,
+      categoryId,
+      description: description2,
+    });
+
+    const response = await http.put(url, {
+      ...rest2,
+      brandId,
+      categoryId,
+      description: description2,
+    });
     if (response.status === 200) {
       const { id } = response.data.data;
-      const img = document.querySelector(".image-main-selected img").src;
 
       const bodyFormData = new FormData();
-      // Object.values(images).forEach((images) => {
-      //   bodyFormData.append("images", images);
-      // });
-      bodyFormData.append("type", "3");
+      Object.values(imageRef.current.files).forEach((images) => {
+        bodyFormData.append("images", images);
+      });
+      bodyFormData.append("type", "2");
       bodyFormData.append("id", id + "");
       const response2 = await axiosClient
         .post(
@@ -109,6 +184,7 @@ function PopUpProduct({ id, data }) {
       ...prev,
       [key]: value,
     }));
+    console.log(update);
   }, []);
 
   return (
@@ -118,6 +194,7 @@ function PopUpProduct({ id, data }) {
         event.stopPropagation();
       }}
     >
+      {console.log("update123131312", update)}
       <h2 className="heading">Products</h2>
       <div className="product-form-wrapper">
         <div className={"form-img"} style={{ width: "250px" }}>
@@ -126,7 +203,7 @@ function PopUpProduct({ id, data }) {
             style={{ width: "250px", margin: "0px" }}
           >
             <div className={"images image-main-selected"}>
-              {/* <img src={image ? image : update.imageList[0]} alt="" /> */}
+              <img src={image ? image : update.image} alt="" />
             </div>
             {/* <div className="list-images">
               {update.imageList.map((item, index) =>
@@ -154,6 +231,7 @@ function PopUpProduct({ id, data }) {
             className={"products-name"}
             accept="image/png, image/jpeg"
             multiple
+            ref={imageRef}
           />
         </div>
         <div className="form-product-update">
@@ -161,7 +239,7 @@ function PopUpProduct({ id, data }) {
             <FormDataItem label="Product's Name" id="code">
               <Input
                 type="text"
-                name="productName"
+                name="name"
                 placeholder="Enter product's name.."
                 value={update.name}
                 onChange={(e) => {
@@ -177,7 +255,7 @@ function PopUpProduct({ id, data }) {
                   onChange={(e) => {
                     const id = e.target.value;
                     const brand = {
-                      ...update.category,
+                      ...update.brand,
                       id,
                     };
                     handleChange("brand", brand);
@@ -189,7 +267,7 @@ function PopUpProduct({ id, data }) {
               <FormDataItem label="Price" id="price">
                 <Input
                   type="text"
-                  name="price"
+                  name="unitPrice"
                   placeholder="Enter product's price.."
                   value={update.unitPrice}
                   onChange={(e) => {
@@ -244,7 +322,7 @@ function PopUpProduct({ id, data }) {
             <div className={"form-group description-update"}>
               <label>Description</label>
               <textarea
-                name="description"
+                name="description2"
                 type="text"
                 className={"products-description-update"}
                 placeholder="Product's Description"

@@ -3,7 +3,7 @@ import React from "react";
 function ProductItem({
   id,
   productName,
-  description,
+  brand,
   price,
   quantity,
   status,
@@ -31,7 +31,7 @@ function ProductItem({
         <p>{quantity}</p>
       </td>
       <td className="product-list-description">
-        <p>{description}</p>
+        <p>{brand}</p>
       </td>
     </tr>
   );

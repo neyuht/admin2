@@ -166,17 +166,14 @@ function CategoriesTab() {
 
   const onSearch = async (e) => {
     const value = e.target.value;
-    setFilter((prev) => ({
-      ...prev,
-      name: value,
-    }));
+    setFilter(value);
+
     if (timmerId.current) clearTimeout(timmerId.current);
     timmerId.current = setTimeout(() => {
-      const { name, ...rest } = filter;
       const params = {
         name: value,
-        ...rest,
       };
+
       getDataSearch(params);
     }, 600);
   };
@@ -213,6 +210,8 @@ function CategoriesTab() {
         showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, [searchParams]);
+
+  console.log(filter);
 
   return (
     <>
@@ -299,7 +298,7 @@ function CategoriesTab() {
                             <Input
                               type={"text"}
                               name="search"
-                              value={filter.code}
+                              value={filter}
                               placeholder="Enter category"
                               onChange={onSearch}
                             />
@@ -316,7 +315,10 @@ function CategoriesTab() {
                           type="button"
                           title="submit"
                           variant="info"
-                          onClick={() => {}}
+                          onClick={() => {
+                            setFilter("");
+                            setSearchparams({});
+                          }}
                           style={{ color: "#fff" }}
                         >
                           Clear search

@@ -36,6 +36,11 @@ const statuss = new Array(2).fill(1).map((item, index) => ({
 
 const size = 8;
 
+const initFiler = {
+  code: "",
+  status: "",
+};
+
 function Promo() {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
@@ -50,10 +55,7 @@ function Promo() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState(1);
-  const [filter, setFilter] = useState({
-    code: "",
-    status: "",
-  });
+  const [filter, setFilter] = useState(initFiler);
   const [indexPagin, setIndexPagin] = useState(1);
   const [promotions, setPromotions] = useState([]);
   const [pagins, setPagins] = useState([1]);
@@ -490,7 +492,10 @@ function Promo() {
                     type="button"
                     title="submit"
                     variant="info"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setFilter(initFiler);
+                      setSearchparams({});
+                    }}
                     style={{ color: "#fff" }}
                   >
                     Clear search

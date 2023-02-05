@@ -24,14 +24,16 @@ import { regex } from "../../scripts/helpers/constants";
 
 const size = 4;
 
+const initFilter = {
+  name: "",
+  status: "",
+};
+
 function FormProducts({ fields }) {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
   });
-  const [filter, setFilter] = useState({
-    name: "",
-    status: "",
-  });
+  const [filter, setFilter] = useState(initFilter);
   // const [statePagin, setStatePagin] = useState({
   //   size: 4,
   //   step: 1,
@@ -163,6 +165,8 @@ function FormProducts({ fields }) {
       category,
       brand,
     };
+
+    console.log(check);
     clearStyle(check);
 
     const empty = validation(check, regexT);
@@ -582,7 +586,10 @@ function FormProducts({ fields }) {
                     type="button"
                     title="submit"
                     variant="info"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setFilter(initFilter);
+                      setSearchparams({});
+                    }}
                     style={{ color: "#fff" }}
                   >
                     Clear search
@@ -608,7 +615,7 @@ function FormProducts({ fields }) {
                       <ProductItem
                         id={product.id}
                         productName={product.name}
-                        description={product.description}
+                        brand={product.brand.name}
                         price={product.unitPrice}
                         quantity={product.quantity}
                         status={product.status}

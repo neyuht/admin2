@@ -30,10 +30,7 @@ function Brand() {
     message: "",
   });
   const [name, setName] = useState("");
-  const [filter, setFilter] = useState({
-    code: "",
-    status: "",
-  });
+  const [filter, setFilter] = useState("");
   const [indexPagin, setIndexPagin] = useState(1);
   const [brands, setBrands] = useState([]);
   const [pagins, setPagins] = useState([1]);
@@ -161,17 +158,14 @@ function Brand() {
 
   const onSearch = async (e) => {
     const value = e.target.value;
-    setFilter((prev) => ({
-      ...prev,
-      name: value,
-    }));
+    setFilter(value);
+
     if (timmerId.current) clearTimeout(timmerId.current);
     timmerId.current = setTimeout(() => {
-      const { name, ...rest } = filter;
       const params = {
         name: value,
-        ...rest,
       };
+
       getDataSearch(params);
     }, 600);
   };
@@ -299,7 +293,7 @@ function Brand() {
                       <Input
                         type={"text"}
                         name="search"
-                        value={filter.name}
+                        value={filter}
                         placeholder="Enter brand"
                         onChange={onSearch}
                       />
@@ -316,7 +310,10 @@ function Brand() {
                     type="button"
                     title="submit"
                     variant="info"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setFilter("");
+                      setSearchparams({});
+                    }}
                     style={{ color: "#fff" }}
                   >
                     Clear search

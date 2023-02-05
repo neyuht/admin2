@@ -3,6 +3,7 @@ import User from "../../assets/icons/user.png";
 import DoneIcon from "../../assets/icons/done.svg";
 import CancelIcon from "../../assets/icons/cancel.svg";
 import Pending from "../../assets/icons/pending.svg";
+import Clock from "../../assets/icons/clock.svg";
 
 function OrderItems({
   id,
@@ -12,6 +13,7 @@ function OrderItems({
   firstName,
   lastName,
   total,
+  payment,
   onClick,
 }) {
   return (
@@ -57,6 +59,15 @@ function OrderItems({
             />
             <span>Pending</span>
           </div>
+        ) : status === 3 ? (
+          <div>
+            <img
+              src={Clock}
+              alt="pending-icon"
+              className="dashboard-content-icon"
+            />
+            <span>Waiting for payment</span>
+          </div>
         ) : null}
       </td>
       <td>
@@ -81,6 +92,15 @@ function OrderItems({
         </div>
       </td>
       <td>{total}</td>
+      <td>
+        {payment === 0
+          ? "COD"
+          : payment === 1 && status === 3
+          ? "Waiting for payment"
+          : payment === 1
+          ? "Payed"
+          : null}
+      </td>
     </tr>
   );
 }

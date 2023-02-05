@@ -22,21 +22,23 @@ import OrderOverlay from "../../components/Orders/orders-overlay";
 import { useSearchParams } from "react-router-dom";
 import showHide from "../../scripts/helpers/showHide";
 
+const initFiler = {
+  username: "",
+  status: "",
+  endDate: "",
+  startDate: "",
+  min: "",
+  max: "",
+  phone: "",
+  email: "",
+  id: "",
+};
+
 function Orders() {
   const [searchParams, setSearchparams] = useSearchParams({
     page: 1,
   });
-  const [filter, setFilter] = useState({
-    username: "",
-    status: "",
-    endDate: "",
-    startDate: "",
-    min: "",
-    max: "",
-    phone: "",
-    email: "",
-    id: "",
-  });
+  const [filter, setFilter] = useState(initFiler);
   const [flash, setFlash] = useState({
     action: false,
     type: "",
@@ -182,13 +184,14 @@ function Orders() {
     let param = "?";
     let sum = 0;
     for (const [key, value] of searchParams.entries()) {
-      if (key === "endDate" || key === "startDate") {
-        const date = new Date(value);
-        const timestamp = Math.floor(date.getTime() / 1000);
-        param += `${key}=${timestamp}&`;
-      } else {
-        param += `${key}=${value}&`;
-      }
+      // if (key === "endDate" || key === "startDate") {
+      //   const date = new Date(value);
+      //   const timestamp = Math.floor(date.getTime() / 1000);
+      //   param += `${key}=${timestamp}&`;
+      // } else {
+      //   param += `${key}=${value}&`;
+      // }
+      param += `${key}=${value}&`;
     }
     axiosClient
       .get(`${process.env.REACT_APP_URL}/orders${param}`)
@@ -210,7 +213,6 @@ function Orders() {
             responsePagins.current[index + 3],
           ]);
         }
-        console.log(data);
         setDataOrders(data);
       })
       .catch(() => {
@@ -459,6 +461,9 @@ function Orders() {
                       <option className="option-filter" value="2">
                         Canceled
                       </option>
+                      <option className="option-filter" value="3">
+                        Waiting for payment
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -469,7 +474,10 @@ function Orders() {
                   type="button"
                   title="submit"
                   variant="info"
-                  onClick={() => {}}
+                  onClick={() => {
+                    setFilter(initFiler);
+                    setSearchparams({});
+                  }}
                   style={{ color: "#fff" }}
                 >
                   Clear search
@@ -479,6 +487,7 @@ function Orders() {
           )}
 
           <section className="table-promo">
+            {console.log("orders", dataOrders)}
             <table>
               <thead>
                 <th>ID</th>
@@ -486,21 +495,37 @@ function Orders() {
                 <th>STATUS</th>
                 <th>COSTUMER</th>
                 <th>REVENUE</th>
+                <th>METHOD PAYMENT</th>
               </thead>
               {dataOrders.length !== 0 ? (
                 <tbody>
-                  {dataOrders.map((order, index) => (
+                  {Array.isArray(dataOrders) ? (
+                    dataOrders.map((order, index) => (
+                      <OrderItems
+                        id={order.id}
+                        createdAt={order.createdAt}
+                        status={order.status}
+                        image={order.user.image}
+                        firstName={order.user.firstName}
+                        lastName={order.user.lastName}
+                        total={order.total}
+                        payment={order.paymentMethod}
+                        onClick={openSetting}
+                      />
+                    ))
+                  ) : (
                     <OrderItems
-                      id={order.id}
-                      createdAt={order.createdAt}
-                      status={order.status}
-                      image={order.user.image}
-                      firstName={order.user.firstName}
-                      lastName={order.user.lastName}
-                      total={order.total}
+                      id={dataOrders.id}
+                      createdAt={dataOrders.createdAt}
+                      status={dataOrders.status}
+                      image={dataOrders.user.image}
+                      firstName={dataOrders.user.firstName}
+                      lastName={dataOrders.user.lastName}
+                      total={dataOrders.total}
+                      payment={dataOrders.paymentMethod}
                       onClick={openSetting}
                     />
-                  ))}
+                  )}
                 </tbody>
               ) : null}
             </table>
