@@ -93,7 +93,6 @@ function Orders() {
       ...prev,
       [key]: value,
     }));
-    console.log("filter", filter);
     // debounce: có đang gõ hay ko
     if (timmerId.current) clearTimeout(timmerId.current);
     // dừng lại rồi mới gửi request
@@ -182,15 +181,7 @@ function Orders() {
 
   useEffect(() => {
     let param = "?";
-    let sum = 0;
     for (const [key, value] of searchParams.entries()) {
-      // if (key === "endDate" || key === "startDate") {
-      //   const date = new Date(value);
-      //   const timestamp = Math.floor(date.getTime() / 1000);
-      //   param += `${key}=${timestamp}&`;
-      // } else {
-      //   param += `${key}=${value}&`;
-      // }
       param += `${key}=${value}&`;
     }
     axiosClient
@@ -487,7 +478,6 @@ function Orders() {
           )}
 
           <section className="table-promo">
-            {console.log("orders", dataOrders)}
             <table>
               <thead>
                 <th>ID</th>

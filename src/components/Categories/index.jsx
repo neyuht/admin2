@@ -120,7 +120,6 @@ function CategoriesTab() {
     const category = await axiosClient.get(
       `${process.env.REACT_APP_URL}/categories/${id}`
     );
-    console.log(category);
     setOverlay(category.data);
   };
 
@@ -210,8 +209,6 @@ function CategoriesTab() {
         showHide(true, "errors", "Oops, something went wrong", setFlash);
       });
   }, [searchParams]);
-
-  console.log(filter);
 
   return (
     <>

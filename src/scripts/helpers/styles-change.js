@@ -17,8 +17,6 @@ const changeStyleElementByObject = (obj, style, styleChange) => {
 
 const clearStyle = (obj) => {
   for (const [key, value] of Object.entries(obj)) {
-    console.log(key);
-
     const element = document.querySelector(`[name=${key}]`);
     element.style["boxShadow"] = "0 0 0 0.3mm";
     const parentElement = element.parentElement;

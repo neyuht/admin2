@@ -17,7 +17,6 @@ import { regex } from "../../scripts/helpers/constants";
 import http from "../../utils/http";
 
 function PopUpProduct({ id, data }) {
-  console.log("data", data);
   const [update, setUpdate] = useState(data);
   const [image, setImage] = useState(0);
   const imageRef = useRef();
@@ -27,8 +26,6 @@ function PopUpProduct({ id, data }) {
     type: "",
     message: "",
   });
-
-  console.log(update);
 
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -72,13 +69,10 @@ function PopUpProduct({ id, data }) {
       ],
     };
 
-    console.log(payload);
-
     clearStyle(payload);
 
     const empty = validation(payload, regexT);
 
-    console.log(empty);
     if (empty.error) {
       changeStyleElementByObject(
         { ...empty.field },
@@ -94,13 +88,6 @@ function PopUpProduct({ id, data }) {
       description2,
       ...rest2
     } = payload;
-
-    console.log("data send: ", {
-      ...rest2,
-      brandId,
-      categoryId,
-      description: description2,
-    });
 
     const response = await http.put(url, {
       ...rest2,
@@ -134,37 +121,6 @@ function PopUpProduct({ id, data }) {
     window.location.reload();
   };
 
-  const deleteVariant = (e) => {
-    axiosClient
-      .delete(`${process.env.REACT_APP_URL}/variants/${e.target.id}`)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch(() => {
-        showHide(true, "errors", "Oops, something when wrong", setFlash);
-      });
-  };
-
-  const ImagesList = (image) => {
-    return (
-      <figure
-        className={`product-images-wrapper ${image.classes}`}
-        onClick={image.onClick}
-      >
-        <img src={image.image} alt="" data-id={image.index} />
-      </figure>
-    );
-  };
-
-  const changeImage = (e) => {
-    const list = document.querySelectorAll(".product-images-wrapper");
-    list.forEach((item) => {
-      item.classList.remove("product-images-wrapper-active");
-    });
-    e.target.parentNode.classList.add("product-images-wrapper-active");
-    setImage(e.target.src);
-  };
-
   const onDelete = useCallback(async (_id) => {
     // eslint-disable-next-line no-restricted-globals
     const check = confirm("Are you sure ?");
@@ -184,7 +140,6 @@ function PopUpProduct({ id, data }) {
       ...prev,
       [key]: value,
     }));
-    console.log(update);
   }, []);
 
   return (
@@ -194,7 +149,6 @@ function PopUpProduct({ id, data }) {
         event.stopPropagation();
       }}
     >
-      {console.log("update123131312", update)}
       <h2 className="heading">Products</h2>
       <div className="product-form-wrapper">
         <div className={"form-img"} style={{ width: "250px" }}>
@@ -205,25 +159,6 @@ function PopUpProduct({ id, data }) {
             <div className={"images image-main-selected"}>
               <img src={image ? image : update.image} alt="" />
             </div>
-            {/* <div className="list-images">
-              {update.imageList.map((item, index) =>
-                index === 0 ? (
-                  <ImagesList
-                    image={item}
-                    classes={"product-images-wrapper-active"}
-                    index={index}
-                    onClick={changeImage}
-                  />
-                ) : (
-                  <ImagesList
-                    image={item}
-                    classes={""}
-                    index={index}
-                    onClick={changeImage}
-                  />
-                )
-              )}
-            </div> */}
           </div>
           <input
             name="images"

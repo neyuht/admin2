@@ -15,7 +15,6 @@ export const convertDate = (dateT) => {
       : "0" + (date.getMonth() + 1);
   const year = date.getFullYear();
   const convert = `${year}-${month}-${day}`;
-  console.log("date", convert);
   return convert;
 };
 

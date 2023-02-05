@@ -18,11 +18,6 @@ import {
 } from "../../scripts/helpers/validation2";
 import { regex } from "../../scripts/helpers/constants";
 
-const percents = new Array(101).fill(1).map((item, index) => ({
-  title: index,
-  value: index,
-}));
-
 const statuss = new Array(2).fill(1).map((item, index) => ({
   title: `${Boolean(index) ? "Available" : "Expired"}`,
   value: `${index}`,

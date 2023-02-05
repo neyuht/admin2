@@ -166,12 +166,10 @@ function FormProducts({ fields }) {
       brand,
     };
 
-    console.log(check);
     clearStyle(check);
 
     const empty = validation(check, regexT);
 
-    console.log(empty);
     if (empty.error) {
       changeStyleElementByObject(
         { ...empty.field },
@@ -180,8 +178,6 @@ function FormProducts({ fields }) {
       );
       return;
     }
-
-    console.log("data send: ", data);
 
     const response = await http.post(
       `${process.env.REACT_APP_URL}/products`,
@@ -197,7 +193,6 @@ function FormProducts({ fields }) {
       });
       bodyFormData.append("type", "2");
       bodyFormData.append("id", id + "");
-      console.log("1", bodyFormData);
       const response2 = await axiosClient
         .post(
           `${process.env.REACT_APP_URL}/images/upload-multiple/`,
@@ -255,7 +250,6 @@ function FormProducts({ fields }) {
     const file = document.querySelector(".modal-import-excel input");
     const bodyFormData = new FormData();
     bodyFormData.append("file", file.files[0]);
-    console.log(file.files);
     axiosClient
       .post(`${process.env.REACT_APP_URL}/products/import`, bodyFormData, {
         headers: {
@@ -352,8 +346,6 @@ function FormProducts({ fields }) {
         showHide(true, "errors", "Oops, something when wrong", setFlash);
       });
   }, [searchParams]);
-
-  console.log(responsePagins.current, lists.current);
 
   return (
     <main className={"main-wrapper"}>

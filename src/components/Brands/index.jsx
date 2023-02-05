@@ -174,7 +174,6 @@ function Brand() {
     const promo = await axiosClient.get(
       `${process.env.REACT_APP_URL}/brands/${id}`
     );
-    console.log("api", promo.data);
     setOverlay(promo.data);
   };
 

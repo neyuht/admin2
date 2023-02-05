@@ -24,16 +24,6 @@ import {
 import { regex } from "../../scripts/helpers/constants";
 import { changeStyleElementByObject } from "../../scripts/helpers/styles-change";
 
-const percents = new Array(101).fill(1).map((item, index) => ({
-  title: index,
-  value: index,
-}));
-
-const statuss = new Array(2).fill(1).map((item, index) => ({
-  title: `${Boolean(index) ? "Expired" : "Available"}`,
-  value: index + 1,
-}));
-
 const size = 8;
 
 const initFiler = {
@@ -60,7 +50,6 @@ function Promo() {
   const [promotions, setPromotions] = useState([]);
   const [pagins, setPagins] = useState([1]);
   const [isFilter, setIsFilter] = useState(false);
-  const [timer, setTimer] = useState("");
   const [overlay, setOverlay] = useState();
   const [popup, setPopup] = useState(false);
   const responsePagins = useRef([]);
@@ -293,7 +282,6 @@ function Promo() {
     const promo = await axiosClient.get(
       `${process.env.REACT_APP_URL}/promotion/${id}`
     );
-    console.log("api", promo.data);
     setOverlay(promo.data);
   };
 
