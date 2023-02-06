@@ -34,13 +34,6 @@ function FormProducts({ fields }) {
     page: 1,
   });
   const [filter, setFilter] = useState(initFilter);
-  // const [statePagin, setStatePagin] = useState({
-  //   size: 4,
-  //   step: 1,
-  //   currentIndex: +searchParams.get("page"),
-  //   start: 0,
-  //   end: 3,
-  // });
   const [products, setProducts] = useState([]);
   const name = useRef("");
   const status = useRef("");
@@ -58,11 +51,6 @@ function FormProducts({ fields }) {
   });
   const [popupImport, setPopupImport] = useState(false);
   const [isFilter, setIsFilter] = useState(false);
-
-  /**
-   *  Code của detail
-   */
-  // const [countForm, setCountForm] = useState(1);
 
   /**
    * nhận vào currentPage (page hiện tại)
@@ -127,14 +115,14 @@ function FormProducts({ fields }) {
     const category = form["category"].value;
     const status = form["status"].value;
     const images = Array.from(form["images"].files);
-    const description2 = form["description2"].value;
+    const descriptions = form["descriptions"].value;
     const brand = form["brand"].value;
     const unitPrice = form["unitPrice"].value;
     const quantity = form["quantity"].value;
     const data = {
       name,
       status: true,
-      description: description2,
+      description: descriptions,
       categoryId: category,
       brandId: brand,
       id: 0,
@@ -161,7 +149,7 @@ function FormProducts({ fields }) {
     const check = {
       ...rest,
       images: images.length,
-      description2,
+      descriptions,
       category,
       brand,
     };
@@ -433,7 +421,7 @@ function FormProducts({ fields }) {
                     <div className={"form-group"}>
                       <label htmlFor="">Description</label>
                       <textarea
-                        name="description2"
+                        name="descriptions"
                         ref={description}
                         type="text"
                         className={"products-description"}

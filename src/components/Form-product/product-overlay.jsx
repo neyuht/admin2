@@ -167,6 +167,7 @@ function PopUpProduct({ id, data }) {
             accept="image/png, image/jpeg"
             multiple
             ref={imageRef}
+            style={{ width: "250px", marginTop: "15px" }}
           />
         </div>
         <div className="form-product-update">

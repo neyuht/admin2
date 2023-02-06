@@ -280,3 +280,10 @@ label {
   gap: 8px;
   margin: 10px;
 }
+
+.wapper {
+  width: 98%;
+  background-color: #fff;
+  padding: 50px;
+  border-radius: 5px;
+}

@@ -171,7 +171,7 @@ export const validationDate = (date1) => {
   if (year < currentYear) {
     return {
       error: true,
-      [date1F]: "Year not valid",
+      [date1F]: "Date not valid",
     };
   }
   if (month < currentMonth) {
