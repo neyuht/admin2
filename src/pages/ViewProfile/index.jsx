@@ -1,14 +1,17 @@
 import React from "react";
 import axiosClient from "../../scripts/helpers/config";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "../styles.css";
 
 function ViewProfile() {
+  const [admindata, setAdmindata] = useState([]);
   useEffect(() => {
     axiosClient
-      .get(`http://localhost:8080/api/v1/public/categories`)
+      .get(`http://localhost:8080/api/v1/admin/users/info`)
       .then((response) => {
         const data = response.data;
+        setAdmindata(data);
+        console.log(admindata);
       });
   }, []);
   return (
@@ -17,6 +20,7 @@ function ViewProfile() {
         <div className="dashboard-content-header">
           <h2>View Profile</h2>
         </div>
+
         <div className="wapper">
           <div className="admin-left">
             <div className="avatar-admin">
@@ -27,27 +31,23 @@ function ViewProfile() {
           <div className="admin-right">
             <div className="left">
               <label>Login Name</label>
-              <div className="buttom-text">Lorem ipsum dolor sit amet</div>
+              <div className="buttom-text">{admindata.loginName}</div>
             </div>
             <div className="right">
               <label>CreateAt</label>
-              <div className="buttom-text">Lorem ipsum dolor sit amet</div>
+              <div className="buttom-text">
+                {new Date(admindata.createdAt).toLocaleDateString("en-GB")}
+              </div>
             </div>
             <div className="left">
-              <label>Status</label>
-              <div className="buttom-text">Lorem ipsum dolor sit amet</div>
+              <label>ID</label>
+              <div className="buttom-text">#{admindata.id}</div>
             </div>
             <div className="right">
               <label>UpdateAt</label>
-              <div className="buttom-text">Lorem ipsum dolor sit amet</div>
-            </div>
-            <div className="left">
-              <label>Super Admin</label>
-              <div className="buttom-text">Lorem ipsum dolor sit amet</div>
-            </div>
-            <div className="right">
-              <label>Password</label>
-              <div className="buttom-text">Lorem ipsum dolor sit amet</div>
+              <div className="buttom-text">
+                {new Date(admindata.updatedAt).toLocaleDateString("en-GB")}
+              </div>
             </div>
           </div>
         </div>
